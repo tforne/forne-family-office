@@ -1,0 +1,5 @@
+import type { ContractDto } from "@/lib/dto/contract.dto";
+export const mockContracts: ContractDto[] = [
+  { id: "1", contractNo: "CONT-0001", description: "Contrato vivienda Barcelona", status: "Signed", customerNo: "C0001", customerName: "Cliente Demo", fixedRealEstateNo: "FRE-001", fixedRealEstateDescription: "Piso Barcelona", startingDate: "2026-01-01", expirationDate: "2026-12-31", contractDate: "2025-12-20", invoicePeriod: "Month", nextInvoiceDate: "2026-05-01", annualAmount: 12000, amountPerPeriod: 1000, amountRentalDeposit: 2000, email: "tenant@example.com", phoneNo: "600000000" },
+  { id: "2", contractNo: "CONT-0002", description: "Contrato local Granollers", status: "Canceled", customerNo: "C0001", customerName: "Cliente Demo", fixedRealEstateNo: "FRE-002", fixedRealEstateDescription: "Local Granollers", startingDate: "2025-01-01", expirationDate: "2025-12-31", contractDate: "2024-12-15", invoicePeriod: "Month", nextInvoiceDate: null, annualAmount: 9600, amountPerPeriod: 800, amountRentalDeposit: 1500, email: "tenant@example.com", phoneNo: "600000000" }
+];
