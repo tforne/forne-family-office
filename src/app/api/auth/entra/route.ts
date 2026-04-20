@@ -1,8 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/config/env";
 
-export async function GET() {
-  if (!env.entraAuthority || !env.entraClientId || !env.entraRedirectUri) {
+export async function GET(req: NextRequest) {
+  if (!env.entraAuthority || !env.entraClientId) {
+    return NextResponse.json({ error: "Falta configuración de Entra." }, { status: 500 });
+  }
+
+  const redirectUri = env.entraRedirectUri || `${req.nextUrl.origin}/api/auth/callback`;
+  if (!redirectUri) {
     return NextResponse.json({ error: "Falta configuración de Entra." }, { status: 500 });
   }
 
@@ -17,7 +22,7 @@ export async function GET() {
 
   url.searchParams.set("client_id", env.entraClientId);
   url.searchParams.set("response_type", "id_token");
-  url.searchParams.set("redirect_uri", env.entraRedirectUri);
+  url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_mode", "form_post");
   url.searchParams.set("scope", "openid profile email");
   url.searchParams.set("nonce", crypto.randomUUID());

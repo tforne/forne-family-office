@@ -11,16 +11,29 @@ function normalizeTenantId(value: string) {
   }
 }
 
+function normalizeUrl(value: string) {
+  return value.trim().replace(/\/$/, "");
+}
+
 export const env = {
   useMockApi: process.env.USE_MOCK_API !== "false",
   useDemoLogin: process.env.USE_DEMO_LOGIN !== "false",
-  appBaseUrl: process.env.APP_BASE_URL || "http://localhost:3000",
+  appBaseUrl: normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000"),
   entraTenantId: process.env.ENTRA_TENANT_ID || "",
   entraClientId: process.env.ENTRA_CLIENT_ID || "",
   entraClientSecret: process.env.ENTRA_CLIENT_SECRET || "",
-  entraAuthority: process.env.ENTRA_AUTHORITY || "",
-  entraIssuer: process.env.ENTRA_ISSUER || "",
-  entraRedirectUri: process.env.ENTRA_REDIRECT_URI || "",
+  entraAuthority:
+    process.env.ENTRA_AUTHORITY ||
+    (process.env.ENTRA_TENANT_ID ? `https://login.microsoftonline.com/${process.env.ENTRA_TENANT_ID}` : ""),
+  entraIssuer:
+    process.env.ENTRA_ISSUER ||
+    (process.env.ENTRA_AUTHORITY
+      ? `${normalizeUrl(process.env.ENTRA_AUTHORITY)}/v2.0`
+      : process.env.ENTRA_TENANT_ID
+      ? `https://login.microsoftonline.com/${process.env.ENTRA_TENANT_ID}/v2.0`
+      : ""),
+  entraRedirectUri:
+    process.env.ENTRA_REDIRECT_URI || `${normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000")}/api/auth/callback`,
   bcBaseUrl: process.env.BC_BASE_URL || "",
   bcTenantId: normalizeTenantId(process.env.BC_TENANT_ID || process.env.ENTRA_TENANT_ID || ""),
   bcEnvironment: process.env.BC_ENVIRONMENT || "",
