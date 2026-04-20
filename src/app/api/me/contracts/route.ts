@@ -1,3 +1,6 @@
 import { NextResponse } from "next/server";
-import { mockContracts } from "@/lib/mock/contracts";
-export async function GET() { return NextResponse.json(mockContracts); }
+import { getContracts } from "@/lib/portal/contracts.service";
+
+export async function GET() {
+  return NextResponse.json(await getContracts());
+}

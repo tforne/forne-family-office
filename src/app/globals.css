@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: #f7f3ec;
@@ -11,4 +9,4 @@ body {
 }
 * { box-sizing: border-box; }
 a { text-decoration: none; }
-button, input, textarea { font: inherit; }
+button, input { font: inherit; }

@@ -1,38 +1,29 @@
-# Forné Family Office - Proyecto final
+# Forné Family Office - Phase 3 Lite
 
-Proyecto demo en Next.js + Tailwind con:
-- Landing pública de **Forné Family Office**
-- Zona privada de clientes / inquilinos
-- Endpoints internos `/api/me/*` con mocks
-- Login demo con cookie
-- Middleware para proteger `/portal`
+Base realista para pasar a integración real.
 
-## Arranque
+## Qué incluye
+- Landing pública
+- Portal privado
+- Login demo y login con Entra preparado
+- Middleware de protección
+- `/api/me`, `/api/me/contracts`, `/api/me/invoices`, `/api/me/incidents`, `/api/me/documents`
+- Cliente OAuth para Business Central
+- Fallback a mocks
 
-```bash
-npm install
-npm run dev
-```
+## Modo demo
+1. Copia `.env.example` a `.env.local`
+2. Deja:
+   - `USE_DEMO_LOGIN=true`
+   - `USE_MOCK_API=true`
 
-## Rutas
+## Modo real
+1. `USE_DEMO_LOGIN=false`
+2. `USE_MOCK_API=false`
+3. Completa variables `ENTRA_*`
+4. Completa variables `BC_*`
 
-- `/` Landing pública
-- `/alquileres`
-- `/contacto`
-- `/login`
-- `/portal`
-- `/portal/contracts`
-- `/portal/invoices`
-- `/portal/incidents`
-- `/portal/documents`
-- `/portal/profile`
-
-## Login demo
-
-Usa cualquier email y contraseña. El login actual crea una cookie local.
-
-## Siguientes pasos recomendados
-
-1. Sustituir auth demo por Entra External ID.
-2. Cambiar `/api/me/*` para que llamen a Business Central.
-3. Conectar descarga de documentos y PDFs reales.
+## Qué falta para producción
+- Resolver el mapping usuario -> Customer No. desde BC o backend
+- Implementar pantalla bonita de tablas si quieres sustituir los `pre`
+- Afinar logout/sesión y errores

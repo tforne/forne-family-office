@@ -1,5 +1,4 @@
 import Link from "next/link";
-
 export default function Footer() {
   return (
     <footer className="border-t border-black/5 bg-forne-cream">

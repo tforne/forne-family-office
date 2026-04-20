@@ -11,17 +11,12 @@ export default function Header() {
             <div className="text-xs text-forne-slate">Gestión patrimonial y alquileres</div>
           </div>
         </Link>
-
         <nav className="hidden items-center gap-8 lg:flex">
           <Link href="/#quienes-somos" className="text-sm font-medium text-forne-slate hover:text-forne-forest">Quiénes somos</Link>
           <Link href="/alquileres" className="text-sm font-medium text-forne-slate hover:text-forne-forest">Alquileres</Link>
-          <Link href="/#servicios" className="text-sm font-medium text-forne-slate hover:text-forne-forest">Servicios</Link>
           <Link href="/contacto" className="text-sm font-medium text-forne-slate hover:text-forne-forest">Contacto</Link>
         </nav>
-
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="rounded-2xl border border-forne-stone bg-white px-4 py-2.5 text-sm font-semibold text-forne-forest hover:bg-forne-cream">Acceso clientes</Link>
-        </div>
+        <Link href="/login" className="rounded-2xl border border-forne-stone bg-white px-4 py-2.5 text-sm font-semibold text-forne-forest">Acceso clientes</Link>
       </div>
     </header>
   );

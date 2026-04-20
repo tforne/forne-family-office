@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   description: "Gestión patrimonial y alquileres con atención personalizada.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es">
       <body>{children}</body>
