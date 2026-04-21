@@ -1,1 +1,33 @@
-export interface IncidentDto { id: string; incidentId: string; incidentDate: string | null; title: string; description: string | null; refDescription: string | null; caseType: string | null; priority: string | null; stateCode: string | null; statusCode: string | null; contractNo: string | null; fixedRealEstateNo: string | null; contactName: string | null; contactPhoneNo: string | null; contactEmail: string | null; createdOn: string | null; modifiedOn: string | null; followupBy: string | null; expectedResolutionDate: string | null; resolutionDate: string | null; }
+export interface IncidentDto {
+  id: string;
+  incidentId: string;
+  incidentDate: string | null;
+  title: string;
+  description: string | null;
+  refDescription: string | null;
+  caseType: string | null;
+  priority: string | null;
+  stateCode: string | null;
+  statusCode: string | null;
+  contractNo: string | null;
+  fixedRealEstateNo: string | null;
+  contactName: string | null;
+  contactPhoneNo: string | null;
+  contactEmail: string | null;
+  createdOn: string | null;
+  modifiedOn: string | null;
+  followupBy: string | null;
+  expectedResolutionDate: string | null;
+  resolutionDate: string | null;
+  insurancePolicyNo?: string | null;
+  insurancePolicyDescription?: string | null;
+  notifyInsurance?: boolean | null;
+  insuranceNotified?: boolean | null;
+  insuranceNotificationDate?: string | null;
+  insuranceClaimNo?: string | null;
+  claimNo?: string | null;
+  insuranceStatus?: string | null;
+  insuranceEmail?: string | null;
+  insurancePhoneNo?: string | null;
+  insuranceNotes?: string | null;
+}

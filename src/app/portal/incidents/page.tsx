@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import PortalTableCard from "@/components/portal/PortalTableCard";
 import { getIncidents } from "@/lib/portal/incidents.service";
@@ -68,6 +69,7 @@ export default async function IncidentsPage() {
                   <th className="px-5 py-3 font-semibold">Contrato</th>
                   <th className="px-5 py-3 font-semibold">Prioridad</th>
                   <th className="px-5 py-3 font-semibold">Estado</th>
+                  <th className="px-5 py-3 font-semibold">Detalle</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-white">
@@ -101,6 +103,14 @@ export default async function IncidentsPage() {
                         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${statusClass(status)}`}>
                           {status}
                         </span>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-4">
+                        <Link
+                          href={`/portal/incidents/${encodeURIComponent(incident.id || incident.incidentId)}`}
+                          className="inline-flex rounded-xl border border-forne-stone bg-white px-3 py-2 text-xs font-semibold text-forne-forest shadow-sm transition hover:bg-forne-cream"
+                        >
+                          + información
+                        </Link>
                       </td>
                     </tr>
                   );

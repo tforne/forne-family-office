@@ -67,7 +67,17 @@ export const mockIncidents: IncidentDto[] = [
     modifiedOn: null,
     followupBy: null,
     expectedResolutionDate: null,
-    resolutionDate: null
+    resolutionDate: null,
+    insurancePolicyNo: "SEG-DEMO-001",
+    insurancePolicyDescription: "Seguro multirriesgo vivienda",
+    notifyInsurance: true,
+    insuranceNotified: false,
+    insuranceNotificationDate: null,
+    insuranceClaimNo: null,
+    insuranceStatus: "Pendiente",
+    insuranceEmail: "seguro@example.com",
+    insurancePhoneNo: null,
+    insuranceNotes: "Pendiente de confirmar apertura de siniestro."
   }
 ];
 
