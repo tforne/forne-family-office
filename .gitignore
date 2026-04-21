@@ -1,2 +1,14 @@
 node_modules
 docs/secret.txt
+
+# Local environment files. Never commit real secrets.
+.env
+.env.*
+!.env.example
+
+# Next.js build output
+.next
+out
+
+# TypeScript incremental cache
+*.tsbuildinfo

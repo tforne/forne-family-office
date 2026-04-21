@@ -28,7 +28,7 @@ function requireBusinessCentralAuthConfig() {
   }
 
   if (isPlaceholderSecret(env.entraClientSecret)) {
-    throw new Error("ENTRA_CLIENT_SECRET contiene un valor de ejemplo. Crea un client secret real en Azure y actualiza .env.local.");
+    throw new Error("ENTRA_CLIENT_SECRET contiene un valor de ejemplo. Crea un client secret real en Azure y configuralo como variable de usuario, variable del hosting o en .env.local.");
   }
 }
 

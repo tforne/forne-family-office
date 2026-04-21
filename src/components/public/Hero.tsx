@@ -21,22 +21,25 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-forne-stone bg-white p-6 shadow-soft">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-forne-cream p-4"><div className="text-xs text-forne-slate">Inmuebles</div><div className="mt-2 text-2xl font-semibold text-forne-forest">42</div></div>
-            <div className="rounded-2xl bg-forne-cream p-4"><div className="text-xs text-forne-slate">Contratos activos</div><div className="mt-2 text-2xl font-semibold text-forne-forest">37</div></div>
-            <div className="rounded-2xl bg-forne-cream p-4"><div className="text-xs text-forne-slate">Atención digital</div><div className="mt-2 text-2xl font-semibold text-forne-forest">24/7</div></div>
-          </div>
-
-          <div className="mt-5 rounded-[28px] border border-forne-stone bg-forne-cream p-5">
-            <div className="text-sm font-semibold text-forne-forest">Área privada de clientes</div>
-            <div className="mt-2 text-sm leading-7 text-forne-slate">
-              Consulta contratos, facturas, incidencias y documentos desde un espacio privado diseñado para ofrecer claridad, seguimiento y comodidad.
+        <div className="self-center rounded-[32px] border border-forne-stone bg-white p-6 shadow-soft">
+          <div className="rounded-[28px] border border-forne-stone bg-forne-cream p-5">
+            <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Portal clientes</div>
+            <div className="mt-2 text-lg font-semibold text-forne-forest">Área privada de clientes</div>
+            <div className="mt-3 text-sm leading-7 text-forne-slate">
+              Accede a la información clave de tu relación con Forné Family Office desde un espacio privado, claro y siempre actualizado.
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {['Contratos', 'Facturas', 'Incidencias', 'Documentos'].map((item) => (
-                <div key={item} className="rounded-2xl bg-white px-4 py-3 text-sm font-medium text-forne-forest shadow-sm">{item}</div>
-              ))}
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
+                <div className="text-sm font-semibold text-forne-forest">Facturas</div>
+                <div className="mt-1 text-sm leading-6 text-forne-slate">Consulta importes, vencimientos y estado de tus facturas.</div>
+              </div>
+              <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
+                <div className="text-sm font-semibold text-forne-forest">Incidencias</div>
+                <div className="mt-1 text-sm leading-6 text-forne-slate">Sigue solicitudes abiertas y revisa el estado de cada gestión.</div>
+              </div>
+            </div>
+            <div className="mt-5 rounded-2xl border border-forne-stone bg-white/60 px-4 py-3 text-sm leading-6 text-forne-slate">
+              Contratos y documentos se incorporarán más adelante dentro del mismo portal.
             </div>
           </div>
         </div>
