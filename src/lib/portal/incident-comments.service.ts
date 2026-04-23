@@ -1,7 +1,8 @@
 import { env } from "@/lib/config/env";
-import { bcGet } from "@/lib/bc/client";
+import { bcGetForCompany, type BusinessCentralCompanyRef } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { guidEqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
+import { resolvePortalUserContext } from "./user-context";
 import type { IncidentCommentDto } from "@/lib/dto/incident-comment.dto";
 
 type CommentPayload = { value?: IncidentCommentDto[] };
@@ -25,8 +26,9 @@ function normalizeComment(comment: Partial<IncidentCommentDto>): IncidentComment
   };
 }
 
-async function fetchCommentsByIncidentNo(incidentNo: string) {
-  const payload = await bcGet<CommentPayload>(
+async function fetchCommentsByIncidentNo(company: BusinessCentralCompanyRef, incidentNo: string) {
+  const payload = await bcGetForCompany<CommentPayload>(
+    company,
     endpoint(),
     odataQuery({
       filter: guidEqFilter("incidentNo", incidentNo),
@@ -48,13 +50,15 @@ function sortNewestFirst(comments: IncidentCommentDto[]) {
 
 export async function getIncidentComments(incidentNo: string, alternativeIncidentNo?: string) {
   if (env.useMockApi) return [];
+  const user = await resolvePortalUserContext();
+  const company = { companyId: user.bcCompanyId, companyName: user.bcCompanyName };
 
   const candidates = [incidentNo, alternativeIncidentNo]
     .map((value) => value?.trim())
     .filter((value): value is string => Boolean(value));
 
   for (const candidate of candidates) {
-    const comments = await fetchCommentsByIncidentNo(candidate);
+    const comments = await fetchCommentsByIncidentNo(company, candidate);
     if (comments.length > 0) return sortNewestFirst(comments);
   }
 

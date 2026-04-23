@@ -27,7 +27,7 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
     if (!confirmed) return;
 
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login?message=logout");
+    router.push("/");
     router.refresh();
   };
 

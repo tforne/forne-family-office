@@ -2,7 +2,7 @@ import { env } from "@/lib/config/env";
 import { mockIncidents } from "@/lib/mock/data";
 import { resolvePortalUserContext } from "./user-context";
 import { isCurrentPortalAdmin } from "./admin-auth";
-import { bcGet } from "@/lib/bc/client";
+import { bcGet, bcGetForCompany } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
@@ -29,7 +29,8 @@ export async function getIncidents(): Promise<IncidentDto[]> {
   const user = await resolvePortalUserContext();
   const filter = eqFilter("customerNo", user.customerNo);
 
-  const payload = await bcGet<{ value?: IncidentDto[] }>(
+  const payload = await bcGetForCompany<{ value?: IncidentDto[] }>(
+    { companyId: user.bcCompanyId, companyName: user.bcCompanyName },
     bcEndpoints.incidents,
     odataQuery({
       filter,

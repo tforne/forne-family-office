@@ -8,7 +8,7 @@ export default function Header() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-forne-ink text-sm font-semibold text-white shadow-sm">F</div>
           <div>
             <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Family Office</div>
-            <div className="text-xs text-forne-muted">Patrimonio, alquileres y reporting</div>
+            <div className="text-xs text-forne-muted">Alquileres, atención y portal privado</div>
           </div>
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">

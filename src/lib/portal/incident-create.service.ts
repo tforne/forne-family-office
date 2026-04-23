@@ -1,5 +1,5 @@
 import { env } from "@/lib/config/env";
-import { bcPost } from "@/lib/bc/client";
+import { bcPostForCompany } from "@/lib/bc/client";
 import { resolvePortalUserContext } from "./user-context";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
 
@@ -70,7 +70,11 @@ export async function createIncident(input: CreateIncidentInput): Promise<Incide
     };
   }
 
-  const created = await bcPost<BusinessCentralIncidentRequest>(endpoint, payload);
+  const created = await bcPostForCompany<BusinessCentralIncidentRequest>(
+    { companyId: user.bcCompanyId, companyName: user.bcCompanyName },
+    endpoint,
+    payload
+  );
 
   return {
     id: created.id || created.requestId || String(created.entryNo || ""),

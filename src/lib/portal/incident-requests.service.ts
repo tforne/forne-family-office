@@ -1,5 +1,5 @@
 import { env } from "@/lib/config/env";
-import { bcGet } from "@/lib/bc/client";
+import { bcGetForCompany } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
 import { mockIncidents } from "@/lib/mock/data";
@@ -35,7 +35,8 @@ export async function getIncidentRequests(): Promise<IncidentRequestDto[]> {
 
   const user = await resolvePortalUserContext();
   const readByField = async (field: "contactEmail" | "portalUserEmail") => {
-    const payload = await bcGet<{ value?: IncidentRequestDto[] }>(
+    const payload = await bcGetForCompany<{ value?: IncidentRequestDto[] }>(
+      { companyId: user.bcCompanyId, companyName: user.bcCompanyName },
       bcEndpoints.incidentRequests,
       odataQuery({
         filter: eqFilter(field, user.email),

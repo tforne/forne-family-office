@@ -1,7 +1,7 @@
 import { getPortalSession } from "@/lib/auth/session";
 import { env } from "@/lib/config/env";
 import { mockMe } from "@/lib/mock/data";
-import { bcGet } from "@/lib/bc/client";
+import { bcGet, bcGetForCompany, type BusinessCentralCompanyRef } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
 
@@ -13,6 +13,10 @@ type TenantProfileDto = {
 };
 
 type TenantProfileUserDto = Record<string, string | number | boolean | null | undefined>;
+type ResolvedProfileUser = {
+  profile: TenantProfileDto;
+  company: BusinessCentralCompanyRef;
+};
 
 function getStringField(record: TenantProfileUserDto, field: string) {
   const value = record[field];
@@ -24,14 +28,30 @@ function getBooleanField(record: TenantProfileUserDto, field: string) {
   return typeof value === "boolean" ? value : false;
 }
 
-async function findTenantProfileByCustomerNo(customerNo: string) {
-  const payload = await bcGet<{ value?: TenantProfileDto[] }>(
-    bcEndpoints.me,
-    odataQuery({
-      filter: eqFilter("no", customerNo),
-      top: 1
-    })
-  );
+function companyFromProfileUser(profileUser?: TenantProfileUserDto): BusinessCentralCompanyRef {
+  if (!profileUser) return {};
+
+  return {
+    companyId: getStringField(profileUser, "bcCompanyId") || getStringField(profileUser, "companyId"),
+    companyName:
+      getStringField(profileUser, "bcCompanyName") ||
+      getStringField(profileUser, "companyName") ||
+      getStringField(profileUser, "company")
+  };
+}
+
+function hasCompanyRef(company: BusinessCentralCompanyRef) {
+  return Boolean(company.companyId || company.companyName);
+}
+
+async function findTenantProfileByCustomerNo(customerNo: string, company: BusinessCentralCompanyRef = {}) {
+  const query = odataQuery({
+    filter: eqFilter("no", customerNo),
+    top: 1
+  });
+  const payload = hasCompanyRef(company)
+    ? await bcGetForCompany<{ value?: TenantProfileDto[] }>(company, bcEndpoints.me, query)
+    : await bcGet<{ value?: TenantProfileDto[] }>(bcEndpoints.me, query);
 
   return unwrap<TenantProfileDto>(payload)[0];
 }
@@ -63,7 +83,7 @@ async function findProfileUserFallback(field: string, value: string) {
   );
 }
 
-async function findTenantProfileViaProfileUser(email: string, externalUserId: string) {
+async function findTenantProfileViaProfileUser(email: string, externalUserId: string): Promise<ResolvedProfileUser | undefined> {
   if (!env.bcProfileUsersEndpoint) return undefined;
 
   const emailField = env.bcProfileUserEmailField;
@@ -88,7 +108,9 @@ async function findTenantProfileViaProfileUser(email: string, externalUserId: st
   if (profileUser && getBooleanField(profileUser, "blocked")) throw new Error("PORTAL_USER_BLOCKED");
   if (profileUser && !getBooleanField(profileUser, "portalEnabled")) throw new Error("PORTAL_USER_DISABLED");
 
-  return findTenantProfileByCustomerNo(customerNo);
+  const company = companyFromProfileUser(profileUser);
+  const profile = await findTenantProfileByCustomerNo(customerNo, company);
+  return profile ? { profile, company } : undefined;
 }
 
 export async function resolvePortalUserContext() {
@@ -101,7 +123,9 @@ export async function resolvePortalUserContext() {
       externalUserId: session.externalUserId || mockMe.userId,
       customerNo: mockMe.customerNo,
       customerName: mockMe.customerName,
-      portalEnabled: mockMe.portalEnabled
+      portalEnabled: mockMe.portalEnabled,
+      bcCompanyId: env.bcCompanyId,
+      bcCompanyName: env.bcCompanyName
     };
   }
 
@@ -112,7 +136,8 @@ export async function resolvePortalUserContext() {
 
   if (!filter && !profileFromUser) throw new Error("SESSION_MISSING_USER");
 
-  let profile: TenantProfileDto | undefined = profileFromUser;
+  let profile: TenantProfileDto | undefined = profileFromUser?.profile;
+  const company = profileFromUser?.company || {};
 
   if (!profile && filter) {
     const payload = await bcGet<{ value?: TenantProfileDto[] }>(
@@ -143,6 +168,8 @@ export async function resolvePortalUserContext() {
     externalUserId: session.externalUserId || profile.id || "",
     customerNo: profile.no,
     customerName: profile.name || profile.no,
-    portalEnabled: true
+    portalEnabled: true,
+    bcCompanyId: company.companyId || env.bcCompanyId,
+    bcCompanyName: company.companyName || env.bcCompanyName
   };
 }

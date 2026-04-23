@@ -3,12 +3,26 @@ import { getIncidents } from "@/lib/portal/incidents.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import PortalStatCard from "@/components/portal/PortalStatCard";
 
+async function safeLoad<T>(label: string, loader: () => Promise<T>, fallback: T) {
+  try {
+    return { data: await loader(), failed: false };
+  } catch (error) {
+    console.error(`[portal] Error loading ${label}`, error);
+    return { data: fallback, failed: true };
+  }
+}
+
 export default async function PortalPage() {
-  const [invoices, incidents, incidentRequests] = await Promise.all([
-    getInvoices(),
-    getIncidents(),
-    getIncidentRequests(),
+  const [invoicesResult, incidentsResult, incidentRequestsResult] = await Promise.all([
+    safeLoad("invoices summary", getInvoices, []),
+    safeLoad("incidents summary", getIncidents, []),
+    safeLoad("incident requests summary", getIncidentRequests, []),
   ]);
+  const invoices = invoicesResult.data;
+  const incidents = incidentsResult.data;
+  const incidentRequests = incidentRequestsResult.data;
+  const hasPartialError =
+    invoicesResult.failed || incidentsResult.failed || incidentRequestsResult.failed;
 
   const pendingInvoices = invoices.filter((x) => (x.remainingAmount ?? 0) > 0).length;
   const openIncidents = incidents.filter((x) => x.stateCode === "Active").length;
@@ -23,6 +37,12 @@ export default async function PortalPage() {
           Consulta tus facturas e incidencias.
         </p>
       </div>
+
+      {hasPartialError ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+          Alguna información no se ha podido cargar en este momento. Revisa los logs de Vercel para ver el detalle exacto.
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <PortalStatCard title="Facturas pendientes" value={String(pendingInvoices)} href="/portal/invoices" />

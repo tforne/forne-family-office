@@ -12,11 +12,11 @@ export default function Footer() {
               </div>
               <div>
                 <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Family Office</div>
-                <div className="text-xs text-forne-muted">Patrimonio, alquileres y reporting</div>
+                <div className="text-xs text-forne-muted">Alquileres, atención y portal privado</div>
               </div>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-forne-muted">
-              Gestión patrimonial y alquileres con foco en trazabilidad, atención directa y una experiencia digital clara para clientes.
+              Gestión de alquileres con atención directa, información clara y un portal privado para clientes e inquilinos.
             </p>
           </div>
 
@@ -55,7 +55,7 @@ export default function Footer() {
         <div className="mt-12 flex flex-col gap-3 border-t border-forne-line pt-6 text-xs text-forne-muted sm:flex-row sm:items-center sm:justify-between">
           <div>© {new Date().getFullYear()} Forné Family Office. Todos los derechos reservados.</div>
           <div className="flex gap-5">
-            <span>Gestión patrimonial</span>
+            <span>Atención al inquilino</span>
             <span>Portal privado</span>
           </div>
         </div>

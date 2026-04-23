@@ -10,8 +10,14 @@ type CompanyPayload = {
 };
 
 let companyIdCache: string | null = null;
+const companyIdCacheByKey = new Map<string, string>();
 
-function requireBusinessCentralConfig() {
+export type BusinessCentralCompanyRef = {
+  companyId?: string;
+  companyName?: string;
+};
+
+function requireBusinessCentralBaseConfig() {
   const missing = [
     ["BC_BASE_URL", env.bcBaseUrl],
     ["BC_TENANT_ID", env.bcTenantId],
@@ -26,7 +32,10 @@ function requireBusinessCentralConfig() {
   if (missing.length) {
     throw new Error(`Falta configuración de Business Central: ${missing.join(", ")}`);
   }
+}
 
+function requireBusinessCentralConfig() {
+  requireBusinessCentralBaseConfig();
   if (!env.bcCompanyId && !env.bcCompanyName) {
     throw new Error("Falta configuración de Business Central: BC_COMPANY_ID o BC_COMPANY_NAME");
   }
@@ -105,17 +114,55 @@ export function getBusinessCentralCustomApiUrl() {
 }
 
 export async function getBusinessCentralMetadata() {
-  requireBusinessCentralConfig();
+  requireBusinessCentralBaseConfig();
   return bcFetchText(`${getBusinessCentralCustomApiUrl()}/$metadata`);
 }
 
 export async function getBusinessCentralCompanies() {
-  requireBusinessCentralConfig();
+  requireBusinessCentralBaseConfig();
   const payload = await bcFetchJson<CompanyPayload>(getBusinessCentralCompaniesUrl());
   return payload.value || [];
 }
 
-async function resolveCompanyId() {
+async function resolveCompanyId(company?: BusinessCentralCompanyRef) {
+  const configuredCompanyId = company?.companyId?.trim() || env.bcCompanyId;
+  const configuredCompanyName = company?.companyName?.trim() || env.bcCompanyName;
+  const configured = (configuredCompanyName || configuredCompanyId).trim();
+
+  if (!company && companyIdCache) return companyIdCache;
+  if (!configured) throw new Error("Falta configuración de Business Central: BC_COMPANY_ID o BC_COMPANY_NAME");
+  if (isGuid(configuredCompanyId)) {
+    if (!company) companyIdCache = configuredCompanyId;
+    return configuredCompanyId;
+  }
+
+  const cacheKey = configured.toLowerCase();
+  const cached = companyIdCacheByKey.get(cacheKey);
+  if (cached) return cached;
+
+  const companies = await getBusinessCentralCompanies();
+  const configuredLower = configured.toLowerCase();
+  const match = companies.find((companyItem) => {
+    const id = companyItem.id?.toLowerCase();
+    const name = companyItem.name?.toLowerCase();
+    const displayName = companyItem.displayName?.toLowerCase();
+    return configuredLower === id || configuredLower === name || configuredLower === displayName;
+  });
+
+  if (!match?.id) {
+    const available = companies
+      .map((companyItem) => companyItem.displayName || companyItem.name || companyItem.id)
+      .filter(Boolean)
+      .join(", ");
+    throw new Error(`No se encontró la compañía de Business Central "${configured}". Compañías disponibles: ${available || "ninguna"}`);
+  }
+
+  companyIdCacheByKey.set(cacheKey, match.id);
+  if (!company) companyIdCache = match.id;
+  return match.id;
+}
+
+async function resolveDefaultCompanyId() {
   if (companyIdCache) return companyIdCache;
 
   if (env.bcCompanyId && isGuid(env.bcCompanyId)) {
@@ -147,7 +194,16 @@ async function resolveCompanyId() {
 export async function bcGet<T = unknown>(path: string, query?: string): Promise<T> {
   requireBusinessCentralConfig();
 
-  const companyId = await resolveCompanyId();
+  const companyId = await resolveDefaultCompanyId();
+  const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
+
+  return bcFetchJson<T>(url);
+}
+
+export async function bcGetForCompany<T = unknown>(company: BusinessCentralCompanyRef, path: string, query?: string): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
 
   return bcFetchJson<T>(url);
@@ -156,7 +212,16 @@ export async function bcGet<T = unknown>(path: string, query?: string): Promise<
 export async function bcPost<T = unknown>(path: string, body: unknown): Promise<T> {
   requireBusinessCentralConfig();
 
-  const companyId = await resolveCompanyId();
+  const companyId = await resolveDefaultCompanyId();
+  const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "POST", body);
+}
+
+export async function bcPostForCompany<T = unknown>(company: BusinessCentralCompanyRef, path: string, body: unknown): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
 
   return bcSendJson<T>(url, "POST", body);
@@ -165,7 +230,7 @@ export async function bcPost<T = unknown>(path: string, body: unknown): Promise<
 export async function bcPatch<T = unknown>(path: string, body: unknown): Promise<T> {
   requireBusinessCentralConfig();
 
-  const companyId = await resolveCompanyId();
+  const companyId = await resolveDefaultCompanyId();
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
 
   return bcSendJson<T>(url, "PATCH", body);

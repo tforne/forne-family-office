@@ -2,7 +2,7 @@ import { env } from "@/lib/config/env";
 import { mockInvoices } from "@/lib/mock/data";
 import { resolvePortalUserContext } from "./user-context";
 import { isCurrentPortalAdmin } from "./admin-auth";
-import { bcGet } from "@/lib/bc/client";
+import { bcGet, bcGetForCompany } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
@@ -24,7 +24,8 @@ export async function getInvoices(): Promise<InvoiceDto[]> {
   }
 
   const user = await resolvePortalUserContext();
-  const payload = await bcGet<{ value?: InvoiceDto[] }>(
+  const payload = await bcGetForCompany<{ value?: InvoiceDto[] }>(
+    { companyId: user.bcCompanyId, companyName: user.bcCompanyName },
     bcEndpoints.invoices,
     odataQuery({
       filter: eqFilter("billToCustomerNo", user.customerNo),

@@ -5,7 +5,9 @@ export const mockMe: MeDto = {
   email: "tenant@example.com",
   customerNo: "C0001",
   customerName: "Cliente Demo",
-  portalEnabled: true
+  portalEnabled: true,
+  bcCompanyId: "demo-company-id",
+  bcCompanyName: "Demo"
 };
 
 export const mockContracts: ContractDto[] = [

@@ -1,4 +1,5 @@
 import { getMe } from "@/lib/portal/me.service";
+import { env } from "@/lib/config/env";
 
 function DetailCard({ label, value }: { label: string; value: string }) {
   return (
@@ -49,6 +50,28 @@ export default async function Page() {
         <DetailCard label="Nombre cliente" value={data.customerName} />
         <DetailCard label="Correo electrónico" value={data.email} />
         <DetailCard label="Identificador usuario" value={data.userId} />
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight text-forne-ink">Conexión Business Central</h2>
+          <p className="mt-1 text-sm leading-6 text-forne-muted">
+            Empresa y entorno donde se consultan los datos del portal.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <DetailCard label="Tenant" value={env.bcTenantId} />
+          <DetailCard label="Entorno" value={env.bcEnvironment} />
+          <DetailCard label="Company ID" value={data.bcCompanyId} />
+          <DetailCard label="Company Name" value={data.bcCompanyName} />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <DetailCard label="API publisher" value={env.bcApiPublisher} />
+          <DetailCard label="API group" value={env.bcApiGroup} />
+          <DetailCard label="API version" value={env.bcApiVersion} />
+        </div>
       </section>
     </div>
   );
