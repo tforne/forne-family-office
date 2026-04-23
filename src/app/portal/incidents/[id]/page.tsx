@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import IncidentContactForm from "@/components/portal/IncidentContactForm";
+import { getIncidentComments } from "@/lib/portal/incident-comments.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
+import type { IncidentCommentDto } from "@/lib/dto/incident-comment.dto";
 
 function cleanDate(value: string | null) {
   if (!value || value.startsWith("0001-01-01")) return "Sin fecha";
@@ -26,14 +28,14 @@ function statusLabel(incident: IncidentDto) {
 function statusClass(status: string) {
   if (status === "Abierta") return "bg-amber-50 text-amber-800 ring-amber-200";
   if (status === "Resuelta") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
-  return "bg-forne-cream text-forne-slate ring-forne-stone";
+  return "bg-forne-cloud text-forne-muted ring-forne-line";
 }
 
 function DetailItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div className="border-b border-black/5 py-3 last:border-b-0">
-      <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">{label}</div>
-      <div className="mt-1 text-sm leading-6 text-forne-forest">{value || "-"}</div>
+    <div className="border-b border-forne-line py-3 last:border-b-0">
+      <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">{label}</div>
+      <div className="mt-1 text-sm leading-6 text-forne-ink">{value || "-"}</div>
     </div>
   );
 }
@@ -75,9 +77,24 @@ function getBooleanValue(record: IncidentDto, keys: string[]) {
 function TimelineItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="relative pl-7">
-      <div className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-forne-forest shadow-sm" />
-      <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">{label}</div>
-      <div className="mt-1 text-sm font-medium text-forne-forest">{value}</div>
+      <div className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-forne-ink shadow-sm" />
+      <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">{label}</div>
+      <div className="mt-1 text-sm font-medium text-forne-ink">{value}</div>
+    </div>
+  );
+}
+
+function CommentItem({ comment }: { comment: IncidentCommentDto }) {
+  return (
+    <div className="border-b border-forne-line py-4 last:border-b-0">
+      <div className="flex justify-end">
+        <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+          {cleanDate(comment.commentDate || comment.createdAt)}
+        </div>
+      </div>
+      <div className="mt-2 whitespace-pre-line text-sm leading-7 text-forne-muted">
+        {comment.commentText || "Comentario sin texto."}
+      </div>
     </div>
   );
 }
@@ -89,6 +106,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
   if (!incident) notFound();
 
+  const comments = await getIncidentComments(incident.incidentId, incident.id);
   const status = statusLabel(incident);
   const insurance = {
     policyNo: getTextValue(incident, ["insurancePolicyNo", "insurancePolicyNumber", "policyNo", "insuranceNo", "noPolizaSeguro", "polizaSeguroNo"]),
@@ -106,17 +124,20 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div>
-            <Link href="/portal/incidents" className="text-sm font-semibold text-forne-forest hover:underline">
-              Volver a incidencias
+            <Link
+              href="/portal/incidents"
+              className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-2 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
+            >
+              Salir de la incidencia
             </Link>
-            <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-forne-slate">
+            <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-forne-muted">
               {incident.incidentId || incident.id}
             </div>
-            <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-forne-forest">{incident.title}</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-forne-slate">
+            <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-forne-ink">{incident.title}</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-forne-muted">
               Seguimiento detallado de la incidencia, con contexto del inmueble, contacto y fechas relevantes.
             </p>
           </div>
@@ -128,15 +149,15 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-forest">Descripción</div>
-            <div className="mt-4 rounded-2xl bg-forne-cream p-5 text-sm leading-7 text-forne-slate">
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="text-base font-semibold text-forne-ink">Descripción</div>
+            <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
               {incident.description || "No hay descripción adicional para esta incidencia."}
             </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-forest">Evolución</div>
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="text-base font-semibold text-forne-ink">Evolución</div>
             <div className="mt-5 grid gap-5 md:grid-cols-3">
               <TimelineItem label="Apertura" value={cleanDate(incident.incidentDate)} />
               <TimelineItem label="Seguimiento" value={cleanDate(incident.followupBy)} />
@@ -144,33 +165,53 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-base font-semibold text-forne-ink">Comentarios</div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+                {comments.length} comentario{comments.length === 1 ? "" : "s"}
+              </div>
+            </div>
+            {comments.length === 0 ? (
+              <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
+                No hay comentarios publicados para esta incidencia.
+              </div>
+            ) : (
+              <div className="mt-2">
+                {comments.map((comment) => (
+                  <CommentItem key={comment.id || `${comment.incidentNo}-${comment.entryNo}`} comment={comment} />
+                ))}
+              </div>
+            )}
+          </section>
+
           {hasInsurance ? (
-            <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-              <div className="text-base font-semibold text-forne-forest">Seguro</div>
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="text-base font-semibold text-forne-ink">Seguro</div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl bg-forne-cream p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Póliza</div>
-                  <div className="mt-2 text-sm font-semibold text-forne-forest">{insurance.policyNo || "-"}</div>
-                  <div className="mt-1 text-sm leading-6 text-forne-slate">{insurance.policyDescription || "Sin descripción de póliza."}</div>
+                <div className="rounded-2xl bg-forne-cloud p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Póliza</div>
+                  <div className="mt-2 text-sm font-semibold text-forne-ink">{insurance.policyNo || "-"}</div>
+                  <div className="mt-1 text-sm leading-6 text-forne-muted">{insurance.policyDescription || "Sin descripción de póliza."}</div>
                 </div>
-                <div className="rounded-2xl bg-forne-cream p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Siniestro</div>
-                  <div className="mt-2 text-sm font-semibold text-forne-forest">{insurance.claimNo || "-"}</div>
-                  <div className="mt-1 text-sm leading-6 text-forne-slate">{insurance.status || "Sin estado de seguro."}</div>
+                <div className="rounded-2xl bg-forne-cloud p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Siniestro</div>
+                  <div className="mt-2 text-sm font-semibold text-forne-ink">{insurance.claimNo || "-"}</div>
+                  <div className="mt-1 text-sm leading-6 text-forne-muted">{insurance.status || "Sin estado de seguro."}</div>
                 </div>
               </div>
               <div className="mt-3 grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-forne-stone bg-white p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Notificar seguro</div>
-                  <div className="mt-2 text-sm text-forne-forest">{insurance.notifyInsurance || "-"}</div>
+                <div className="rounded-2xl border border-forne-line bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Notificar seguro</div>
+                  <div className="mt-2 text-sm text-forne-ink">{insurance.notifyInsurance || "-"}</div>
                 </div>
-                <div className="rounded-2xl border border-forne-stone bg-white p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Seguro notificado</div>
-                  <div className="mt-2 text-sm text-forne-forest">{insurance.insuranceNotified || "-"}</div>
+                <div className="rounded-2xl border border-forne-line bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Seguro notificado</div>
+                  <div className="mt-2 text-sm text-forne-ink">{insurance.insuranceNotified || "-"}</div>
                 </div>
-                <div className="rounded-2xl border border-forne-stone bg-white p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Fecha notificación</div>
-                  <div className="mt-2 text-sm text-forne-forest">{cleanDate(insurance.notificationDate)}</div>
+                <div className="rounded-2xl border border-forne-line bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Fecha notificación</div>
+                  <div className="mt-2 text-sm text-forne-ink">{cleanDate(insurance.notificationDate)}</div>
                 </div>
               </div>
               <div className="mt-3 grid gap-4 md:grid-cols-2">
@@ -178,7 +219,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
                 <DetailItem label="Teléfono seguro" value={insurance.phone} />
               </div>
               {insurance.notes ? (
-                <div className="mt-4 rounded-2xl border border-forne-stone bg-white p-4 text-sm leading-7 text-forne-slate">
+                <div className="mt-4 rounded-2xl border border-forne-line bg-white p-4 text-sm leading-7 text-forne-muted">
                   {insurance.notes}
                 </div>
               ) : null}
@@ -187,8 +228,8 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-forest">Datos de la incidencia</div>
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="text-base font-semibold text-forne-ink">Datos de la incidencia</div>
             <div className="mt-3">
               <DetailItem label="Prioridad" value={incident.priority} />
               <DetailItem label="Tipo" value={incident.caseType} />
@@ -197,8 +238,8 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-forest">Inmueble y contrato</div>
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="text-base font-semibold text-forne-ink">Inmueble y contrato</div>
             <div className="mt-3">
               <DetailItem label="Inmueble" value={incident.refDescription} />
               <DetailItem label="Referencia inmueble" value={incident.fixedRealEstateNo} />
@@ -206,8 +247,8 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-forest">Contacto</div>
+          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <div className="text-base font-semibold text-forne-ink">Contacto</div>
             <div className="mt-3">
               <DetailItem label="Nombre" value={incident.contactName} />
               <DetailItem label="Teléfono" value={incident.contactPhoneNo} />

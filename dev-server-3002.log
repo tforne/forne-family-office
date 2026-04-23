@@ -1,0 +1,13 @@
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3002
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3s
+ ○ Compiling /api/bc/incident-comments ...
+ ✓ Compiled /api/bc/incident-comments in 786ms (59 modules)
+ GET /api/bc/incident-comments?incidentNo=0b75cd97-31f8-46e5-8a0f-0203081dd640 200 in 1843ms
+ ✓ Compiled in 23ms
+ ✓ Compiled in 3.4s (202 modules)
+   Reload env: .env.local
+ ✓ Compiled in 319ms (202 modules)

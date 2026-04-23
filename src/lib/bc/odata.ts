@@ -13,6 +13,10 @@ export function eqFilter(field: string, value: string) {
   return `${field} eq '${escapeODataString(value)}'`;
 }
 
+export function guidEqFilter(field: string, value: string) {
+  return `${field} eq ${value}`;
+}
+
 export function andFilters(...filters: Array<string | undefined | null | false>) {
   return filters.filter(Boolean).join(" and ");
 }

@@ -36,28 +36,51 @@ async function findTenantProfileByCustomerNo(customerNo: string) {
   return unwrap<TenantProfileDto>(payload)[0];
 }
 
-async function findTenantProfileViaProfileUser(email: string) {
+async function findProfileUserByField(field: string, value: string) {
   if (!env.bcProfileUsersEndpoint) return undefined;
 
-  const emailField = env.bcProfileUserEmailField;
-  const customerNoField = env.bcProfileUserCustomerNoField;
   const payload = await bcGet<{ value?: TenantProfileUserDto[] }>(
     env.bcProfileUsersEndpoint,
     odataQuery({
-      filter: eqFilter(emailField, email),
+      filter: eqFilter(field, value),
       top: 1
     })
   );
-  let profileUser: TenantProfileUserDto | undefined = unwrap<TenantProfileUserDto>(payload)[0];
 
-  if (!profileUser) {
-    const allUsersPayload = await bcGet<{ value?: TenantProfileUserDto[] }>(
-      env.bcProfileUsersEndpoint,
-      odataQuery({ top: 100 })
-    );
-    profileUser = unwrap<TenantProfileUserDto>(allUsersPayload).find(
-      (item) => getStringField(item, emailField).toLowerCase() === email.toLowerCase()
-    );
+  return unwrap<TenantProfileUserDto>(payload)[0];
+}
+
+async function findProfileUserFallback(field: string, value: string) {
+  if (!env.bcProfileUsersEndpoint) return undefined;
+
+  const allUsersPayload = await bcGet<{ value?: TenantProfileUserDto[] }>(
+    env.bcProfileUsersEndpoint,
+    odataQuery({ top: 100 })
+  );
+
+  return unwrap<TenantProfileUserDto>(allUsersPayload).find(
+    (item) => getStringField(item, field).toLowerCase() === value.toLowerCase()
+  );
+}
+
+async function findTenantProfileViaProfileUser(email: string, externalUserId: string) {
+  if (!env.bcProfileUsersEndpoint) return undefined;
+
+  const emailField = env.bcProfileUserEmailField;
+  const externalUserIdField = env.bcProfileUserExternalUserIdField;
+  const customerNoField = env.bcProfileUserCustomerNoField;
+  let profileUser: TenantProfileUserDto | undefined;
+
+  if (externalUserId) {
+    profileUser =
+      (await findProfileUserByField(externalUserIdField, externalUserId)) ||
+      (await findProfileUserFallback(externalUserIdField, externalUserId));
+  }
+
+  if (!profileUser && email) {
+    profileUser =
+      (await findProfileUserByField(emailField, email)) ||
+      (await findProfileUserFallback(emailField, email));
   }
 
   const customerNo = profileUser ? getStringField(profileUser, customerNoField) : "";
@@ -83,7 +106,8 @@ export async function resolvePortalUserContext() {
   }
 
   const email = session.email || "";
-  const profileFromUser = email ? await findTenantProfileViaProfileUser(email) : undefined;
+  const externalUserId = session.externalUserId || "";
+  const profileFromUser = email || externalUserId ? await findTenantProfileViaProfileUser(email, externalUserId) : undefined;
   const filter = email ? eqFilter("email", email) : "";
 
   if (!filter && !profileFromUser) throw new Error("SESSION_MISSING_USER");

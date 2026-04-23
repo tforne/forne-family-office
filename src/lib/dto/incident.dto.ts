@@ -9,6 +9,7 @@ export interface IncidentDto {
   priority: string | null;
   stateCode: string | null;
   statusCode: string | null;
+  customerNo?: string | null;
   contractNo: string | null;
   fixedRealEstateNo: string | null;
   contactName: string | null;

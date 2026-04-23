@@ -56,6 +56,30 @@ async function bcFetchJson<T>(url: string): Promise<T> {
   return res.json();
 }
 
+async function bcSendJson<T>(url: string, method: "POST" | "PATCH", body: unknown): Promise<T> {
+  const token = await getBusinessCentralAccessToken();
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(method === "PATCH" ? { "If-Match": "*" } : {})
+    },
+    body: JSON.stringify(body),
+    cache: "no-store"
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Business Central error ${res.status} (${url}): ${text}`);
+  }
+
+  if (res.status === 204) return {} as T;
+  return res.json();
+}
+
 async function bcFetchText(url: string): Promise<string> {
   const token = await getBusinessCentralAccessToken();
 
@@ -127,4 +151,22 @@ export async function bcGet<T = unknown>(path: string, query?: string): Promise<
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
 
   return bcFetchJson<T>(url);
+}
+
+export async function bcPost<T = unknown>(path: string, body: unknown): Promise<T> {
+  requireBusinessCentralConfig();
+
+  const companyId = await resolveCompanyId();
+  const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "POST", body);
+}
+
+export async function bcPatch<T = unknown>(path: string, body: unknown): Promise<T> {
+  requireBusinessCentralConfig();
+
+  const companyId = await resolveCompanyId();
+  const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "PATCH", body);
 }

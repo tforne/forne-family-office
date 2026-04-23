@@ -34,6 +34,9 @@ export const env = {
       : ""),
   entraRedirectUri:
     process.env.ENTRA_REDIRECT_URI || `${normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000")}/api/auth/callback`,
+  graphScope: process.env.GRAPH_SCOPE || "https://graph.microsoft.com/.default",
+  graphInviteRedirectUrl:
+    process.env.GRAPH_INVITE_REDIRECT_URL || `${normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000")}/login`,
   bcBaseUrl: process.env.BC_BASE_URL || "",
   bcTenantId: normalizeTenantId(process.env.BC_TENANT_ID || process.env.ENTRA_TENANT_ID || ""),
   bcEnvironment: process.env.BC_ENVIRONMENT || "",
@@ -43,7 +46,12 @@ export const env = {
   bcApiPublisher: process.env.BC_API_PUBLISHER || "onedata",
   bcApiGroup: process.env.BC_API_GROUP || "tenantportal",
   bcApiVersion: process.env.BC_API_VERSION || "v1.0",
+  bcCreateIncidentsEndpoint: process.env.BC_CREATE_INCIDENTS_ENDPOINT || "",
+  bcIncidentCommentsEndpoint: process.env.BC_INCIDENT_COMMENTS_ENDPOINT || "tenantIncidentComments",
   bcProfileUsersEndpoint: process.env.BC_PROFILE_USERS_ENDPOINT || "",
   bcProfileUserEmailField: process.env.BC_PROFILE_USER_EMAIL_FIELD || "email",
-  bcProfileUserCustomerNoField: process.env.BC_PROFILE_USER_CUSTOMER_NO_FIELD || "customerNo"
+  bcProfileUserCustomerNoField: process.env.BC_PROFILE_USER_CUSTOMER_NO_FIELD || "customerNo",
+  bcProfileUserExternalUserIdField: process.env.BC_PROFILE_USER_EXTERNAL_USER_ID_FIELD || "externalUserId",
+  bcTenantPortalUsersEndpoint: process.env.BC_TENANT_PORTAL_USERS_ENDPOINT || "tenantPortalUsers",
+  portalAdminEmails: process.env.PORTAL_ADMIN_EMAILS || ""
 };

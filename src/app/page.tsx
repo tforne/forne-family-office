@@ -8,7 +8,7 @@ import ServicesSection from "@/components/public/ServicesSection";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-forne-cream">
+    <main className="min-h-screen bg-forne-cloud">
       <Header />
       <Hero />
       <AboutSection />

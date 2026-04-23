@@ -2,44 +2,43 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(231,222,209,0.7),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(34,49,43,0.06),_transparent_30%)]" />
-      <div className="relative mx-auto grid max-w-7xl gap-14 px-6 py-20 lg:grid-cols-2 lg:px-8 lg:py-28">
+    <section className="relative overflow-hidden bg-forne-cloud">
+      <div className="relative mx-auto grid max-w-7xl gap-14 px-6 py-20 lg:grid-cols-2 lg:px-8 lg:py-24">
         <div className="flex flex-col justify-center">
-          <div className="mb-5 inline-flex w-fit items-center rounded-full border border-forne-stone bg-white px-4 py-2 text-xs font-medium text-forne-slate shadow-sm">
-            Patrimonio, alquileres y atención directa
+          <div className="mb-5 text-xs font-semibold uppercase tracking-[0.32em] text-forne-muted">
+            Control patrimonial
           </div>
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-forne-forest sm:text-5xl lg:text-6xl">
-            Gestión patrimonial y alquileres con atención personalizada
+          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-forne-ink sm:text-5xl lg:text-6xl">
+            Gestión de alquileres con visión clara, trazable y profesional.
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-forne-slate">
-            En Forné Family Office gestionamos inmuebles en alquiler con una visión a largo plazo, trato cercano y un área privada para consultar contratos, facturas, incidencias y documentación.
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-forne-muted">
+            Centralizamos la relación con el inmueble, las facturas y las incidencias en una experiencia privada y ordenada para clientes e inquilinos.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <Link href="/alquileres" className="rounded-2xl bg-forne-forest px-6 py-3.5 text-sm font-semibold text-white">Ver servicios</Link>
-            <Link href="/login" className="rounded-2xl border border-forne-stone bg-white px-6 py-3.5 text-sm font-semibold text-forne-forest">Acceso clientes</Link>
+            <Link href="/alquileres" className="rounded-xl bg-forne-ink px-6 py-3.5 text-sm font-semibold text-white shadow-sm">Ver servicios</Link>
+            <Link href="/login" className="rounded-xl border border-forne-line bg-white px-6 py-3.5 text-sm font-semibold text-forne-ink shadow-sm">Acceso clientes</Link>
           </div>
         </div>
 
-        <div className="self-center rounded-[32px] border border-forne-stone bg-white p-6 shadow-soft">
-          <div className="rounded-[28px] border border-forne-stone bg-forne-cream p-5">
-            <div className="text-xs font-semibold uppercase tracking-wide text-forne-slate">Portal clientes</div>
-            <div className="mt-2 text-lg font-semibold text-forne-forest">Área privada de clientes</div>
-            <div className="mt-3 text-sm leading-7 text-forne-slate">
-              Accede a la información clave de tu relación con Forné Family Office desde un espacio privado, claro y siempre actualizado.
+        <div className="self-center rounded-[28px] border border-forne-line bg-white p-6 shadow-sm">
+          <div className="rounded-3xl bg-forne-ink p-6 text-white">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Portal clientes</div>
+            <div className="mt-3 text-xl font-semibold">Área privada conectada</div>
+            <div className="mt-3 text-sm leading-7 text-white/70">
+              Un punto de acceso para consultar información operativa y comunicarse sobre cada inmueble.
             </div>
-            <div className="mt-5 grid gap-3">
-              <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
-                <div className="text-sm font-semibold text-forne-forest">Facturas</div>
-                <div className="mt-1 text-sm leading-6 text-forne-slate">Consulta importes, vencimientos y estado de tus facturas.</div>
+            <div className="mt-6 grid gap-3">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+                <div className="text-sm font-semibold text-white">Facturas</div>
+                <div className="mt-1 text-sm leading-6 text-white/60">Importes, vencimientos y estado de cobro.</div>
               </div>
-              <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
-                <div className="text-sm font-semibold text-forne-forest">Incidencias</div>
-                <div className="mt-1 text-sm leading-6 text-forne-slate">Sigue solicitudes abiertas y revisa el estado de cada gestión.</div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+                <div className="text-sm font-semibold text-white">Incidencias</div>
+                <div className="mt-1 text-sm leading-6 text-white/60">Seguimiento, detalle, seguro y comunicación.</div>
               </div>
             </div>
-            <div className="mt-5 rounded-2xl border border-forne-stone bg-white/60 px-4 py-3 text-sm leading-6 text-forne-slate">
-              Contratos y documentos se incorporarán más adelante dentro del mismo portal.
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-white/60">
+              Diseñado para reducir dispersión y dar contexto a cada gestión.
             </div>
           </div>
         </div>

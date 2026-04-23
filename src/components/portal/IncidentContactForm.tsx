@@ -44,27 +44,27 @@ export default function IncidentContactForm({ incidentId, title, property, contr
   };
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-forne-stone bg-white p-6 shadow-sm">
-      <div className="text-base font-semibold text-forne-forest">Enviar consulta sobre esta incidencia</div>
-      <p className="mt-2 max-w-3xl text-sm leading-7 text-forne-slate">
+    <form onSubmit={onSubmit} className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+      <div className="text-base font-semibold text-forne-ink">Enviar consulta sobre esta incidencia</div>
+      <p className="mt-2 max-w-3xl text-sm leading-7 text-forne-muted">
         Escribe un mensaje y lo enviaremos automáticamente a Forné Family Office con la referencia de la incidencia.
       </p>
 
       <textarea
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        className="mt-5 min-h-36 w-full rounded-2xl border border-forne-stone bg-white px-4 py-3 text-sm leading-6 text-forne-forest outline-none transition focus:border-forne-forest"
+        className="mt-5 min-h-36 w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-sm leading-6 text-forne-ink outline-none transition focus:border-forne-ink"
         placeholder="Escribe aquí tu consulta o información adicional..."
         required
         maxLength={4000}
       />
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs text-forne-slate">{message.length}/4000 caracteres</div>
+        <div className="text-xs text-forne-muted">{message.length}/4000 caracteres</div>
         <button
           type="submit"
           disabled={status === "sending"}
-          className="rounded-xl bg-forne-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-forne-forest/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === "sending" ? "Enviando..." : "Enviar mensaje"}
         </button>

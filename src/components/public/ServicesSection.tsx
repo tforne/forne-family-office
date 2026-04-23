@@ -12,15 +12,15 @@ export default function ServicesSection() {
     <section id="servicios" className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-3xl">
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-forne-slate">Servicios</span>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-forne-forest sm:text-4xl">Servicios de alquiler y gestión con enfoque patrimonial</h2>
+          <span className="text-sm font-semibold uppercase tracking-[0.24em] text-forne-muted">Servicios</span>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-forne-ink sm:text-4xl">Servicios de alquiler y gestión con enfoque patrimonial</h2>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {services.map((item) => (
-            <div key={item.title} className="rounded-[28px] border border-forne-stone bg-forne-cream p-6 shadow-sm">
-              <div className="h-12 w-12 rounded-2xl bg-forne-forest" />
-              <h3 className="mt-5 text-lg font-semibold text-forne-forest">{item.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-forne-slate">{item.description}</p>
+            <div key={item.title} className="rounded-[24px] border border-forne-line bg-white p-6 shadow-sm">
+              <div className="h-10 w-10 rounded-xl border border-forne-line bg-forne-cloud" />
+              <h3 className="mt-5 text-lg font-semibold text-forne-ink">{item.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-forne-muted">{item.description}</p>
             </div>
           ))}
         </div>

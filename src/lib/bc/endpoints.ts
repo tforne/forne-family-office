@@ -3,5 +3,8 @@ export const bcEndpoints = {
   contracts: "tenantContracts",
   invoices: "tenantInvoices",
   incidents: "tenantIncidents",
-  documents: "tenantDocuments"
+  incidentRequests: "tenantIncidentRequests",
+  incidentComments: "tenantIncidentComments",
+  documents: "tenantDocuments",
+  tenantPortalUsers: "tenantPortalUsers"
 };
