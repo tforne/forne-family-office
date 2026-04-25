@@ -1,4 +1,5 @@
 import { env } from "@/lib/config/env";
+import { assertClientSecretLooksValid, explainInvalidClientSecret } from "@/lib/auth/client-secret";
 
 let graphTokenCache: { token: string; expiresAt: number } | null = null;
 
@@ -15,6 +16,8 @@ function requireGraphConfig() {
   if (missing.length) {
     throw new Error(`Falta configuración de Microsoft Graph: ${missing.join(", ")}`);
   }
+
+  assertClientSecretLooksValid(env.entraClientSecret, "ENTRA_CLIENT_SECRET");
 }
 
 async function getGraphAccessToken() {
@@ -40,7 +43,7 @@ async function getGraphAccessToken() {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OAuth Graph error ${res.status}: ${text}`);
+    throw new Error(explainInvalidClientSecret(res.status, text, env.entraClientId, "ENTRA_CLIENT_SECRET") || `OAuth Graph error ${res.status}: ${text}`);
   }
 
   const json = await res.json();

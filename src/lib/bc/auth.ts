@@ -1,17 +1,7 @@
 import { env } from "@/lib/config/env";
+import { assertClientSecretLooksValid, explainInvalidClientSecret } from "@/lib/auth/client-secret";
 
 let cache: { token: string; expiresAt: number } | null = null;
-
-function isPlaceholderSecret(value: string) {
-  const normalized = value.trim().toLowerCase();
-  return (
-    normalized === "pega_aqui_el_secret_nuevo" ||
-    normalized === "your-client-secret" ||
-    normalized === "client-secret" ||
-    normalized.includes("pega_aqui") ||
-    normalized.includes("replace")
-  );
-}
 
 function requireBusinessCentralAuthConfig() {
   const missing = [
@@ -27,9 +17,7 @@ function requireBusinessCentralAuthConfig() {
     throw new Error(`Falta configuración OAuth para Business Central: ${missing.join(", ")}`);
   }
 
-  if (isPlaceholderSecret(env.entraClientSecret)) {
-    throw new Error("ENTRA_CLIENT_SECRET contiene un valor de ejemplo. Crea un client secret real en Azure y configuralo como variable de usuario, variable del hosting o en .env.local.");
-  }
+  assertClientSecretLooksValid(env.entraClientSecret, "ENTRA_CLIENT_SECRET");
 }
 
 export async function getBusinessCentralAccessToken() {
@@ -53,7 +41,7 @@ export async function getBusinessCentralAccessToken() {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OAuth BC error ${res.status}: ${text}`);
+    throw new Error(explainInvalidClientSecret(res.status, text, env.entraClientId, "ENTRA_CLIENT_SECRET") || `OAuth BC error ${res.status}: ${text}`);
   }
   const json = await res.json();
   cache = { token: json.access_token, expiresAt: Date.now() + Number(json.expires_in || 3600) * 1000 };

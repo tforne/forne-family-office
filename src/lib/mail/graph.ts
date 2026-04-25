@@ -1,3 +1,5 @@
+import { assertClientSecretLooksValid, explainInvalidClientSecret } from "@/lib/auth/client-secret";
+
 const defaultMailbox = "office@forne.family";
 
 function required(name: string, value: string | undefined) {
@@ -9,13 +11,17 @@ function required(name: string, value: string | undefined) {
 }
 
 function mailConfig() {
-  return {
+  const config = {
     tenantId: required("GRAPH_TENANT_ID o ENTRA_TENANT_ID", process.env.GRAPH_TENANT_ID || process.env.ENTRA_TENANT_ID),
     clientId: required("GRAPH_CLIENT_ID o ENTRA_CLIENT_ID", process.env.GRAPH_CLIENT_ID || process.env.ENTRA_CLIENT_ID),
     clientSecret: required("GRAPH_CLIENT_SECRET o ENTRA_CLIENT_SECRET", process.env.GRAPH_CLIENT_SECRET || process.env.ENTRA_CLIENT_SECRET),
     fromUser: (process.env.MAIL_FROM_USER || defaultMailbox).trim(),
     to: (process.env.MAIL_TO || defaultMailbox).trim()
   };
+
+  assertClientSecretLooksValid(config.clientSecret, process.env.GRAPH_CLIENT_SECRET ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET");
+
+  return config;
 }
 
 async function getGraphAccessToken() {
@@ -36,7 +42,14 @@ async function getGraphAccessToken() {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OAuth Graph error ${res.status}: ${text}`);
+    throw new Error(
+      explainInvalidClientSecret(
+        res.status,
+        text,
+        config.clientId,
+        process.env.GRAPH_CLIENT_SECRET ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET"
+      ) || `OAuth Graph error ${res.status}: ${text}`
+    );
   }
 
   const payload = await res.json();

@@ -36,11 +36,15 @@ export default function AvailabilityInterestForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-4 space-y-3">
+      <div className="rounded-2xl border border-forne-line bg-forne-cloud/70 px-4 py-3 text-sm leading-6 text-forne-muted">
+        Cuéntanos qué tipo de inmueble te interesa y nuestro equipo revisará la disponibilidad para responderte de forma personalizada.
+      </div>
+
       <input
         type="text"
         value={name}
         onChange={(event) => setName(event.target.value)}
-        placeholder="Nombre"
+        placeholder="Tu nombre"
         className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
         required
         maxLength={120}
@@ -49,7 +53,7 @@ export default function AvailabilityInterestForm() {
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
-        placeholder="Correo electrónico"
+        placeholder="Tu correo electrónico"
         className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
         required
         maxLength={180}
@@ -57,7 +61,7 @@ export default function AvailabilityInterestForm() {
       <textarea
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        placeholder="Cuéntanos qué tipo de activo te interesa"
+        placeholder="Ejemplo: Busco un piso de 2 habitaciones en Barcelona o alrededores, disponible en los próximos meses."
         className="min-h-24 w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm leading-6 text-forne-ink outline-none transition focus:border-forne-ink"
         required
         maxLength={1000}
@@ -67,8 +71,12 @@ export default function AvailabilityInterestForm() {
         disabled={status === "sending"}
         className="w-full rounded-xl bg-forne-ink px-4 py-3 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {status === "sending" ? "Enviando solicitud..." : "Solicitar información"}
+        {status === "sending" ? "Enviando solicitud..." : "Quiero recibir información"}
       </button>
+
+      <div className="text-xs leading-5 text-forne-muted">
+        Te responderemos desde Forné Family Office a la dirección indicada.
+      </div>
 
       {status === "sent" ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
