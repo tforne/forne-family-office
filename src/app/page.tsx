@@ -4,6 +4,7 @@ import ContactSection from "@/components/public/ContactSection";
 import Footer from "@/components/public/Footer";
 import Header from "@/components/public/Header";
 import Hero from "@/components/public/Hero";
+import NewsSection from "@/components/public/NewsSection";
 import ServicesSection from "@/components/public/ServicesSection";
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
       <Hero />
       <AboutSection />
       <ServicesSection />
+      <NewsSection />
       <ClientAreaSection />
       <ContactSection />
       <Footer />

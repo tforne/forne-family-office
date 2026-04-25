@@ -14,7 +14,8 @@ const adminItems = [
   { href: "/portal", label: "Inicio" },
   { href: "/portal/invoices", label: "Facturas" },
   { href: "/portal/incidents", label: "Incidencias" },
-  { href: "/portal/admin/users", label: "Administración" },
+  { href: "/portal/admin/users", label: "Usuarios" },
+  { href: "/portal/admin/news", label: "Noticias" },
 ];
 
 export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boolean }) {

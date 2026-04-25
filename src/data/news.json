@@ -1,0 +1,82 @@
+[
+  {
+    "id": "revision-instalaciones-electricas",
+    "category": "Mantenimiento",
+    "categoryColor": "#0078D4",
+    "categoryBackground": "#EAF4FE",
+    "date": "Abril 2026",
+    "title": "Revisión anual de instalaciones eléctricas",
+    "description": "Durante el mes de abril se realizarán inspecciones periódicas en los inmuebles de la cartera. Los inquilinos afectados serán contactados individualmente con al menos 48 horas de antelación para coordinar el acceso.",
+    "link": ""
+  },
+  {
+    "id": "descarga-facturas-pdf",
+    "category": "Portal",
+    "categoryColor": "#2F8F2F",
+    "categoryBackground": "#EAF6EA",
+    "date": "Marzo 2026",
+    "title": "Nueva función: descarga de facturas en PDF",
+    "description": "Desde el portal privado ya es posible descargar todas las facturas en formato PDF directamente desde la ficha del inmueble. La mejora está disponible para todos los inquilinos activos sin necesidad de solicitud previa.",
+    "link": ""
+  },
+  {
+    "id": "actualizacion-horario-atencion",
+    "category": "Aviso general",
+    "categoryColor": "#A36A00",
+    "categoryBackground": "#FBF2DF",
+    "date": "Febrero 2026",
+    "title": "Actualización del horario de atención telefónica",
+    "description": "A partir del 1 de marzo el horario de atención telefónica pasa a ser de lunes a viernes de 9:00 a 14:00 h. Fuera de ese horario, las consultas pueden enviarse por correo a office@forne.family y se responderán en menos de 24 horas.",
+    "link": ""
+  },
+  {
+    "id": "ajudas-lloguer-36-64",
+    "category": "Ayudas",
+    "categoryColor": "#C23934",
+    "categoryBackground": "#FDE7E9",
+    "date": "14 abril 2026",
+    "title": "Abierta la convocatoria de ayudas al alquiler para personas de 36 a 64 años",
+    "description": "El Ayuntamiento de Montornès del Vallès ha difundido la apertura de la convocatoria de ayudas al pago del alquiler para personas de entre 36 y 64 años. El plazo de solicitud está abierto desde el 14 de abril y finaliza el 30 de abril de 2026.",
+    "link": "https://www.montornes.cat/actualitat/noticies/2026/04/14/convocatoria-d-ajuts-al-lloguer-per-a-persones-de-36-a-64-anys"
+  },
+  {
+    "id": "contenedores-inteligentes-residuos",
+    "category": "Municipio",
+    "categoryColor": "#0B6A6F",
+    "categoryBackground": "#E7F6F7",
+    "date": "Abril 2026",
+    "title": "Entra en marcha el nuevo sistema de residuos con contenedores inteligentes",
+    "description": "Montornès del Vallès ha puesto en funcionamiento en abril el nuevo modelo de recogida selectiva con contenedores inteligentes. Además, el consistorio mantiene un periodo extraordinario para recoger tarjetas de apertura y acceso a la app ReciclaVO durante las primeras semanas de implantación.",
+    "link": "https://www.montornes.cat/nou-sistema-de-recollida-de-residus-amb-contenidors-intel-ligents"
+  },
+  {
+    "id": "suport-comunitats-veins",
+    "category": "Convivencia",
+    "categoryColor": "#8C4A11",
+    "categoryBackground": "#F8EBDD",
+    "date": "Abril 2026",
+    "title": "Disponible el servicio municipal de apoyo a comunidades de vecinos",
+    "description": "El municipio ofrece un servicio de orientación para comunidades vecinales sobre organización interna, convivencia, impagos, participación en juntas y mantenimiento. La atención se presta en la Oficina de Atención Ciudadana Nord los jueves de 11:00 a 19:00 h.",
+    "link": "https://www.montornes.cat/seu_electronica/serveis-i-tramits/serveis/habitatge/servei-de-suport-a-comunitats-de-veins-i-veines"
+  },
+  {
+    "id": "normas-convivencia-nocturna",
+    "category": "Comunidad",
+    "categoryColor": "#5C2E91",
+    "categoryBackground": "#F1E9FB",
+    "date": "Guía del piso",
+    "title": "Recuerda respetar el descanso vecinal y el uso de las zonas comunes",
+    "description": "La guía de convivencia del inmueble recuerda evitar ruidos molestos, especialmente entre las 22:00 y las 8:00, no organizar fiestas que alteren la tranquilidad del edificio y mantener limpios portal, escaleras y demás espacios comunes.",
+    "link": ""
+  },
+  {
+    "id": "mantenimiento-preventivo-vivienda",
+    "category": "Vivienda",
+    "categoryColor": "#006C4F",
+    "categoryBackground": "#E6F4EF",
+    "date": "Guía del piso",
+    "title": "Mantenimiento preventivo anual de caldera, termo y equipos del piso",
+    "description": "La documentación de la vivienda indica que el inquilino debe realizar mantenimiento preventivo anual, a su cargo y mediante técnico cualificado, en los equipos que lo requieran, como caldera o termo y el dispositivo PURAIR, para asegurar su correcto funcionamiento.",
+    "link": ""
+  }
+]
