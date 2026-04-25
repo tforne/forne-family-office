@@ -23,11 +23,10 @@ export default function Hero() {
           <div className="mt-8 max-w-xl">
             <div className="rounded-[28px] border border-forne-line bg-white p-6 shadow-sm">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-forne-muted">
-                Oportunidades disponibles
+                Disponibilidad actual
               </div>
               <div className="mt-3 flex items-end gap-3">
-                <div className="text-4xl font-semibold tracking-tight text-forne-ink">42</div>
-                <div className="pb-1 text-sm font-medium text-forne-muted">activos libres</div>
+                <div className="text-2xl font-semibold tracking-tight text-forne-ink">Consulta nuestras oportunidades</div>
               </div>
               <div className="mt-3 max-w-lg text-sm leading-7 text-forne-muted">
                 Si estás buscando una nueva vivienda o quieres conocer la disponibilidad actual, déjanos tus datos y te contactaremos con una propuesta ajustada a tu interés.
