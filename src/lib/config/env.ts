@@ -1,3 +1,5 @@
+import { readServerEnv } from "@/lib/config/server-env";
+
 function normalizeTenantId(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -16,42 +18,42 @@ function normalizeUrl(value: string) {
 }
 
 export const env = {
-  useMockApi: process.env.USE_MOCK_API !== "false",
-  useDemoLogin: process.env.USE_DEMO_LOGIN !== "false",
-  appBaseUrl: normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000"),
-  entraTenantId: process.env.ENTRA_TENANT_ID || "",
-  entraClientId: process.env.ENTRA_CLIENT_ID || "",
-  entraClientSecret: process.env.ENTRA_CLIENT_SECRET || "",
+  useMockApi: readServerEnv("USE_MOCK_API") !== "false",
+  useDemoLogin: readServerEnv("USE_DEMO_LOGIN") !== "false",
+  appBaseUrl: normalizeUrl(readServerEnv("APP_BASE_URL") || "http://localhost:3000"),
+  entraTenantId: readServerEnv("ENTRA_TENANT_ID"),
+  entraClientId: readServerEnv("ENTRA_CLIENT_ID"),
+  entraClientSecret: readServerEnv("ENTRA_CLIENT_SECRET"),
   entraAuthority:
-    process.env.ENTRA_AUTHORITY ||
-    (process.env.ENTRA_TENANT_ID ? `https://login.microsoftonline.com/${process.env.ENTRA_TENANT_ID}` : ""),
+    readServerEnv("ENTRA_AUTHORITY") ||
+    (readServerEnv("ENTRA_TENANT_ID") ? `https://login.microsoftonline.com/${readServerEnv("ENTRA_TENANT_ID")}` : ""),
   entraIssuer:
-    process.env.ENTRA_ISSUER ||
-    (process.env.ENTRA_AUTHORITY
-      ? `${normalizeUrl(process.env.ENTRA_AUTHORITY)}/v2.0`
-      : process.env.ENTRA_TENANT_ID
-      ? `https://login.microsoftonline.com/${process.env.ENTRA_TENANT_ID}/v2.0`
+    readServerEnv("ENTRA_ISSUER") ||
+    (readServerEnv("ENTRA_AUTHORITY")
+      ? `${normalizeUrl(readServerEnv("ENTRA_AUTHORITY"))}/v2.0`
+      : readServerEnv("ENTRA_TENANT_ID")
+      ? `https://login.microsoftonline.com/${readServerEnv("ENTRA_TENANT_ID")}/v2.0`
       : ""),
   entraRedirectUri:
-    process.env.ENTRA_REDIRECT_URI || `${normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000")}/api/auth/callback`,
-  graphScope: process.env.GRAPH_SCOPE || "https://graph.microsoft.com/.default",
+    readServerEnv("ENTRA_REDIRECT_URI") || `${normalizeUrl(readServerEnv("APP_BASE_URL") || "http://localhost:3000")}/api/auth/callback`,
+  graphScope: readServerEnv("GRAPH_SCOPE") || "https://graph.microsoft.com/.default",
   graphInviteRedirectUrl:
-    process.env.GRAPH_INVITE_REDIRECT_URL || `${normalizeUrl(process.env.APP_BASE_URL || "http://localhost:3000")}/login`,
-  bcBaseUrl: process.env.BC_BASE_URL || "",
-  bcTenantId: normalizeTenantId(process.env.BC_TENANT_ID || process.env.ENTRA_TENANT_ID || ""),
-  bcEnvironment: process.env.BC_ENVIRONMENT || "",
-  bcCompanyId: process.env.BC_COMPANY_ID || "",
-  bcCompanyName: process.env.BC_COMPANY_NAME || "",
-  bcScope: process.env.BC_SCOPE || "",
-  bcApiPublisher: process.env.BC_API_PUBLISHER || "onedata",
-  bcApiGroup: process.env.BC_API_GROUP || "tenantportal",
-  bcApiVersion: process.env.BC_API_VERSION || "v1.0",
-  bcCreateIncidentsEndpoint: process.env.BC_CREATE_INCIDENTS_ENDPOINT || "",
-  bcIncidentCommentsEndpoint: process.env.BC_INCIDENT_COMMENTS_ENDPOINT || "tenantIncidentComments",
-  bcProfileUsersEndpoint: process.env.BC_PROFILE_USERS_ENDPOINT || "",
-  bcProfileUserEmailField: process.env.BC_PROFILE_USER_EMAIL_FIELD || "email",
-  bcProfileUserCustomerNoField: process.env.BC_PROFILE_USER_CUSTOMER_NO_FIELD || "customerNo",
-  bcProfileUserExternalUserIdField: process.env.BC_PROFILE_USER_EXTERNAL_USER_ID_FIELD || "externalUserId",
-  bcTenantPortalUsersEndpoint: process.env.BC_TENANT_PORTAL_USERS_ENDPOINT || "tenantPortalUsers",
-  portalAdminEmails: process.env.PORTAL_ADMIN_EMAILS || ""
+    readServerEnv("GRAPH_INVITE_REDIRECT_URL") || `${normalizeUrl(readServerEnv("APP_BASE_URL") || "http://localhost:3000")}/login`,
+  bcBaseUrl: readServerEnv("BC_BASE_URL"),
+  bcTenantId: normalizeTenantId(readServerEnv("BC_TENANT_ID") || readServerEnv("ENTRA_TENANT_ID") || ""),
+  bcEnvironment: readServerEnv("BC_ENVIRONMENT"),
+  bcCompanyId: readServerEnv("BC_COMPANY_ID"),
+  bcCompanyName: readServerEnv("BC_COMPANY_NAME"),
+  bcScope: readServerEnv("BC_SCOPE"),
+  bcApiPublisher: readServerEnv("BC_API_PUBLISHER") || "onedata",
+  bcApiGroup: readServerEnv("BC_API_GROUP") || "tenantportal",
+  bcApiVersion: readServerEnv("BC_API_VERSION") || "v1.0",
+  bcCreateIncidentsEndpoint: readServerEnv("BC_CREATE_INCIDENTS_ENDPOINT"),
+  bcIncidentCommentsEndpoint: readServerEnv("BC_INCIDENT_COMMENTS_ENDPOINT") || "tenantIncidentComments",
+  bcProfileUsersEndpoint: readServerEnv("BC_PROFILE_USERS_ENDPOINT"),
+  bcProfileUserEmailField: readServerEnv("BC_PROFILE_USER_EMAIL_FIELD") || "email",
+  bcProfileUserCustomerNoField: readServerEnv("BC_PROFILE_USER_CUSTOMER_NO_FIELD") || "customerNo",
+  bcProfileUserExternalUserIdField: readServerEnv("BC_PROFILE_USER_EXTERNAL_USER_ID_FIELD") || "externalUserId",
+  bcTenantPortalUsersEndpoint: readServerEnv("BC_TENANT_PORTAL_USERS_ENDPOINT") || "tenantPortalUsers",
+  portalAdminEmails: readServerEnv("PORTAL_ADMIN_EMAILS")
 };

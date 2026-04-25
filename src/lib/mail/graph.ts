@@ -1,4 +1,5 @@
 import { assertClientSecretLooksValid, explainInvalidClientSecret } from "@/lib/auth/client-secret";
+import { readServerEnv } from "@/lib/config/server-env";
 
 const defaultMailbox = "office@forne.family";
 
@@ -11,15 +12,17 @@ function required(name: string, value: string | undefined) {
 }
 
 function mailConfig() {
+  const graphClientSecret = readServerEnv("GRAPH_CLIENT_SECRET");
+  const entraClientSecret = readServerEnv("ENTRA_CLIENT_SECRET");
   const config = {
-    tenantId: required("GRAPH_TENANT_ID o ENTRA_TENANT_ID", process.env.GRAPH_TENANT_ID || process.env.ENTRA_TENANT_ID),
-    clientId: required("GRAPH_CLIENT_ID o ENTRA_CLIENT_ID", process.env.GRAPH_CLIENT_ID || process.env.ENTRA_CLIENT_ID),
-    clientSecret: required("GRAPH_CLIENT_SECRET o ENTRA_CLIENT_SECRET", process.env.GRAPH_CLIENT_SECRET || process.env.ENTRA_CLIENT_SECRET),
-    fromUser: (process.env.MAIL_FROM_USER || defaultMailbox).trim(),
-    to: (process.env.MAIL_TO || defaultMailbox).trim()
+    tenantId: required("GRAPH_TENANT_ID o ENTRA_TENANT_ID", readServerEnv("GRAPH_TENANT_ID") || readServerEnv("ENTRA_TENANT_ID")),
+    clientId: required("GRAPH_CLIENT_ID o ENTRA_CLIENT_ID", readServerEnv("GRAPH_CLIENT_ID") || readServerEnv("ENTRA_CLIENT_ID")),
+    clientSecret: required("GRAPH_CLIENT_SECRET o ENTRA_CLIENT_SECRET", graphClientSecret || entraClientSecret),
+    fromUser: (readServerEnv("MAIL_FROM_USER") || defaultMailbox).trim(),
+    to: (readServerEnv("MAIL_TO") || defaultMailbox).trim()
   };
 
-  assertClientSecretLooksValid(config.clientSecret, process.env.GRAPH_CLIENT_SECRET ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET");
+  assertClientSecretLooksValid(config.clientSecret, graphClientSecret ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET");
 
   return config;
 }
@@ -47,7 +50,7 @@ async function getGraphAccessToken() {
         res.status,
         text,
         config.clientId,
-        process.env.GRAPH_CLIENT_SECRET ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET"
+        readServerEnv("GRAPH_CLIENT_SECRET") ? "GRAPH_CLIENT_SECRET" : "ENTRA_CLIENT_SECRET"
       ) || `OAuth Graph error ${res.status}: ${text}`
     );
   }

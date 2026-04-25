@@ -1,12 +1,72 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --ffo-blue: #0078d4;
+  --ffo-blue-dark: #003a6c;
+  --ffo-blue-mid: #106ebe;
+  --ffo-blue-soft: #eff6fc;
+  --ffo-gray-soft: #f3f2f1;
+  --ffo-text: #201f1e;
+  --ffo-text-muted: #605e5c;
+  --ffo-line: #e1dfdd;
+}
+
 body {
   margin: 0;
-  background: #f7f8fa;
-  color: #070b1a;
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(0, 120, 212, 0.08), transparent 26%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbfe 38%, #ffffff 100%);
+  color: var(--ffo-text);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 * { box-sizing: border-box; }
 a { text-decoration: none; }
-button, input { font: inherit; }
+button, input, textarea { font: inherit; }
+
+@layer components {
+  .ffo-shell {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+  }
+
+  .ffo-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.28em];
+    color: var(--ffo-blue);
+  }
+
+  .ffo-accent-line {
+    display: inline-block;
+    width: 2.5rem;
+    height: 2px;
+    background: var(--ffo-blue);
+  }
+
+  .ffo-card {
+    border: 1px solid var(--ffo-line);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 24px 60px -34px rgba(0, 58, 108, 0.28);
+    backdrop-filter: blur(6px);
+  }
+
+  .ffo-link-underline {
+    position: relative;
+  }
+
+  .ffo-link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--ffo-blue);
+    transition: width 180ms ease;
+  }
+
+  .ffo-link-underline:hover::after {
+    width: 100%;
+  }
+}
