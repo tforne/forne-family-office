@@ -79,15 +79,15 @@ export default function NewIncidentForm({ contracts }: Props) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="rounded-2xl border border-forne-line bg-white p-5 shadow-sm">
+    <form onSubmit={onSubmit} className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-base font-semibold text-forne-ink">Alta de nueva incidencia</div>
+          <div className="text-lg font-semibold tracking-tight text-forne-ink">Alta de nueva incidencia</div>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-forne-muted">
             Registra una nueva solicitud o avería directamente en Business Central.
           </p>
         </div>
-        <span className="w-fit rounded-full bg-forne-cloud px-3 py-1 text-xs font-semibold text-forne-muted ring-1 ring-forne-line">
+        <span className="w-fit rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-forne-muted ring-1 ring-forne-line">
           Alta directa
         </span>
       </div>
@@ -98,7 +98,7 @@ export default function NewIncidentForm({ contracts }: Props) {
           <select
             value={contractNo}
             onChange={(event) => setContractNo(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
+            className="mt-2 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
           >
             {contracts.length === 0 ? <option value="">Sin contrato asociado</option> : null}
             {contracts.map((contract) => (
@@ -114,7 +114,7 @@ export default function NewIncidentForm({ contracts }: Props) {
           <select
             value={caseType}
             onChange={(event) => setCaseType(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
+            className="mt-2 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
           >
             {incidentTypes.map((type) => (
               <option key={type.value} value={type.value}>
@@ -129,7 +129,7 @@ export default function NewIncidentForm({ contracts }: Props) {
           <select
             value={priority}
             onChange={(event) => setPriority(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
+            className="mt-2 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
           >
             {priorities.map((item) => (
               <option key={item.value} value={item.value}>
@@ -146,7 +146,7 @@ export default function NewIncidentForm({ contracts }: Props) {
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
+            className="mt-2 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
             placeholder="Ej. Fuga de agua en cocina"
             required
             maxLength={120}
@@ -158,7 +158,7 @@ export default function NewIncidentForm({ contracts }: Props) {
           <input
             value={contactPhone}
             onChange={(event) => setContactPhone(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink"
+            className="mt-2 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
             placeholder="Teléfono de contacto"
             required
             maxLength={40}
@@ -171,7 +171,7 @@ export default function NewIncidentForm({ contracts }: Props) {
         <textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          className="mt-2 min-h-36 w-full rounded-xl border border-forne-line bg-white px-3 py-3 text-sm leading-6 text-forne-ink outline-none transition focus:border-forne-ink"
+          className="mt-2 min-h-36 w-full rounded-2xl border border-forne-line bg-[#fcfdff] px-4 py-3 text-sm leading-6 text-forne-ink outline-none transition focus:border-forne-ink focus:bg-white"
           placeholder="Describe qué ocurre, desde cuándo, y cualquier detalle útil para resolverlo."
           required
           maxLength={4000}
@@ -183,7 +183,7 @@ export default function NewIncidentForm({ contracts }: Props) {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="rounded-xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_-24px_rgba(7,11,26,0.8)] transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === "sending" ? "Enviando..." : "Enviar alta"}
         </button>

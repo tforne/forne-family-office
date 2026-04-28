@@ -40,8 +40,10 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                active ? "bg-forne-ink text-white shadow-sm" : "text-forne-muted hover:bg-forne-cloud hover:text-forne-ink"
+              className={`block rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 ${
+                active
+                  ? "border border-forne-ink/10 bg-forne-ink text-white shadow-[0_18px_35px_-24px_rgba(7,11,26,0.9)]"
+                  : "border border-transparent text-forne-muted hover:border-forne-line hover:bg-white hover:text-forne-ink hover:shadow-sm"
               }`}
             >
               {item.label}
@@ -54,21 +56,21 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
 
   return (
     <>
-      <div className="border-b border-forne-line bg-white px-5 py-4 lg:hidden">
+      <div className="border-b border-forne-line/80 bg-white/90 px-5 py-4 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <Link href="/portal" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-forne-ink text-sm font-semibold text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-forne-ink text-sm font-semibold text-white shadow-[0_16px_30px_-18px_rgba(7,11,26,0.8)]">
               F
             </div>
             <div>
               <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Portal</div>
-              <div className="text-xs text-forne-muted">Área privada</div>
+              <div className="text-xs text-forne-muted">Espacio privado de cliente</div>
             </div>
           </Link>
           <button
             type="button"
             onClick={onLogout}
-            className="rounded-xl border border-forne-line px-3 py-2 text-xs font-semibold text-forne-muted"
+            className="rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink"
           >
             Salir
           </button>
@@ -81,8 +83,10 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-xl px-3 py-2 text-xs font-semibold ${
-                    active ? "bg-forne-ink text-white" : "border border-forne-line bg-white text-forne-muted"
+                  className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                    active
+                      ? "bg-forne-ink text-white shadow-[0_14px_28px_-22px_rgba(7,11,26,0.8)]"
+                      : "border border-forne-line bg-white text-forne-muted"
                   }`}
                 >
                   {item.label}
@@ -93,26 +97,34 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
         </div>
       </div>
 
-      <aside className="hidden w-72 flex-col border-r border-forne-line bg-white lg:flex">
-      <div className="border-b border-forne-line p-6">
+      <aside className="hidden w-80 flex-col border-r border-forne-line/80 bg-[#f6f8fb] lg:flex">
+      <div className="border-b border-forne-line/80 p-7">
         <Link href="/portal" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-forne-ink text-sm font-semibold text-white shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-forne-ink text-sm font-semibold text-white shadow-[0_18px_35px_-22px_rgba(7,11,26,0.8)]">
             F
           </div>
           <div>
             <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Portal</div>
-            <div className="text-xs text-forne-muted">Área privada</div>
+            <div className="text-xs text-forne-muted">Espacio privado de cliente</div>
           </div>
         </Link>
       </div>
-      <nav className="flex-1 px-4 py-6">
+      <div className="px-7 pt-6">
+        <div className="rounded-3xl border border-forne-line bg-white/80 px-4 py-4 shadow-[0_22px_45px_-34px_rgba(15,23,42,0.28)]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">Navegación</div>
+          <div className="mt-1 text-sm leading-6 text-forne-muted">
+            Acceso directo a tu información y gestiones.
+          </div>
+        </div>
+      </div>
+      <nav className="flex-1 px-5 py-6">
         {navItems}
       </nav>
-      <div className="border-t border-forne-line p-4">
+      <div className="border-t border-forne-line/80 p-5">
         <button
           type="button"
           onClick={onLogout}
-          className="w-full rounded-xl border border-forne-line px-4 py-3 text-left text-sm font-medium text-forne-muted transition hover:bg-forne-cloud hover:text-forne-ink"
+          className="w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-left text-sm font-medium text-forne-muted shadow-sm transition hover:border-forne-ink/10 hover:bg-white hover:text-forne-ink"
         >
           Salir
         </button>

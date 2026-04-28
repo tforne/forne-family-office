@@ -1,4 +1,4 @@
-import type { MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto } from "@/lib/dto";
+import type { MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto } from "@/lib/dto";
 
 export const mockMe: MeDto = {
   userId: "external-demo-user",
@@ -45,6 +45,35 @@ export const mockInvoices: InvoiceDto[] = [
     currencyCode: null,
     amountIncludingVat: 1000,
     remainingAmount: 0
+  }
+];
+
+export const mockInvoiceLines: InvoiceLineDto[] = [
+  {
+    id: "1-1",
+    invoiceId: "1",
+    invoiceNo: "FV-2026-001",
+    lineNo: 10000,
+    description: "Renta mensual vivienda",
+    quantity: 1,
+    unitPrice: 850,
+    amount: 850,
+    amountIncludingVat: 850,
+    vatPercent: 0,
+    currencyCode: "EUR"
+  },
+  {
+    id: "1-2",
+    invoiceId: "1",
+    invoiceNo: "FV-2026-001",
+    lineNo: 20000,
+    description: "Gastos repercutidos",
+    quantity: 1,
+    unitPrice: 150,
+    amount: 150,
+    amountIncludingVat: 150,
+    vatPercent: 0,
+    currencyCode: "EUR"
   }
 ];
 

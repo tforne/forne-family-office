@@ -3,9 +3,9 @@ import { env } from "@/lib/config/env";
 
 function DetailCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-forne-line bg-white p-5 shadow-sm">
-      <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">{label}</div>
-      <div className="mt-2 break-words text-sm font-medium leading-6 text-forne-ink">{value || "-"}</div>
+    <div className="rounded-3xl border border-forne-line bg-white p-5 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+      <div className="mt-3 break-words text-sm font-medium leading-6 text-forne-ink">{value || "-"}</div>
     </div>
   );
 }
@@ -23,14 +23,14 @@ export default async function Page() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+      <section className="rounded-[28px] border border-forne-line bg-white p-7 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-forne-ink text-lg font-semibold text-white">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-forne-ink text-lg font-semibold text-white shadow-[0_18px_36px_-24px_rgba(7,11,26,0.8)]">
               {(data.customerName || data.email || "C").slice(0, 1).toUpperCase()}
             </div>
             <div>
-              <div className="text-xl font-semibold text-forne-ink">{data.customerName || "Cliente"}</div>
+              <div className="text-2xl font-semibold tracking-tight text-forne-ink">{data.customerName || "Cliente"}</div>
               <div className="mt-1 text-sm text-forne-muted">{data.email}</div>
             </div>
           </div>

@@ -49,10 +49,15 @@ function getLocalEnvValues() {
 }
 
 export function readServerEnv(name: string) {
+  const runtimeValue = process.env[name];
+  if (typeof runtimeValue === "string" && runtimeValue.length > 0) {
+    return runtimeValue;
+  }
+
   const localValue = getLocalEnvValues()[name];
   if (typeof localValue === "string" && localValue.length > 0) {
     return localValue;
   }
 
-  return process.env[name] || "";
+  return "";
 }
