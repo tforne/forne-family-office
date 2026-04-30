@@ -1,5 +1,7 @@
+import { env } from "@/lib/config/env";
+
 export const bcEndpoints = {
-  assets: "tenantAssets",
+  assets: env.bcAssetsEndpoint,
   me: "tenantProfiles",
   contracts: "tenantContracts",
   invoices: "tenantInvoices",

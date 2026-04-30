@@ -16,6 +16,7 @@ export async function GET() {
 
     return NextResponse.json({
       tenantProfiles: await readSample(bcEndpoints.me),
+      tenantAssets: await readSample(bcEndpoints.assets),
       tenantPortalUser: env.bcProfileUsersEndpoint
         ? await readSample(env.bcProfileUsersEndpoint)
         : { error: "BC_PROFILE_USERS_ENDPOINT is not configured" },

@@ -50,6 +50,7 @@ export const env = {
   bcApiVersion: readServerEnv("BC_API_VERSION") || "v1.0",
   bcCreateIncidentsEndpoint: readServerEnv("BC_CREATE_INCIDENTS_ENDPOINT"),
   bcIncidentCommentsEndpoint: readServerEnv("BC_INCIDENT_COMMENTS_ENDPOINT") || "tenantIncidentComments",
+  bcAssetsEndpoint: readServerEnv("BC_ASSETS_ENDPOINT") || "tenantAssets",
   bcInvoiceLinesEndpoint: readServerEnv("BC_INVOICE_LINES_ENDPOINT") || "tenantInvoiceLines",
   bcProfileUsersEndpoint: readServerEnv("BC_PROFILE_USERS_ENDPOINT"),
   bcProfileUserEmailField: readServerEnv("BC_PROFILE_USER_EMAIL_FIELD") || "email",
