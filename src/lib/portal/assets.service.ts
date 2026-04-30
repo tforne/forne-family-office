@@ -72,14 +72,42 @@ export async function getAssets(): Promise<AssetDto[]> {
   if (assetNumbers.length === 0) return [];
 
   const user = await resolvePortalUserContext();
-  const payload = await bcGetForCompany<{ value?: Partial<AssetDto>[] }>(
-    { companyId: user.bcCompanyId, companyName: user.bcCompanyName },
-    bcEndpoints.assets,
-    odataQuery({
-      filter: inFilter("number", assetNumbers),
-      top: Math.max(assetNumbers.length, 20)
-    })
-  );
+  const company = { companyId: user.bcCompanyId, companyName: user.bcCompanyName };
+  const candidateFields = ["number", "no", "propertyNo", "assetNo", "fixedRealEstateNo"];
+  let lastError: Error | null = null;
 
-  return unwrap(payload).map(normalizeAsset);
+  for (const field of candidateFields) {
+    try {
+      const payload = await bcGetForCompany<{ value?: Partial<AssetDto>[] }>(
+        company,
+        bcEndpoints.assets,
+        odataQuery({
+          filter: inFilter(field, assetNumbers),
+          top: Math.max(assetNumbers.length, 20)
+        })
+      );
+
+      return unwrap(payload).map(normalizeAsset);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+
+      if (
+        message.includes("404") ||
+        message.includes("Could not find a property named") ||
+        message.includes("BadRequest")
+      ) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  if (lastError) {
+    console.warn("[portal/assets] No compatible asset field found in Business Central.", lastError);
+    return [];
+  }
+
+  return [];
 }

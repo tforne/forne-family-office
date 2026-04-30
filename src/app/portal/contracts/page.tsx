@@ -1,17 +1,23 @@
 import Link from "next/link";
 import { getAssets } from "@/lib/portal/assets.service";
+import { getAssetAttributes } from "@/lib/portal/asset-attributes.service";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import type { AssetDto } from "@/lib/dto/asset.dto";
+import type { AssetAttributeDto } from "@/lib/dto/asset-attribute.dto";
 import type { ContractDto } from "@/lib/dto/contract.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
 
 async function safeLoad<T>(loader: () => Promise<T>, fallback: T) {
   try {
-    return { data: await loader(), failed: false };
+    return { data: await loader(), failed: false, errorMessage: "" };
   } catch (error) {
     console.error("[portal/contracts] Error loading resource", error);
-    return { data: fallback, failed: true };
+    return {
+      data: fallback,
+      failed: true,
+      errorMessage: error instanceof Error ? error.message : "Unknown resource error"
+    };
   }
 }
 
@@ -41,6 +47,22 @@ function formatNumber(value: number | null | undefined, suffix = "") {
 
 function safeText(value: string | null | undefined, fallback: string) {
   return value && value.trim() ? value : fallback;
+}
+
+function hasUsefulText(value: string | null | undefined) {
+  if (!value) return false;
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return false;
+
+  return normalized !== "no disponible" && normalized !== "-";
+}
+
+function hasMeaningfulAttributeContent(attribute: AssetAttributeDto) {
+  return Boolean(
+    hasUsefulText(attribute.value) ||
+      hasUsefulText(attribute.comment)
+  );
 }
 
 function getPrimaryContract(contracts: ContractDto[]) {
@@ -102,6 +124,27 @@ function buildAddress(asset?: AssetDto) {
   );
 }
 
+function buildFallbackAssetTitle(asset?: AssetDto, contract?: ContractDto) {
+  return safeText(
+    asset?.description || asset?.propertyDescription,
+    safeText(contract?.fixedRealEstateDescription, "Activo sin descripción")
+  );
+}
+
+function buildFallbackAssetDescription(asset?: AssetDto, contract?: ContractDto) {
+  return safeText(
+    asset?.commercialDescription || asset?.description2 || asset?.propertyDescription,
+    contract?.description || "No hay una descripción comercial disponible para este activo."
+  );
+}
+
+function buildAssetAddress(asset?: AssetDto, contract?: ContractDto) {
+  const assetAddress = buildAddress(asset);
+  if (assetAddress !== "No disponible") return assetAddress;
+
+  return safeText(contract?.fixedRealEstateDescription, "No disponible");
+}
+
 function DetailCard({
   label,
   value,
@@ -130,11 +173,26 @@ export default async function ContractsPage() {
   const contracts = contractsResult.data;
   const invoices = invoicesResult.data;
   const assets = assetsResult.data;
-  const assetsUnavailable = assetsResult.failed;
 
   const primaryContract = getPrimaryContract(contracts);
   const primaryAsset = getPrimaryAsset(assets, primaryContract);
   const nextPendingInvoice = getNextPendingInvoice(invoices, primaryContract);
+  const assetAttributesResult = await safeLoad<AssetAttributeDto[]>(
+    () => getAssetAttributes(primaryAsset?.number || primaryContract?.fixedRealEstateNo),
+    []
+  );
+  const visibleAssetAttributes = assetAttributesResult.data.filter(hasMeaningfulAttributeContent);
+  const hasContractualFallback =
+    Boolean(primaryContract) ||
+    Boolean(primaryContract?.fixedRealEstateDescription) ||
+    Boolean(primaryContract?.fixedRealEstateNo);
+  const showAssetsWarning = assetsResult.failed && !hasContractualFallback;
+  const introText =
+    assets.length > 0
+      ? "Vista conectada con Business Central para consultar el activo asociado, su situación operativa y el resumen económico vinculado."
+      : "Resumen del inmueble basado en la información contractual disponible, con la situación operativa y económica más relevante para el cliente.";
+  const showAssetsDiagnostics = assetsResult.failed;
+  const showAssetAttributesDiagnostics = assetAttributesResult.failed;
 
   return (
     <div className="space-y-8">
@@ -143,7 +201,7 @@ export default async function ContractsPage() {
           <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Activo inmobiliario</div>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Ficha del inmueble</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-forne-muted">
-            Vista conectada con Business Central para consultar el activo asociado, su situación operativa y el resumen económico vinculado.
+            {introText}
           </p>
         </div>
 
@@ -156,19 +214,47 @@ export default async function ContractsPage() {
         </Link>
       </div>
 
-      {assetsUnavailable ? (
+      {showAssetsWarning ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
           No hemos podido cargar toda la ficha del activo desde Business Central. La página mantiene el resumen operativo con los datos contractuales disponibles.
         </div>
       ) : null}
 
+      {showAssetsDiagnostics ? (
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-6 text-slate-700">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            Diagnóstico temporal
+          </div>
+          <div className="mt-3">
+            Error al cargar el activo desde Business Central:
+          </div>
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-white px-4 py-3 text-xs leading-6 text-slate-800">
+            {assetsResult.errorMessage || "No se recibió detalle adicional."}
+          </pre>
+        </section>
+      ) : null}
+
+      {showAssetAttributesDiagnostics ? (
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-6 text-slate-700">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            Diagnóstico temporal atributos
+          </div>
+          <div className="mt-3">
+            Error al cargar los atributos del inmueble desde Business Central:
+          </div>
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-white px-4 py-3 text-xs leading-6 text-slate-800">
+            {assetAttributesResult.errorMessage || "No se recibió detalle adicional."}
+          </pre>
+        </section>
+      ) : null}
+
       <section className="overflow-hidden rounded-[30px] bg-[#0B1020] p-6 text-white shadow-[0_30px_90px_-40px_rgba(11,16,32,0.65)] sm:p-8 lg:p-10">
         <div className="text-xs font-semibold uppercase tracking-[0.32em] text-[#CBB89A]">Activo principal</div>
         <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.3rem]">
-          {safeText(primaryAsset?.description, safeText(primaryContract?.fixedRealEstateDescription, "Sin inmueble asociado"))}
+          {buildFallbackAssetTitle(primaryAsset, primaryContract)}
         </h2>
         <p className="mt-3 max-w-3xl text-base leading-7 text-[#C8CFDD]">
-          {buildAddress(primaryAsset)}
+          {buildAssetAddress(primaryAsset, primaryContract)}
         </p>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
@@ -204,17 +290,14 @@ export default async function ContractsPage() {
         <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)] xl:col-span-2">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Características del inmueble</div>
           <h3 className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">
-            {safeText(primaryAsset?.description, "Activo sin descripción")}
+            {buildFallbackAssetTitle(primaryAsset, primaryContract)}
           </h3>
           <p className="mt-2 text-sm leading-6 text-forne-muted">
-            {safeText(
-              primaryAsset?.commercialDescription || primaryAsset?.description2,
-              "No hay una descripción comercial disponible para este activo."
-            )}
+            {buildFallbackAssetDescription(primaryAsset, primaryContract)}
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <DetailCard label="Dirección" value={buildAddress(primaryAsset)} />
+            <DetailCard label="Dirección" value={buildAssetAddress(primaryAsset, primaryContract)} />
             <DetailCard label="Superficie construida" value={formatNumber(primaryAsset?.builtAreaM2, " m²")} />
             <DetailCard label="Año de construcción" value={primaryAsset?.yearOfConstruction?.toString() || "No disponible"} />
             <DetailCard label="Propietario" value={safeText(primaryAsset?.ownerName, "No disponible")} />
@@ -250,12 +333,6 @@ export default async function ContractsPage() {
                   : "No disponible"}
               </div>
             </div>
-            <div>
-              <div className="text-sm text-forne-muted">Valor catastral total</div>
-              <div className="mt-2 text-lg font-semibold tracking-tight text-forne-ink">
-                {formatMoney(primaryAsset?.totalCadastralAssetValue)}
-              </div>
-            </div>
           </div>
         </article>
       </section>
@@ -264,37 +341,36 @@ export default async function ContractsPage() {
         <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Activos vinculados</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Atributos del inmueble</div>
               <h3 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Relación disponible</h3>
             </div>
-            <div className="text-sm text-forne-muted">{assets.length} activo(s)</div>
+            <div className="text-sm text-forne-muted">{visibleAssetAttributes.length} atributo(s)</div>
           </div>
 
-          {assets.length === 0 ? (
+          {visibleAssetAttributes.length === 0 ? (
             <div className="mt-6 rounded-2xl bg-[#F7FAFC] px-5 py-6 text-sm text-forne-muted">
-              No hay activos asociados en este momento.
+              No hay atributos disponibles para este inmueble en este momento.
             </div>
           ) : (
             <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
               <table className="min-w-full divide-y divide-forne-line text-left text-sm">
                 <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
                   <tr>
-                    <th className="px-5 py-4 font-semibold">Activo</th>
-                    <th className="px-5 py-4 font-semibold">Ubicación</th>
-                    <th className="px-5 py-4 font-semibold">Estado</th>
-                    <th className="px-5 py-4 font-semibold">Superficie</th>
+                    <th className="px-5 py-4 font-semibold">Atributo</th>
+                    <th className="px-5 py-4 font-semibold">Valor</th>
+                    <th className="px-5 py-4 font-semibold">Unidad</th>
+                    <th className="px-5 py-4 font-semibold">Comentario</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-forne-line bg-white">
-                  {assets.map((asset) => (
-                    <tr key={asset.id}>
+                  {visibleAssetAttributes.map((attribute) => (
+                    <tr key={attribute.id}>
                       <td className="px-5 py-4">
-                        <div className="font-medium text-forne-ink">{safeText(asset.description, asset.number)}</div>
-                        <div className="mt-1 text-xs text-forne-muted">{safeText(asset.number, "Sin número")}</div>
+                        <div className="font-medium text-forne-ink">{safeText(attribute.attributeName, "Sin atributo")}</div>
                       </td>
-                      <td className="px-5 py-4 text-forne-muted">{buildAddress(asset)}</td>
-                      <td className="px-5 py-4 text-forne-ink">{statusLabel(asset.status)}</td>
-                      <td className="px-5 py-4 text-forne-muted">{formatNumber(asset.builtAreaM2, " m²")}</td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.value, "No disponible")}</td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.unitOfMeasure, "-")}</td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.comment, "-")}</td>
                     </tr>
                   ))}
                 </tbody>

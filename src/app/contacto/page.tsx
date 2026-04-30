@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ContactForm from "@/components/public/ContactForm";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
 
@@ -25,13 +26,7 @@ export default function ContactPage() {
           inmueble y revisaremos la mejor forma de ayudarte.
         </p>
         <div className="mt-10 max-w-2xl rounded-[28px] border border-forne-line bg-white p-8 shadow-sm">
-          <div className="grid gap-4">
-            <input className="rounded-xl border border-forne-line px-4 py-3 text-sm outline-none focus:border-forne-ink" placeholder="Nombre" />
-            <input className="rounded-xl border border-forne-line px-4 py-3 text-sm outline-none focus:border-forne-ink" placeholder="Correo electrónico" />
-            <input className="rounded-xl border border-forne-line px-4 py-3 text-sm outline-none focus:border-forne-ink" placeholder="Asunto" />
-            <textarea className="min-h-36 rounded-xl border border-forne-line px-4 py-3 text-sm outline-none focus:border-forne-ink" placeholder="Mensaje" />
-            <button className="rounded-xl bg-forne-ink px-5 py-3.5 text-sm font-semibold text-white">Enviar</button>
-          </div>
+          <ContactForm />
         </div>
       </main>
       <Footer />

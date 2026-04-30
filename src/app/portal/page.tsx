@@ -5,6 +5,7 @@ import { getContracts } from "@/lib/portal/contracts.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
+import { isCurrentPortalAdmin } from "@/lib/portal/admin-auth";
 import type { ContractDto } from "@/lib/dto/contract.dto";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
@@ -166,12 +167,13 @@ function SummaryDetail({
 }
 
 export default async function PortalPage() {
-  const [invoicesResult, incidentsResult, incidentRequestsResult, contractsResult, newsResult] = await Promise.all([
+  const [invoicesResult, incidentsResult, incidentRequestsResult, contractsResult, newsResult, isAdmin] = await Promise.all([
     safeLoad("invoices summary", getInvoices, []),
     safeLoad("incidents summary", getIncidents, []),
     safeLoad("incident requests summary", getIncidentRequests, []),
     safeLoad("contracts summary", getContracts, []),
     safeLoad("portal news", listNewsItems, []),
+    isCurrentPortalAdmin(),
   ]);
 
   const invoices = invoicesResult.data;
@@ -209,64 +211,66 @@ export default async function PortalPage() {
         </div>
       ) : null}
 
-      <section className="rounded-[28px] border border-forne-line bg-white p-6 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
-        <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-3xl bg-forne-ink p-6 text-white">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Dashboard inicial</div>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight">Próximo recibo y situación contractual</h2>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                <div className="text-sm font-semibold text-white/70">Próximo recibo</div>
-                <div className="mt-3 text-3xl font-semibold">
-                  {nextPendingInvoice
-                    ? formatMoney(nextPendingInvoice.remainingAmount, nextPendingInvoice.currencyCode)
-                    : "Sin importe pendiente"}
+      {!isAdmin ? (
+        <section className="rounded-[28px] border border-forne-line bg-white p-6 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
+          <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-3xl bg-forne-ink p-6 text-white">
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Dashboard inicial</div>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight">Próximo recibo y situación contractual</h2>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <div className="text-sm font-semibold text-white/70">Próximo recibo</div>
+                  <div className="mt-3 text-3xl font-semibold">
+                    {nextPendingInvoice
+                      ? formatMoney(nextPendingInvoice.remainingAmount, nextPendingInvoice.currencyCode)
+                      : "Sin importe pendiente"}
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-white/60">
+                    {nextPendingInvoice
+                      ? `Vence el ${formatDate(nextPendingInvoice.dueDate)}`
+                      : "No hay recibos pendientes en este momento."}
+                  </div>
                 </div>
-                <div className="mt-2 text-sm leading-6 text-white/60">
-                  {nextPendingInvoice
-                    ? `Vence el ${formatDate(nextPendingInvoice.dueDate)}`
-                    : "No hay recibos pendientes en este momento."}
-                </div>
-              </div>
 
-              <Link
-                href="/portal/contracts"
-                className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-white/20 hover:bg-white/10"
-              >
-                <div className="text-sm font-semibold text-white/70">Contrato principal</div>
-                <div className="mt-3 text-xl font-semibold">
-                  {primaryContract?.description || primaryContract?.contractNo || "Sin contrato asociado"}
-                </div>
-                <div className="mt-2 text-sm leading-6 text-white/60">
-                  {primaryContract?.fixedRealEstateDescription || "Todavía no hay un inmueble vinculado en el resumen."}
-                </div>
-                <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                  Ver detalle
-                  <span aria-hidden="true">›</span>
-                </div>
-              </Link>
+                <Link
+                  href="/portal/contracts"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-white/20 hover:bg-white/10"
+                >
+                  <div className="text-sm font-semibold text-white/70">Contrato principal</div>
+                  <div className="mt-3 text-xl font-semibold">
+                    {primaryContract?.description || primaryContract?.contractNo || "Sin contrato asociado"}
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-white/60">
+                    {primaryContract?.fixedRealEstateDescription || "Todavía no hay un inmueble vinculado en el resumen."}
+                  </div>
+                  <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                    Ver detalle
+                    <span aria-hidden="true">›</span>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <SummaryDetail
+                label="Estado del contrato"
+                value={contractStatusLabel(primaryContract)}
+                helper={primaryContract?.contractNo ? `Contrato ${primaryContract.contractNo}` : "Sin contrato principal detectado"}
+              />
+              <SummaryDetail
+                label="Fin de contrato"
+                value={formatDate(primaryContract?.expirationDate)}
+                helper={primaryContract?.expirationDate ? "Fecha prevista de finalización actual." : "No hay fecha de fin informada."}
+              />
+              <SummaryDetail
+                label="Próxima facturación"
+                value={formatDate(primaryContract?.nextInvoiceDate || nextPendingInvoice?.dueDate)}
+                helper="Referencia temporal del próximo movimiento económico."
+              />
             </div>
           </div>
-
-          <div className="grid gap-4">
-            <SummaryDetail
-              label="Estado del contrato"
-              value={contractStatusLabel(primaryContract)}
-              helper={primaryContract?.contractNo ? `Contrato ${primaryContract.contractNo}` : "Sin contrato principal detectado"}
-            />
-            <SummaryDetail
-              label="Fin de contrato"
-              value={formatDate(primaryContract?.expirationDate)}
-              helper={primaryContract?.expirationDate ? "Fecha prevista de finalización actual." : "No hay fecha de fin informada."}
-            />
-            <SummaryDetail
-              label="Próxima facturación"
-              value={formatDate(primaryContract?.nextInvoiceDate || nextPendingInvoice?.dueDate)}
-              helper="Referencia temporal del próximo movimiento económico."
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <PortalStatCard title="Facturas pendientes" value={String(pendingInvoices)} href="/portal/invoices" />
