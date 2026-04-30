@@ -12,12 +12,12 @@ export default function Footer() {
               </div>
               <div>
                 <div className="text-[15px] font-semibold leading-tight text-white">Forné Family Office</div>
-                <div className="text-xs text-[#8A8886]">Alquileres · Atención · Portal privado</div>
+                <div className="text-xs text-[#8A8886]">Alquiler de pisos y locales · Atención · Portal privado</div>
               </div>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-[#8A8886]">
-              Gestión de alquileres con atención directa, información clara y un portal privado para
-              clientes e inquilinos.
+              Gestión de alquiler de pisos y locales con atención directa, información clara y un
+              portal privado para clientes e inquilinos.
             </p>
             <a
               href="mailto:office@forne.family"
@@ -31,6 +31,7 @@ export default function Footer() {
             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8A8886]">Navegación</div>
             <div className="mt-4 grid gap-3 text-sm text-[#605E5C]">
               <Link href="/" className="transition hover:text-white">Inicio</Link>
+              <Link href="/alquileres" className="transition hover:text-white">Alquiler de pisos y locales</Link>
               <Link href="/#quienes-somos" className="transition hover:text-white">Quiénes somos</Link>
               <Link href="/#servicios" className="transition hover:text-white">Servicios</Link>
               <Link href="/contacto" className="transition hover:text-white">Contacto</Link>
@@ -54,6 +55,7 @@ export default function Footer() {
                 office@forne.family
               </a>
               <span>Barcelona, España</span>
+              <span>Alquiler residencial y comercial</span>
               <span>Lun-Vie, 9:00-18:00</span>
             </div>
             <Link

@@ -22,13 +22,13 @@ export default async function Hero() {
           </div>
 
           <h1 className="max-w-3xl text-5xl font-semibold leading-[1.06] tracking-[-0.03em] text-[#003A6C] sm:text-6xl xl:text-[4rem]">
-            Tu vivienda, <span className="text-[#0078D4]">bien gestionada</span> y siempre clara.
+            Alquiler de pisos y locales con <span className="text-[#0078D4]">gestión clara</span> y atención cercana.
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-[#605E5C]">
-            En Forné Family Office cuidamos la relación con cada inquilino con una atención cercana,
-            ordenada y transparente. Desde el portal privado puedes consultar facturas, comunicar
-            incidencias y seguir cada gestión con claridad.
+            En Forné Family Office gestionamos alquiler residencial y alquiler comercial con una
+            atención cercana, ordenada y transparente. Desde el portal privado puedes consultar
+            facturas, comunicar incidencias y seguir cada gestión con claridad.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -100,10 +100,11 @@ export default async function Hero() {
               <span className="ffo-kicker">Disponibilidad actual</span>
             </div>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.02em] text-[#003A6C] sm:text-4xl">
-              Consulta nuestras oportunidades
+              Consulta pisos y locales disponibles
             </h2>
             <p className="mt-3 text-base leading-7 text-[#605E5C]">
-              Déjanos tus datos y te contactaremos con una propuesta ajustada a tu interés.
+              Déjanos tus datos y te contactaremos con una propuesta ajustada a tu interés en
+              alquiler de pisos o alquiler de locales.
             </p>
           </div>
 

@@ -10,7 +10,7 @@ export default function Header() {
           </div>
           <div>
             <div className="text-sm font-semibold tracking-wide text-[#201F1E]">Forné Family Office</div>
-            <div className="text-xs text-[#605E5C]">Alquileres · Atención · Portal privado</div>
+            <div className="text-xs text-[#605E5C]">Alquiler de pisos y locales · Atención · Portal privado</div>
           </div>
         </Link>
         <nav className="hidden items-center gap-8 lg:flex">

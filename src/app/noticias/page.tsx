@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { listNewsItems } from "@/lib/content/news";
+
+export const metadata: Metadata = {
+  title: "Noticias y avisos para clientes e inquilinos",
+  description:
+    "Consulta noticias, avisos y novedades relacionadas con inmuebles en alquiler, incidencias y comunicaciones del portal.",
+  alternates: {
+    canonical: "/noticias"
+  }
+};
 
 export default async function NewsPage() {
   const newsItems = await listNewsItems();
@@ -14,11 +24,11 @@ export default async function NewsPage() {
           </div>
 
           <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.02em] text-[#003A6C] sm:text-[2.9rem]">
-            Listado completo de noticias del inmueble
+            Noticias y avisos para clientes e inquilinos
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-[#605E5C]">
-            Aquí puedes consultar todos los avisos, novedades y recordatorios publicados para la
-            vivienda y su comunidad.
+            Aquí puedes consultar avisos, novedades y recordatorios publicados para viviendas,
+            locales en alquiler y su comunidad.
           </p>
 
           <Link

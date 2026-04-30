@@ -24,12 +24,13 @@ export default function ContactSection() {
           </div>
 
           <h2 className="text-4xl font-semibold tracking-[-0.02em] text-[#003A6C] sm:text-[2.65rem]">
-            Hablemos de tu alquiler o de la gestión de tu inmueble.
+            Hablemos de tu alquiler de piso, local o de la gestión de tu inmueble.
           </h2>
 
           <p className="mt-5 max-w-xl text-base leading-8 text-[#605E5C]">
-            Si quieres conocer nuestros servicios o necesitas más información, puedes contactarnos
-            directamente. Nuestro equipo te responderá en menos de 24 horas.
+            Si quieres conocer nuestros servicios de alquiler de pisos y locales o necesitas más
+            información, puedes contactarnos directamente. Nuestro equipo te responderá en menos de
+            24 horas.
           </p>
 
           <div className="mt-10 space-y-5">

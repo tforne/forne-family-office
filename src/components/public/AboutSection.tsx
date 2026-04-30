@@ -36,7 +36,7 @@ export default function AboutSection() {
           </div>
 
           <h2 className="text-4xl font-semibold leading-tight tracking-[-0.02em] text-[#003A6C] sm:text-[2.65rem]">
-            Alquileres bien atendidos, con información clara y trato directo.
+            Alquiler de pisos y locales bien atendido, con información clara y trato directo.
           </h2>
 
           <p className="mt-5 text-base leading-8 text-[#605E5C]">
@@ -47,7 +47,8 @@ export default function AboutSection() {
 
           <p className="mt-5 text-base leading-8 text-[#605E5C]">
             Somos una empresa familiar con más de treinta y cinco años de experiencia en la gestión
-            de alquileres residenciales y comerciales. Nuestro enfoque es siempre el mismo:
+            de alquileres residenciales y comerciales. Trabajamos tanto alquiler de pisos como
+            alquiler de locales. Nuestro enfoque es siempre el mismo:
             cercanía, transparencia y respuesta ágil a cada necesidad.
           </p>
 

@@ -54,7 +54,7 @@ export default function ServicesSection() {
             <span className="ffo-kicker">Servicios para el día a día</span>
           </div>
           <h2 className="text-4xl font-semibold tracking-[-0.02em] text-[#003A6C] sm:text-[2.65rem]">
-            Una experiencia de alquiler más cómoda, clara y acompañada.
+            Una experiencia de alquiler de pisos y locales más cómoda, clara y acompañada.
           </h2>
         </div>
 
