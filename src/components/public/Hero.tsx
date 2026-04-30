@@ -1,10 +1,13 @@
 import Link from "next/link";
 import AvailabilityInterestForm from "@/components/public/AvailabilityInterestForm";
+import { listFeaturedAssets } from "@/lib/content/featured-assets";
 
 const HERO_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-calle-gRs5ApjQ7HD5b5Mu9TdWPe.webp";
 
-export default function Hero() {
+export default async function Hero() {
+  const featuredAssets = await listFeaturedAssets();
+
   return (
     <section className="relative overflow-hidden bg-white">
       <div className="absolute inset-x-0 top-0 h-1 bg-[#0078D4]" />
@@ -102,6 +105,25 @@ export default function Hero() {
             <p className="mt-3 text-base leading-7 text-[#605E5C]">
               Déjanos tus datos y te contactaremos con una propuesta ajustada a tu interés.
             </p>
+          </div>
+
+          <div className="mt-8 grid gap-4 xl:grid-cols-3">
+            {featuredAssets.map((asset) => (
+              <article
+                key={asset.id}
+                className="rounded-[22px] border border-[#D7E7F5] bg-white/92 p-5 shadow-[0_18px_40px_-32px_rgba(0,58,108,0.22)]"
+              >
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#0078D4]">
+                  {asset.badge}
+                </div>
+                <h3 className="mt-3 text-xl font-semibold leading-tight tracking-[-0.02em] text-[#0F172A]">
+                  {asset.title}
+                </h3>
+                <div className="mt-2 text-sm font-medium text-[#605E5C]">{asset.location}</div>
+                <div className="mt-4 text-2xl font-semibold text-[#003A6C]">{asset.price}</div>
+                <p className="mt-3 text-sm leading-6 text-[#605E5C]">{asset.note}</p>
+              </article>
+            ))}
           </div>
 
           <AvailabilityInterestForm />

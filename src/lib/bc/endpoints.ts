@@ -1,4 +1,5 @@
 export const bcEndpoints = {
+  assets: "tenantAssets",
   me: "tenantProfiles",
   contracts: "tenantContracts",
   invoices: "tenantInvoices",

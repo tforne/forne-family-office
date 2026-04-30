@@ -1,4 +1,4 @@
-import type { MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto } from "@/lib/dto";
+import type { AssetDto, MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto } from "@/lib/dto";
 
 export const mockMe: MeDto = {
   userId: "external-demo-user",
@@ -30,6 +30,56 @@ export const mockContracts: ContractDto[] = [
     amountRentalDeposit: null,
     email: "tenant@example.com",
     phoneNo: null
+  }
+];
+
+export const mockAssets: AssetDto[] = [
+  {
+    id: "asset-1",
+    number: "RE-001",
+    description: "Vivienda Barcelona",
+    description2: "Piso exterior con balcón",
+    type: "Activo",
+    assetType: "Residencial",
+    status: "Alquilado",
+    propertyNo: "PROP-001",
+    propertyDescription: "Finca Barcelona Centro",
+    address: "Calle Major, 66",
+    address2: "Local 1",
+    city: "Barcelona",
+    postCode: "08001",
+    county: "Barcelona",
+    countryRegionCode: "ES",
+    streetName: "Calle Major",
+    streetNumber: "66",
+    floor: "1ª",
+    composedAddress: "Calle Major, 66, 1ª",
+    googleUrl: "https://maps.google.com/?q=Calle+Major+66+Barcelona",
+    yearOfConstruction: 2004,
+    builtAreaM2: 92,
+    commercialDescription: "Activo orientado a alquiler residencial con buena luz natural y distribución funcional.",
+    cadastralReference: "1234567DF3813C0001AB",
+    cadastralUrl: "https://www.sedecatastro.gob.es/",
+    cadastralAssetValue: 118000,
+    cadastralConstructionValue: 82300,
+    totalCadastralAssetValue: 118000,
+    totalCadastralConstructionValue: 82300,
+    ownerName: "Forné Family Office",
+    lastRentalPrice: 1000,
+    minimumRentalPrice: 950,
+    lastContractPrice: 1000,
+    referencePriceMin: 910,
+    referencePriceMax: 1080,
+    salesPrice: 320000,
+    minimumSalesPrice: 300000,
+    managed: true,
+    acquired: true,
+    blocked: false,
+    underMaintenance: false,
+    insured: true,
+    hasComments: true,
+    image: null,
+    lastDateModified: "2026-04-20"
   }
 ];
 
@@ -105,6 +155,7 @@ export const mockIncidents: IncidentDto[] = [
     insuranceNotified: false,
     insuranceNotificationDate: null,
     insuranceClaimNo: null,
+    insuranceCompanyName: "Forne Seguros",
     insuranceStatus: "Pendiente",
     insuranceEmail: "seguro@example.com",
     insurancePhoneNo: null,

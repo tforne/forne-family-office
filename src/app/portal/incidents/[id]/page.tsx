@@ -74,6 +74,85 @@ function getBooleanValue(record: IncidentDto, keys: string[]) {
   return null;
 }
 
+function isImageUrl(value: string) {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.startsWith("data:image/") ||
+    /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)(\?|#|$)/.test(normalized)
+  );
+}
+
+function getImageUrls(record: IncidentDto, keys: string[]) {
+  const source = record as unknown as Record<string, unknown>;
+  const urls = new Set<string>();
+
+  const addCandidate = (value: unknown) => {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (trimmed && isImageUrl(trimmed)) urls.add(trimmed);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    const objectValue = value as Record<string, unknown>;
+    const directUrl = [objectValue.url, objectValue.src, objectValue.fileUrl, objectValue.imageUrl].find(
+      (candidate) => typeof candidate === "string" && candidate.trim()
+    );
+    const mimeType = [objectValue.mimeType, objectValue.contentType].find(
+      (candidate) => typeof candidate === "string" && candidate.trim()
+    );
+    const fileName = typeof objectValue.fileName === "string" ? objectValue.fileName : null;
+
+    if (typeof directUrl === "string") {
+      if (
+        isImageUrl(directUrl) ||
+        (typeof mimeType === "string" && mimeType.toLowerCase().startsWith("image/")) ||
+        (fileName && /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)$/i.test(fileName))
+      ) {
+        urls.add(directUrl);
+      }
+    }
+  };
+
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+
+      if (!trimmed) continue;
+
+      if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(trimmed) as unknown;
+          if (Array.isArray(parsed)) {
+            parsed.forEach(addCandidate);
+            continue;
+          }
+          addCandidate(parsed);
+          continue;
+        } catch {
+          addCandidate(trimmed);
+          continue;
+        }
+      }
+
+      addCandidate(trimmed);
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(addCandidate);
+      continue;
+    }
+
+    addCandidate(value);
+  }
+
+  return Array.from(urls);
+}
+
 function TimelineItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="relative pl-7">
@@ -108,9 +187,21 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
   const comments = await getIncidentComments(incident.incidentId, incident.id);
   const status = statusLabel(incident);
+  const imageUrls = getImageUrls(incident, [
+    "incidentImages",
+    "images",
+    "imageUrls",
+    "incidentImageUrls",
+    "attachments",
+    "incidentAttachments",
+    "photos",
+    "photoUrls",
+    "files"
+  ]);
   const insurance = {
     policyNo: getTextValue(incident, ["insurancePolicyNo", "insurancePolicyNumber", "policyNo", "insuranceNo", "noPolizaSeguro", "polizaSeguroNo"]),
     policyDescription: getTextValue(incident, ["insurancePolicyDescription", "policyDescription", "insuranceDescription", "descripcionPolizaSeguro", "descripcionSeguro"]),
+    companyName: getTextValue(incident, ["insuranceCompanyName", "insuranceCompany", "insurerName", "insurer", "aseguradora", "nombreAseguradora", "nombreSeguro"]),
     notifyInsurance: booleanLabel(getBooleanValue(incident, ["notifyInsurance", "insuranceNotify", "notificarSeguro"])),
     insuranceNotified: booleanLabel(getBooleanValue(incident, ["insuranceNotified", "notifiedInsurance", "seguroNotificado"])),
     notificationDate: getTextValue(incident, ["insuranceNotificationDate", "notificationInsuranceDate", "fechaNotificacionSeguro"]),
@@ -155,6 +246,34 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
               {incident.description || "No hay descripción adicional para esta incidencia."}
             </div>
           </section>
+
+          {imageUrls.length > 0 ? (
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-base font-semibold text-forne-ink">Imágenes adjuntas</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+                  {imageUrls.length} imagen{imageUrls.length === 1 ? "" : "es"}
+                </div>
+              </div>
+              <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {imageUrls.map((imageUrl, index) => (
+                  <a
+                    key={`${imageUrl}-${index}`}
+                    href={imageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group overflow-hidden rounded-2xl border border-forne-line bg-forne-cloud"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Imagen adjunta ${index + 1} de la incidencia ${incident.incidentId || incident.id}`}
+                      className="aspect-[4/3] w-full object-cover transition duration-200 group-hover:scale-[1.02]"
+                    />
+                  </a>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
             <div className="text-base font-semibold text-forne-ink">Evolución</div>
@@ -202,6 +321,10 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
               </div>
               <div className="mt-3 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-forne-line bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Aseguradora</div>
+                  <div className="mt-2 text-sm text-forne-ink">{insurance.companyName || "-"}</div>
+                </div>
+                <div className="rounded-2xl border border-forne-line bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Notificar seguro</div>
                   <div className="mt-2 text-sm text-forne-ink">{insurance.notifyInsurance || "-"}</div>
                 </div>
@@ -209,6 +332,8 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
                   <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Seguro notificado</div>
                   <div className="mt-2 text-sm text-forne-ink">{insurance.insuranceNotified || "-"}</div>
                 </div>
+              </div>
+              <div className="mt-3 grid gap-4 md:grid-cols-1">
                 <div className="rounded-2xl border border-forne-line bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Fecha notificación</div>
                   <div className="mt-2 text-sm text-forne-ink">{cleanDate(insurance.notificationDate)}</div>

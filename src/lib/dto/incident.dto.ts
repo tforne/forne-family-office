@@ -27,6 +27,7 @@ export interface IncidentDto {
   insuranceNotificationDate?: string | null;
   insuranceClaimNo?: string | null;
   claimNo?: string | null;
+  insuranceCompanyName?: string | null;
   insuranceStatus?: string | null;
   insuranceEmail?: string | null;
   insurancePhoneNo?: string | null;

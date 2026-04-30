@@ -1,4 +1,5 @@
 import PortalStatCard from "@/components/portal/PortalStatCard";
+import Link from "next/link";
 import { listNewsItems } from "@/lib/content/news";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
@@ -71,6 +72,10 @@ function getNextPendingInvoice(invoices: InvoiceDto[]) {
       const rightDate = right.dueDate || right.postingDate || right.documentDate || "";
       return leftDate.localeCompare(rightDate);
     })[0];
+}
+
+function getLatestInvoices(invoices: InvoiceDto[]) {
+  return invoices.slice(0, 4);
 }
 
 function getPriorityIncident(incidents: IncidentDto[]) {
@@ -183,6 +188,7 @@ export default async function PortalPage() {
   const activeContracts = contracts.filter((contract) => ["signed", "open"].includes(contract.status?.toLowerCase?.() || "")).length;
   const primaryContract = getPrimaryContract(contracts);
   const nextPendingInvoice = getNextPendingInvoice(invoices);
+  const latestInvoices = getLatestInvoices(invoices);
   const priorityIncident = getPriorityIncident(incidents);
   const insuranceEmail = priorityIncident?.insuranceEmail || null;
   const insurancePhone = priorityIncident?.insurancePhoneNo || null;
@@ -223,7 +229,10 @@ export default async function PortalPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <Link
+                href="/portal/contracts"
+                className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-white/20 hover:bg-white/10"
+              >
                 <div className="text-sm font-semibold text-white/70">Contrato principal</div>
                 <div className="mt-3 text-xl font-semibold">
                   {primaryContract?.description || primaryContract?.contractNo || "Sin contrato asociado"}
@@ -231,7 +240,11 @@ export default async function PortalPage() {
                 <div className="mt-2 text-sm leading-6 text-white/60">
                   {primaryContract?.fixedRealEstateDescription || "Todavía no hay un inmueble vinculado en el resumen."}
                 </div>
-              </div>
+                <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                  Ver detalle
+                  <span aria-hidden="true">›</span>
+                </div>
+              </Link>
             </div>
           </div>
 
@@ -261,6 +274,78 @@ export default async function PortalPage() {
         <PortalStatCard title="Peticiones de incidencia" value={String(pendingIncidentRequests)} />
         <PortalStatCard title="Contratos activos" value={String(activeContracts)} />
       </div>
+
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Facturas pendientes</div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Últimas 4 facturas</h2>
+            <p className="mt-2 text-sm leading-6 text-forne-muted">
+              Relación rápida de las últimas facturas emitidas, estén o no pendientes.
+            </p>
+          </div>
+          <Link
+            href="/portal/invoices"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+          >
+            Ver todas
+            <span aria-hidden="true">›</span>
+          </Link>
+        </div>
+
+        {latestInvoices.length === 0 ? (
+          <div className="rounded-3xl border border-forne-line bg-white px-6 py-8 text-sm text-forne-muted shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+            No hay facturas disponibles en este momento.
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl border border-forne-line bg-white shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+            <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+              <thead className="bg-[#fbfcfd] text-xs uppercase tracking-wide text-forne-muted">
+                <tr>
+                  <th className="px-5 py-4 font-semibold">Factura</th>
+                  <th className="px-5 py-4 font-semibold">Vencimiento</th>
+                  <th className="px-5 py-4 text-right font-semibold">Importe</th>
+                  <th className="px-5 py-4 font-semibold">Estado</th>
+                  <th className="px-5 py-4 font-semibold">Detalle</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-forne-line bg-white">
+                {latestInvoices.map((invoice) => (
+                  <tr key={invoice.id}>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">{invoice.invoiceNo}</div>
+                      <div className="mt-1 text-xs text-forne-muted">Cliente {invoice.billToCustomerNo}</div>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                      {formatDate(invoice.dueDate)}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-forne-ink">
+                      {formatMoney(invoice.amountIncludingVat, invoice.currencyCode)}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4">
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                        (invoice.remainingAmount ?? 0) > 0
+                          ? "bg-amber-50 text-amber-800 ring-amber-200"
+                          : "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                      }`}>
+                        {(invoice.remainingAmount ?? 0) > 0 ? "Pendiente" : "Pagada"}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4">
+                      <Link
+                        href={`/portal/invoices/${encodeURIComponent(invoice.id || invoice.invoiceNo)}`}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+                      >
+                        + información
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="space-y-4">
         <div>

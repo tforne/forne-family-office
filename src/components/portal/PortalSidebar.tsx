@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
 
 const items = [
   { href: "/portal", label: "Inicio" },
@@ -15,19 +17,21 @@ const adminItems = [
   { href: "/portal/invoices", label: "Facturas" },
   { href: "/portal/incidents", label: "Incidencias" },
   { href: "/portal/admin/users", label: "Usuarios" },
+  { href: "/portal/admin/featured-assets", label: "Activos" },
   { href: "/portal/admin/news", label: "Noticias" },
 ];
 
 export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const visibleItems = showAdmin ? adminItems : items;
 
   const onLogout = async () => {
-    const confirmed = window.confirm("¿Quieres cerrar la sesión y salir del portal?");
-    if (!confirmed) return;
-
+    setIsLoggingOut(true);
     await fetch("/api/auth/logout", { method: "POST" });
+    setIsLogoutDialogOpen(false);
     router.push("/");
     router.refresh();
   };
@@ -69,8 +73,9 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
           </Link>
           <button
             type="button"
-            onClick={onLogout}
-            className="rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink"
+            onClick={() => setIsLogoutDialogOpen(true)}
+            disabled={isLoggingOut}
+            className="rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
           >
             Salir
           </button>
@@ -123,13 +128,26 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
       <div className="border-t border-forne-line/80 p-5">
         <button
           type="button"
-          onClick={onLogout}
-          className="w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-left text-sm font-medium text-forne-muted shadow-sm transition hover:border-forne-ink/10 hover:bg-white hover:text-forne-ink"
+          onClick={() => setIsLogoutDialogOpen(true)}
+          disabled={isLoggingOut}
+          className="w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-left text-sm font-medium text-forne-muted shadow-sm transition hover:border-forne-ink/10 hover:bg-white hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
           Salir
         </button>
       </div>
       </aside>
+
+      <ConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        title="Cerrar sesión"
+        description="Vas a salir del portal privado. Si continúas, tendrás que identificarte de nuevo para volver a entrar."
+        confirmLabel="Cerrar sesión"
+        cancelLabel="Seguir dentro"
+        tone="danger"
+        isProcessing={isLoggingOut}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={onLogout}
+      />
     </>
   );
 }

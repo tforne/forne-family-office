@@ -22,6 +22,11 @@ function formatMoney(value: number | null, currencyCode: string | null) {
   }).format(value || 0);
 }
 
+function formatMoneyOrBlank(value: number | null | undefined, currencyCode: string | null) {
+  if (value == null || value === 0) return "";
+  return formatMoney(value, currencyCode);
+}
+
 function DetailItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div className="border-b border-forne-line py-3 last:border-b-0">
@@ -73,11 +78,21 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
           </span>
         </div>
         <div className="mt-6">
-          <InvoiceCopyRequestButton
-            invoiceId={invoice.id}
-            invoiceNo={invoice.invoiceNo}
-            customerNo={invoice.billToCustomerNo}
-          />
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={`/api/me/invoices/${encodeURIComponent(invoice.id || invoice.invoiceNo)}/pdf`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
+            >
+              Ver PDF oficial
+            </a>
+            <InvoiceCopyRequestButton
+              invoiceId={invoice.id}
+              invoiceNo={invoice.invoiceNo}
+              customerNo={invoice.billToCustomerNo}
+            />
+          </div>
         </div>
       </section>
 
@@ -133,7 +148,6 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
                 <table className="min-w-full divide-y divide-forne-line text-left text-sm">
                   <thead className="bg-forne-cloud text-xs uppercase tracking-wide text-forne-muted">
                     <tr>
-                      <th className="px-4 py-3 font-semibold">Línea</th>
                       <th className="px-4 py-3 font-semibold">Descripción</th>
                       <th className="px-4 py-3 text-right font-semibold">Cantidad</th>
                       <th className="px-4 py-3 text-right font-semibold">Precio unitario</th>
@@ -143,9 +157,6 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
                   <tbody className="divide-y divide-forne-line bg-white">
                     {lines.map((line) => (
                       <tr key={line.id || `${line.invoiceId}-${line.lineNo}`} className="align-top">
-                        <td className="whitespace-nowrap px-4 py-4 text-forne-muted">
-                          {line.lineNo || "-"}
-                        </td>
                         <td className="min-w-72 px-4 py-4 text-forne-ink">
                           {line.description || "Sin descripción"}
                         </td>
@@ -154,11 +165,11 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-right text-forne-muted">
                           {typeof line.unitPrice === "number"
-                            ? formatMoney(line.unitPrice, line.currencyCode || invoice.currencyCode)
+                            ? formatMoneyOrBlank(line.unitPrice, line.currencyCode || invoice.currencyCode)
                             : "-"}
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-right font-medium text-forne-ink">
-                          {formatMoney(line.amountIncludingVat ?? line.amount ?? 0, line.currencyCode || invoice.currencyCode)}
+                          {formatMoneyOrBlank(line.amountIncludingVat ?? line.amount, line.currencyCode || invoice.currencyCode)}
                         </td>
                       </tr>
                     ))}

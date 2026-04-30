@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
 
 export default function PortalHeader({
   email,
@@ -10,10 +12,14 @@ export default function PortalHeader({
   provider?: "demo" | "entra";
 }) {
   const router = useRouter();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const onLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/');
+    setIsLoggingOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    setIsLogoutDialogOpen(false);
+    router.push("/");
     router.refresh();
   };
 
@@ -32,9 +38,27 @@ export default function PortalHeader({
             <div className="text-sm font-medium text-forne-ink">{providerLabel}</div>
             <div className="text-xs text-forne-muted">{userEmail}</div>
           </div>
-          <button onClick={onLogout} className="rounded-xl border border-forne-line px-4 py-2 text-sm font-medium text-forne-ink hover:bg-forne-cloud">Salir</button>
+          <button
+            type="button"
+            onClick={() => setIsLogoutDialogOpen(true)}
+            disabled={isLoggingOut}
+            className="rounded-xl border border-forne-line px-4 py-2 text-sm font-medium text-forne-ink transition hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Salir
+          </button>
         </div>
       </div>
+      <ConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        title="Cerrar sesión"
+        description="Estás a punto de salir del área privada. Podrás volver a entrar cuando quieras iniciando sesión de nuevo."
+        confirmLabel="Cerrar sesión"
+        cancelLabel="Permanecer aquí"
+        tone="danger"
+        isProcessing={isLoggingOut}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={onLogout}
+      />
     </header>
   );
 }

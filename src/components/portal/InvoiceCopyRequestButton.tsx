@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
 
 type Props = {
   invoiceId: string;
@@ -12,11 +13,10 @@ type Props = {
 export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, customerNo, compact = false }: Props) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const requestCopy = async () => {
-    const confirmed = window.confirm(`¿Quieres crear una petición de copia de la factura ${invoiceNo || invoiceId}?`);
-    if (!confirmed) return;
-
+    setIsDialogOpen(false);
     setStatus("sending");
     setError("");
 
@@ -46,7 +46,7 @@ export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, custome
     <div className={compact ? "inline-flex flex-col gap-1" : "space-y-2"}>
       <button
         type="button"
-        onClick={requestCopy}
+        onClick={() => setIsDialogOpen(true)}
         disabled={status === "sending" || status === "sent"}
         className={
           compact
@@ -61,6 +61,16 @@ export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, custome
           {error}
         </div>
       ) : null}
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        title="Solicitar copia de factura"
+        description={`Se enviará una petición para la factura ${invoiceNo || invoiceId}. El equipo revisará la solicitud y te contactará si necesita más información.`}
+        confirmLabel="Crear petición"
+        cancelLabel="Volver"
+        isProcessing={status === "sending"}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={requestCopy}
+      />
     </div>
   );
 }

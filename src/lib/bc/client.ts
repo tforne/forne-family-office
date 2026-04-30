@@ -49,6 +49,10 @@ function baseApiUrl() {
   return `${env.bcBaseUrl}/${env.bcTenantId}/${env.bcEnvironment}/api`;
 }
 
+function baseStandardApiUrl() {
+  return `${env.bcBaseUrl}/${env.bcTenantId}/${env.bcEnvironment}/api/v2.0`;
+}
+
 async function bcFetchJson<T>(url: string): Promise<T> {
   const token = await getBusinessCentralAccessToken();
 
@@ -63,6 +67,22 @@ async function bcFetchJson<T>(url: string): Promise<T> {
   }
 
   return res.json();
+}
+
+async function bcFetchResponse(url: string, accept = "application/json") {
+  const token = await getBusinessCentralAccessToken();
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, Accept: accept },
+    cache: "no-store"
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Business Central error ${res.status} (${url}): ${text}`);
+  }
+
+  return res;
 }
 
 async function bcSendJson<T>(url: string, method: "POST" | "PATCH", body: unknown): Promise<T> {
@@ -207,6 +227,29 @@ export async function bcGetForCompany<T = unknown>(company: BusinessCentralCompa
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
 
   return bcFetchJson<T>(url);
+}
+
+export async function getResolvedBusinessCentralCompanyId(company: BusinessCentralCompanyRef = {}) {
+  requireBusinessCentralBaseConfig();
+  return resolveCompanyId(company);
+}
+
+export async function bcStandardGetForCompany<T = unknown>(company: BusinessCentralCompanyRef, path: string, query?: string): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseStandardApiUrl()}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
+
+  return bcFetchJson<T>(url);
+}
+
+export async function bcStandardGetResponseForCompany(company: BusinessCentralCompanyRef, path: string, query?: string, accept?: string) {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseStandardApiUrl()}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
+
+  return bcFetchResponse(url, accept);
 }
 
 export async function bcPost<T = unknown>(path: string, body: unknown): Promise<T> {

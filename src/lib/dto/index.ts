@@ -1,3 +1,4 @@
+export type { AssetDto } from "./asset.dto";
 export type { ContractDto } from "./contract.dto";
 export type { DocumentDto } from "./document.dto";
 export type { IncidentDto } from "./incident.dto";

@@ -53,7 +53,7 @@ export default async function InvoicesPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-forne-muted">
           {isAdmin
-            ? "Consulta global de facturas, importes y vencimientos registrados en Business Central."
+            ? "Consulta global de las últimas 250 facturas, importes y vencimientos registrados en Business Central."
             : "Consulta tus facturas, importes y vencimientos registrados en Business Central."}
         </p>
       </div>
@@ -66,7 +66,11 @@ export default async function InvoicesPage() {
 
       <PortalTableCard
         title="Listado de facturas"
-        subtitle={`${invoices.length} factura${invoices.length === 1 ? "" : "s"} encontradas`}
+        subtitle={
+          isAdmin
+            ? `${invoices.length} factura${invoices.length === 1 ? "" : "s"} encontradas. Se muestran las últimas 250.`
+            : `${invoices.length} factura${invoices.length === 1 ? "" : "s"} encontradas`
+        }
       >
         {invoices.length === 0 ? (
           <div className="px-5 py-10 text-sm text-forne-muted">
@@ -95,7 +99,9 @@ export default async function InvoicesPage() {
                     <tr key={invoice.id} className="align-top">
                       <td className="whitespace-nowrap px-5 py-4">
                         <div className="font-medium text-forne-ink">{invoice.invoiceNo}</div>
-                        <div className="mt-1 text-xs text-forne-muted">Cliente {invoice.billToCustomerNo}</div>
+                        <div className="mt-1 text-xs text-forne-muted">
+                          {invoice.billToCustomerName || invoice.sellToCustomerName || `Cliente ${invoice.billToCustomerNo}`}
+                        </div>
                       </td>
                       <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
                         {cleanDate(invoice.postingDate || invoice.documentDate)}
