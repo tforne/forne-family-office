@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRef, useState } from "react";
 import type { PortalUserDto } from "@/lib/dto/portal-user.dto";
 
 function formatDate(value: string) {
@@ -47,31 +47,73 @@ async function sendJson(url: string, method: "POST" | "PATCH", body: unknown) {
   return payload;
 }
 
+function emailDomain(value: string) {
+  return value.split("@")[1]?.trim().toLowerCase() || "";
+}
+
+function internalDomainsFromEnv() {
+  const values = [
+    process.env.NEXT_PUBLIC_GRAPH_INTERNAL_DOMAINS || "",
+    process.env.NEXT_PUBLIC_ENTRA_INTERNAL_DOMAINS || "",
+    process.env.NEXT_PUBLIC_ENTRA_TENANT_PRIMARY_DOMAIN || ""
+  ];
+
+  return new Set(
+    values
+      .flatMap((value) => value.split(/[,\n;|]/))
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
 export default function AdminPortalUsersClient({ users }: { users: PortalUserDto[] }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const internalDomains = internalDomainsFromEnv();
 
-  const createUser = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formElement = event.currentTarget;
-    setPending("create");
+  const createUser = async (createMode: "invite" | "internal") => {
+    const formElement = formRef.current;
+    if (!formElement) return;
+
+    setPending(createMode === "internal" ? "create-internal" : "create");
     setMessage("");
     setError("");
 
     const form = new FormData(formElement);
+    const email = String(form.get("email") || "").trim();
+    const externalUserId = String(form.get("externalUserId") || "").trim();
+    const isInternalEmail = internalDomains.has(emailDomain(email));
+
+    if (createMode === "invite" && isInternalEmail && !externalUserId) {
+      setPending("");
+      setError("Este email pertenece a un dominio interno del tenant. Usa 'Crear acceso interno' e indica el External User Id.");
+      return;
+    }
+
+    if (createMode === "internal" && !externalUserId) {
+      setPending("");
+      setError("Para crear acceso interno debes indicar el External User Id del usuario en Entra.");
+      return;
+    }
 
     try {
       await sendJson("/api/admin/portal-users", "POST", {
-        email: form.get("email"),
+        email,
         customerNo: form.get("customerNo"),
-        externalUserId: form.get("externalUserId"),
+        externalUserId,
         languageCode: form.get("languageCode"),
-        bcCompanyName: form.get("bcCompanyName")
+        bcCompanyName: form.get("bcCompanyName"),
+        createMode
       });
       formElement.reset();
-      setMessage("Usuario invitado y acceso creado en Business Central.");
+      setMessage(
+        createMode === "internal"
+          ? "Acceso interno creado en Business Central."
+          : "Usuario invitado y acceso creado en Business Central."
+      );
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo crear el usuario.");
@@ -112,7 +154,17 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
 
       <section className="border border-slate-300 bg-white p-5">
         <h2 className="text-lg font-semibold text-slate-950">Crear acceso portal</h2>
-        <form onSubmit={createUser} className="mt-5 grid gap-4 lg:grid-cols-5">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Para emails externos usa invitación. Si el email pertenece a un dominio interno del tenant, crea el acceso interno indicando el External User Id.
+        </p>
+        <form
+          ref={formRef}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void createUser("invite");
+          }}
+          className="mt-5 grid gap-4 lg:grid-cols-5"
+        >
           <label className="space-y-2">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">Email</span>
             <input
@@ -134,7 +186,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">External User Id</span>
             <input
               name="externalUserId"
-              placeholder="Opcional: si se deja vacío, se invita por Azure"
+              placeholder="Obligatorio para acceso interno"
               className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
             />
           </label>
@@ -154,13 +206,25 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
             />
           </label>
           <div className="lg:col-span-5">
-            <button
-              type="submit"
-              disabled={pending === "create"}
-              className="bg-teal-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {pending === "create" ? "Creando..." : "Crear e invitar"}
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="submit"
+                disabled={pending === "create" || pending === "create-internal"}
+                className="bg-teal-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pending === "create" ? "Creando..." : "Crear e invitar"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void createUser("internal");
+                }}
+                disabled={pending === "create" || pending === "create-internal"}
+                className="border border-slate-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pending === "create-internal" ? "Creando..." : "Crear acceso interno"}
+              </button>
+            </div>
           </div>
         </form>
       </section>

@@ -35,6 +35,12 @@ function endpoint() {
   return env.bcTenantPortalUsersEndpoint || bcEndpoints.tenantPortalUsers;
 }
 
+function omitEmptyValues<T extends Record<string, unknown>>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entry]) => entry !== "" && entry !== undefined && entry !== null)
+  ) as Partial<T>;
+}
+
 function normalizePortalUser(user: Partial<PortalUserDto>): PortalUserDto {
   return {
     id: user.id || "",
@@ -87,7 +93,7 @@ export async function listPortalUsers(search?: string): Promise<PortalUserDto[]>
 export async function createPortalUser(input: CreatePortalUserInput) {
   if (env.useMockApi) return normalizePortalUser({ ...mockPortalUsers[0], ...input });
 
-  return bcPost<PortalUserDto>(endpoint(), {
+  return bcPost<PortalUserDto>(endpoint(), omitEmptyValues({
     externalUserId: input.externalUserId,
     email: input.email,
     customerNo: input.customerNo,
@@ -100,7 +106,7 @@ export async function createPortalUser(input: CreatePortalUserInput) {
     lastInvitationError: input.lastInvitationError || "",
     lastSyncStatus: input.lastSyncStatus || "Ok",
     lastSyncError: input.lastSyncError || ""
-  });
+  }));
 }
 
 export async function updatePortalUser(id: string, patch: Partial<PortalUserDto>) {

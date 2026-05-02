@@ -1,10 +1,11 @@
-import type { AssetDto, MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto } from "@/lib/dto";
+import type { AssetDto, MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto, EquipmentDto } from "@/lib/dto";
 
 export const mockMe: MeDto = {
   userId: "external-demo-user",
   email: "tenant@example.com",
   customerNo: "C0001",
   customerName: "Cliente Demo",
+  paymentMethods: ["Transferencia bancaria", "Domiciliación"],
   portalEnabled: true,
   bcCompanyId: "demo-company-id",
   bcCompanyName: "Demo"
@@ -95,6 +96,37 @@ export const mockInvoices: InvoiceDto[] = [
     currencyCode: null,
     amountIncludingVat: 1000,
     remainingAmount: 0
+  }
+];
+
+export const mockEquipment: EquipmentDto[] = [
+  {
+    id: "eq-1",
+    freNo: "RE-001",
+    lineNo: 10000,
+    quantity: 2,
+    description: "Mando a distancia del garaje",
+    serialNo: "GAR-2401-A",
+    modelNo: "LiftMaster 2C",
+    acquisitionDate: "2025-03-15",
+    acquisitionCost: 85,
+    equipmentWarrantyPeriod: "24 meses",
+    needMaintenance: false,
+    maintenanceContractNo: null
+  },
+  {
+    id: "eq-2",
+    freNo: "RE-001",
+    lineNo: 20000,
+    quantity: 1,
+    description: "Termostato inteligente",
+    serialNo: "TH-99381",
+    modelNo: "Nest E",
+    acquisitionDate: "2024-11-08",
+    acquisitionCost: 219,
+    equipmentWarrantyPeriod: "36 meses",
+    needMaintenance: true,
+    maintenanceContractNo: "MC-TERM-001"
   }
 ];
 

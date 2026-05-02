@@ -4,6 +4,7 @@ export const mockMe: MeDto = {
   email: "tenant@example.com",
   customerNo: "C0001",
   customerName: "Cliente Demo",
+  paymentMethods: ["Transferencia bancaria", "Domiciliación"],
   portalEnabled: true,
   bcCompanyId: "demo-company-id",
   bcCompanyName: "Demo"

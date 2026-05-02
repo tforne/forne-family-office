@@ -2,10 +2,12 @@ import Link from "next/link";
 import { getAssets } from "@/lib/portal/assets.service";
 import { getAssetAttributes } from "@/lib/portal/asset-attributes.service";
 import { getContracts } from "@/lib/portal/contracts.service";
+import { getEquipment } from "@/lib/portal/equipment.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import type { AssetDto } from "@/lib/dto/asset.dto";
 import type { AssetAttributeDto } from "@/lib/dto/asset-attribute.dto";
 import type { ContractDto } from "@/lib/dto/contract.dto";
+import type { EquipmentDto } from "@/lib/dto/equipment.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
 
 async function safeLoad<T>(loader: () => Promise<T>, fallback: T) {
@@ -145,6 +147,10 @@ function buildAssetAddress(asset?: AssetDto, contract?: ContractDto) {
   return safeText(contract?.fixedRealEstateDescription, "No disponible");
 }
 
+function formatBoolean(value: boolean) {
+  return value ? "Sí" : "No";
+}
+
 function DetailCard({
   label,
   value,
@@ -181,7 +187,14 @@ export default async function ContractsPage() {
     () => getAssetAttributes(primaryAsset?.number || primaryContract?.fixedRealEstateNo),
     []
   );
+  const equipmentResult = await safeLoad<EquipmentDto[]>(
+    () => getEquipment(primaryAsset?.number || primaryContract?.fixedRealEstateNo),
+    []
+  );
   const visibleAssetAttributes = assetAttributesResult.data.filter(hasMeaningfulAttributeContent);
+  const visibleEquipment = equipmentResult.data.filter((item) =>
+    Boolean(item.description?.trim() || item.serialNo?.trim() || item.modelNo?.trim())
+  );
   const hasContractualFallback =
     Boolean(primaryContract) ||
     Boolean(primaryContract?.fixedRealEstateDescription) ||
@@ -193,6 +206,7 @@ export default async function ContractsPage() {
       : "Resumen del inmueble basado en la información contractual disponible, con la situación operativa y económica más relevante para el cliente.";
   const showAssetsDiagnostics = assetsResult.failed;
   const showAssetAttributesDiagnostics = assetAttributesResult.failed;
+  const showEquipmentDiagnostics = equipmentResult.failed;
 
   return (
     <div className="space-y-8">
@@ -244,6 +258,20 @@ export default async function ContractsPage() {
           </div>
           <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-white px-4 py-3 text-xs leading-6 text-slate-800">
             {assetAttributesResult.errorMessage || "No se recibió detalle adicional."}
+          </pre>
+        </section>
+      ) : null}
+
+      {showEquipmentDiagnostics ? (
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-6 text-slate-700">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            Diagnóstico temporal equipamientos
+          </div>
+          <div className="mt-3">
+            Error al cargar los equipamientos del inmueble desde Business Central:
+          </div>
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl bg-white px-4 py-3 text-xs leading-6 text-slate-800">
+            {equipmentResult.errorMessage || "No se recibió detalle adicional."}
           </pre>
         </section>
       ) : null}
@@ -378,7 +406,60 @@ export default async function ContractsPage() {
             </div>
           )}
         </article>
+      </section>
 
+      <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Equipamientos</div>
+            <h3 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Elementos vinculados al inmueble</h3>
+          </div>
+          <div className="text-sm text-forne-muted">{visibleEquipment.length} equipo(s)</div>
+        </div>
+
+        {visibleEquipment.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-[#F7FAFC] px-5 py-6 text-sm text-forne-muted">
+            No hay equipamientos registrados para este inmueble en este momento.
+          </div>
+        ) : (
+          <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
+            <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+              <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                <tr>
+                  <th className="px-5 py-4 font-semibold">Descripción</th>
+                  <th className="px-5 py-4 font-semibold">Cantidad</th>
+                  <th className="px-5 py-4 font-semibold">Modelo</th>
+                  <th className="px-5 py-4 font-semibold">Serie</th>
+                  <th className="px-5 py-4 font-semibold">Garantía</th>
+                  <th className="px-5 py-4 font-semibold">Mantenimiento</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-forne-line bg-white">
+                {visibleEquipment.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">{safeText(item.description, "Sin descripción")}</div>
+                      <div className="mt-1 text-xs text-forne-muted">
+                        Alta: {formatDate(item.acquisitionDate)}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">{formatNumber(item.quantity)}</td>
+                    <td className="px-5 py-4 text-forne-muted">{safeText(item.modelNo, "-")}</td>
+                    <td className="px-5 py-4 text-forne-muted">{safeText(item.serialNo, "-")}</td>
+                    <td className="px-5 py-4 text-forne-muted">{safeText(item.equipmentWarrantyPeriod, "-")}</td>
+                    <td className="px-5 py-4 text-forne-muted">
+                      {formatBoolean(item.needMaintenance)}
+                      {item.maintenanceContractNo ? ` · ${item.maintenanceContractNo}` : ""}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Contrato vinculado</div>
           <h3 className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">

@@ -3,6 +3,31 @@ import { invitePortalUser } from "@/lib/identity/graph";
 import { getPortalAdminSession } from "@/lib/portal/admin-auth";
 import { createPortalUser, listPortalUsers } from "@/lib/portal/admin-users.service";
 
+function internalTenantDomains() {
+  const domains = new Set<string>();
+  const rawValues = [
+    process.env.GRAPH_INTERNAL_DOMAINS || "",
+    process.env.ENTRA_INTERNAL_DOMAINS || "",
+    process.env.ENTRA_TENANT_PRIMARY_DOMAIN || ""
+  ];
+
+  for (const rawValue of rawValues) {
+    rawValue
+      .split(/[,\n;|]/)
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean)
+      .forEach((value) => domains.add(value));
+  }
+
+  return domains;
+}
+
+function isInternalTenantEmail(email: string) {
+  const domain = email.split("@")[1]?.trim().toLowerCase() || "";
+  if (!domain) return false;
+  return internalTenantDomains().has(domain);
+}
+
 function userFacingPortalUserError(error: unknown) {
   const message = error instanceof Error ? error.message : "No se pudo crear el usuario de portal.";
 
@@ -46,16 +71,30 @@ export async function POST(req: NextRequest) {
     const email = typeof body.email === "string" ? body.email.trim() : "";
     const customerNo = typeof body.customerNo === "string" ? body.customerNo.trim() : "";
     let externalUserId = typeof body.externalUserId === "string" ? body.externalUserId.trim() : "";
+    const createMode = typeof body.createMode === "string" ? body.createMode.trim() : "invite";
 
     if (!email || !customerNo) {
       return NextResponse.json({ error: "Email y cliente son obligatorios." }, { status: 400 });
     }
 
-    let invitationStatus: "Pending" | "Sent" = "Pending";
+    const internalEmail = isInternalTenantEmail(email);
+
+    if (internalEmail && !externalUserId) {
+      return NextResponse.json(
+        {
+          error:
+            "El email pertenece a un dominio interno del tenant. Para crear acceso interno debes indicar el External User Id (Object ID / User ID de Entra)."
+        },
+        { status: 400 }
+      );
+    }
+
+    const skipInvitation = createMode === "internal" || Boolean(externalUserId);
+    let invitationStatus: "None" | "Pending" | "Sent" = skipInvitation ? "None" : "Pending";
     let invitationSentAt = "";
     let lastInvitationError = "";
 
-    if (!externalUserId) {
+    if (!skipInvitation) {
       try {
         const invited = await invitePortalUser({
           email,

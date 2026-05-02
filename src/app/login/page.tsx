@@ -8,6 +8,14 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const message = searchParams.get("message");
+  const errorMessage =
+    error === "PORTAL_DISABLED"
+      ? "El portal privado no está disponible en este momento."
+      : error === "PORTAL_USER_DISABLED"
+      ? "Tu acceso al portal privado está desactivado."
+      : error === "PORTAL_USER_BLOCKED"
+      ? "Tu acceso al portal privado está bloqueado."
+      : error;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbfe_38%,#ffffff_100%)] px-6 py-10">
@@ -79,9 +87,9 @@ function LoginContent() {
             Utiliza tu cuenta Microsoft para acceder a tu información de forma segura.
           </p>
 
-          {error ? (
+          {errorMessage ? (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">
-              {error}
+              {errorMessage}
             </div>
           ) : null}
 

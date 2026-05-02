@@ -7,6 +7,7 @@ import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
 
 const items = [
   { href: "/portal", label: "Inicio" },
+  { href: "/portal/notices", label: "Avisos" },
   { href: "/portal/invoices", label: "Facturas" },
   { href: "/portal/incidents", label: "Incidencias" },
   { href: "/portal/profile", label: "Perfil" },
@@ -14,6 +15,7 @@ const items = [
 
 const adminItems = [
   { href: "/portal", label: "Inicio" },
+  { href: "/portal/notices", label: "Avisos" },
   { href: "/portal/invoices", label: "Facturas" },
   { href: "/portal/incidents", label: "Incidencias" },
   { href: "/portal/admin/users", label: "Usuarios" },
@@ -55,6 +57,16 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
           </li>
         );
       })}
+      <li>
+        <button
+          type="button"
+          onClick={() => setIsLogoutDialogOpen(true)}
+          disabled={isLoggingOut}
+          className="block w-full rounded-2xl border border-transparent px-4 py-3 text-left text-sm font-medium text-forne-muted transition duration-200 hover:border-forne-line hover:bg-white hover:text-forne-ink hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Salir
+        </button>
+      </li>
     </ul>
   );
 
@@ -125,16 +137,6 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
       <nav className="flex-1 px-5 py-6">
         {navItems}
       </nav>
-      <div className="border-t border-forne-line/80 p-5">
-        <button
-          type="button"
-          onClick={() => setIsLogoutDialogOpen(true)}
-          disabled={isLoggingOut}
-          className="w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-left text-sm font-medium text-forne-muted shadow-sm transition hover:border-forne-ink/10 hover:bg-white hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Salir
-        </button>
-      </div>
       </aside>
 
       <ConfirmationDialog

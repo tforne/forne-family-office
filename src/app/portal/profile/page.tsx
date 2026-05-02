@@ -10,8 +10,18 @@ function DetailCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function InlineDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+      <div className="mt-1 break-words text-sm font-medium leading-6 text-forne-ink">{value || "-"}</div>
+    </div>
+  );
+}
+
 export default async function Page() {
   const data = await getMe();
+  const paymentMethods = data.paymentMethods.length > 0 ? data.paymentMethods.join(" · ") : "-";
 
   return (
     <div className="space-y-8">
@@ -43,11 +53,18 @@ export default async function Page() {
             {data.portalEnabled ? "Portal activo" : "Portal no activo"}
           </div>
         </div>
+
+        <div className="mt-6 grid gap-5 border-t border-forne-line pt-5 md:grid-cols-3">
+          <InlineDetail label="Nº cliente" value={data.customerNo} />
+          <InlineDetail label="Nombre cliente" value={data.customerName} />
+          <InlineDetail label="Formas de pago" value={paymentMethods} />
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <DetailCard label="Nº cliente" value={data.customerNo} />
         <DetailCard label="Nombre cliente" value={data.customerName} />
+        <DetailCard label="Formas de pago" value={paymentMethods} />
         <DetailCard label="Correo electrónico" value={data.email} />
         <DetailCard label="Identificador usuario" value={data.userId} />
       </section>

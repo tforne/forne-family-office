@@ -17,6 +17,12 @@ export type BusinessCentralCompanyRef = {
   companyName?: string;
 };
 
+export type BusinessCentralCustomApiRef = {
+  publisher: string;
+  group: string;
+  version: string;
+};
+
 function requireBusinessCentralBaseConfig() {
   const missing = [
     ["BC_BASE_URL", env.bcBaseUrl],
@@ -229,6 +235,20 @@ export async function bcGetForCompany<T = unknown>(company: BusinessCentralCompa
   return bcFetchJson<T>(url);
 }
 
+export async function bcGetFromCustomApiForCompany<T = unknown>(
+  company: BusinessCentralCompanyRef,
+  api: BusinessCentralCustomApiRef,
+  path: string,
+  query?: string
+): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseApiUrl()}/${api.publisher}/${api.group}/${api.version}/companies(${companyId})/${path}${query ? `?${query}` : ""}`;
+
+  return bcFetchJson<T>(url);
+}
+
 export async function getResolvedBusinessCentralCompanyId(company: BusinessCentralCompanyRef = {}) {
   requireBusinessCentralBaseConfig();
   return resolveCompanyId(company);
@@ -268,6 +288,29 @@ export async function bcPostForCompany<T = unknown>(company: BusinessCentralComp
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
 
   return bcSendJson<T>(url, "POST", body);
+}
+
+export async function bcPatchForCompany<T = unknown>(company: BusinessCentralCompanyRef, path: string, body: unknown): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "PATCH", body);
+}
+
+export async function bcPatchCustomApiForCompany<T = unknown>(
+  company: BusinessCentralCompanyRef,
+  api: BusinessCentralCustomApiRef,
+  path: string,
+  body: unknown
+): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseApiUrl()}/${api.publisher}/${api.group}/${api.version}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "PATCH", body);
 }
 
 export async function bcPatch<T = unknown>(path: string, body: unknown): Promise<T> {

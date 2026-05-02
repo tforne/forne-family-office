@@ -11,6 +11,7 @@ export async function getMe(): Promise<MeDto> {
     email: user.email,
     customerNo: user.customerNo,
     customerName: user.customerName,
+    paymentMethods: user.paymentMethods,
     portalEnabled: user.portalEnabled,
     bcCompanyId: user.bcCompanyId,
     bcCompanyName: user.bcCompanyName

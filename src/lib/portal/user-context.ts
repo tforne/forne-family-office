@@ -5,16 +5,21 @@ import { bcGet, bcGetForCompany, type BusinessCentralCompanyRef } from "@/lib/bc
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, unwrap } from "@/lib/bc/odata";
 
-type TenantProfileDto = {
+type TenantProfileDto = Record<string, unknown> & {
   id?: string;
   no?: string;
   name?: string;
   email?: string;
 };
 
-type TenantProfileUserDto = Record<string, string | number | boolean | null | undefined>;
+type TenantPortalConfigurationDto = Record<string, unknown> & {
+  enabled?: boolean;
+};
+
+type TenantProfileUserDto = Record<string, unknown>;
 type ResolvedProfileUser = {
   profile: TenantProfileDto;
+  profileUser?: TenantProfileUserDto;
   company: BusinessCentralCompanyRef;
 };
 
@@ -26,6 +31,43 @@ function getStringField(record: TenantProfileUserDto, field: string) {
 function getBooleanField(record: TenantProfileUserDto, field: string) {
   const value = record[field];
   return typeof value === "boolean" ? value : false;
+}
+
+function getStringListField(record: Record<string, unknown>, field: string) {
+  const value = record[field];
+  if (Array.isArray(value)) {
+    return value
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value !== "string") return [];
+
+  return value
+    .split(/[,\n;|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function extractPaymentMethods(...records: Array<Record<string, unknown> | undefined>) {
+  const candidateFields = [
+    "paymentMethods",
+    "paymentMethodsText",
+    "associatedPaymentMethods",
+    "paymentMethodCode",
+    "paymentMethod",
+    "paymentMethodName",
+    "paymentMethodDescription",
+    "preferredPaymentMethod",
+    "preferredPaymentMethodCode"
+  ];
+
+  const values = candidateFields.flatMap((field) =>
+    records.flatMap((record) => (record ? getStringListField(record, field) : []))
+  );
+
+  return Array.from(new Set(values));
 }
 
 function companyFromProfileUser(profileUser?: TenantProfileUserDto): BusinessCentralCompanyRef {
@@ -42,6 +84,18 @@ function companyFromProfileUser(profileUser?: TenantProfileUserDto): BusinessCen
 
 function hasCompanyRef(company: BusinessCentralCompanyRef) {
   return Boolean(company.companyId || company.companyName);
+}
+
+async function assertPortalIsEnabled() {
+  const payload = await bcGet<{ value?: TenantPortalConfigurationDto[] }>(
+    bcEndpoints.tenantPortalConfigurations,
+    odataQuery({ top: 1 })
+  );
+  const configuration = unwrap<TenantPortalConfigurationDto>(payload)[0];
+
+  if (!configuration || !getBooleanField(configuration, "enabled")) {
+    throw new Error("PORTAL_DISABLED");
+  }
 }
 
 async function findTenantProfileByCustomerNo(customerNo: string, company: BusinessCentralCompanyRef = {}) {
@@ -110,7 +164,7 @@ async function findTenantProfileViaProfileUser(email: string, externalUserId: st
 
   const company = companyFromProfileUser(profileUser);
   const profile = await findTenantProfileByCustomerNo(customerNo, company);
-  return profile ? { profile, company } : undefined;
+  return profile ? { profile, profileUser, company } : undefined;
 }
 
 export async function resolvePortalUserContext() {
@@ -123,11 +177,14 @@ export async function resolvePortalUserContext() {
       externalUserId: session.externalUserId || mockMe.userId,
       customerNo: mockMe.customerNo,
       customerName: mockMe.customerName,
+      paymentMethods: mockMe.paymentMethods,
       portalEnabled: mockMe.portalEnabled,
       bcCompanyId: env.bcCompanyId,
       bcCompanyName: env.bcCompanyName
     };
   }
+
+  await assertPortalIsEnabled();
 
   const email = session.email || "";
   const externalUserId = session.externalUserId || "";
@@ -168,6 +225,7 @@ export async function resolvePortalUserContext() {
     externalUserId: session.externalUserId || profile.id || "",
     customerNo: profile.no,
     customerName: profile.name || profile.no,
+    paymentMethods: extractPaymentMethods(profileFromUser?.profileUser, profile),
     portalEnabled: true,
     bcCompanyId: company.companyId || env.bcCompanyId,
     bcCompanyName: company.companyName || env.bcCompanyName

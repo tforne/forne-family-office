@@ -57,5 +57,7 @@ export const env = {
   bcProfileUserCustomerNoField: readServerEnv("BC_PROFILE_USER_CUSTOMER_NO_FIELD") || "customerNo",
   bcProfileUserExternalUserIdField: readServerEnv("BC_PROFILE_USER_EXTERNAL_USER_ID_FIELD") || "externalUserId",
   bcTenantPortalUsersEndpoint: readServerEnv("BC_TENANT_PORTAL_USERS_ENDPOINT") || "tenantPortalUsers",
+  bcTenantPortalConfigurationEndpoint:
+    readServerEnv("BC_TENANT_PORTAL_CONFIGURATION_ENDPOINT") || "tenantPortalConfigurations",
   portalAdminEmails: readServerEnv("PORTAL_ADMIN_EMAILS")
 };
