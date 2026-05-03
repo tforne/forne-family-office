@@ -78,10 +78,14 @@ async function sendKvCommand(command: Array<string>) {
 
 export async function readContentFile(fileName: string) {
   if (getKvConfig()) {
-    const result = await sendKvCommand(["GET", getKvKey(fileName)]);
+    try {
+      const result = await sendKvCommand(["GET", getKvKey(fileName)]);
 
-    if (typeof result === "string" && result.length > 0) {
-      return result;
+      if (typeof result === "string" && result.length > 0) {
+        return result;
+      }
+    } catch (error) {
+      console.error(`[content] No se pudo leer ${fileName} desde KV. Se usará el contenido incluido en el despliegue.`, error);
     }
   }
 
