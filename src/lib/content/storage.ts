@@ -1,5 +1,6 @@
 import "server-only";
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { readServerEnv } from "@/lib/config/server-env";
 
@@ -10,13 +11,21 @@ function getConfiguredDataDir() {
   return configuredDir ? path.resolve(configuredDir) : "";
 }
 
+function getDefaultWritableDataDir() {
+  if (process.env.NODE_ENV === "production") {
+    return path.join(os.tmpdir(), "forne-family-office-content");
+  }
+
+  return bundledDataDir;
+}
+
 function getBundledFilePath(fileName: string) {
   return path.join(bundledDataDir, fileName);
 }
 
 function getWritableFilePath(fileName: string) {
-  const configuredDir = getConfiguredDataDir();
-  return configuredDir ? path.join(configuredDir, fileName) : getBundledFilePath(fileName);
+  const targetDir = getConfiguredDataDir() || getDefaultWritableDataDir();
+  return path.join(targetDir, fileName);
 }
 
 export async function readContentFile(fileName: string) {
@@ -40,20 +49,7 @@ export async function readContentFile(fileName: string) {
 }
 
 export async function writeContentFile(fileName: string, content: string) {
-  const configuredDir = getConfiguredDataDir();
-
-  if (configuredDir) {
-    await fs.mkdir(configuredDir, { recursive: true });
-    const configuredPath = path.join(configuredDir, fileName);
-    await fs.writeFile(configuredPath, content, "utf8");
-    return;
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "La edición de contenido no está configurada en producción. Define CONTENT_STORAGE_DIR en una ruta escribible o usa un almacenamiento persistente."
-    );
-  }
-
-  await fs.writeFile(getWritableFilePath(fileName), content, "utf8");
+  const targetPath = getWritableFilePath(fileName);
+  await fs.mkdir(path.dirname(targetPath), { recursive: true });
+  await fs.writeFile(targetPath, content, "utf8");
 }
