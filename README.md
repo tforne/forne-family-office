@@ -73,6 +73,9 @@ Variables principales:
 USE_DEMO_LOGIN=false
 USE_MOCK_API=false
 APP_BASE_URL=https://tu-dominio.com
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
+CONTENT_KV_PREFIX=forne-family-office:content
 
 ENTRA_TENANT_ID=
 ENTRA_CLIENT_ID=
@@ -93,6 +96,8 @@ BC_PROFILE_USERS_ENDPOINT=tenantPortalUsers
 BC_PROFILE_USER_EMAIL_FIELD=email
 BC_PROFILE_USER_CUSTOMER_NO_FIELD=customerNo
 ```
+
+Si despliegas en Vercel y quieres que `Activos destacados` y `Noticias` sean persistentes, necesitas conectar un storage compatible desde Marketplace, por ejemplo Upstash Redis / Vercel KV, y exponer `KV_REST_API_URL` y `KV_REST_API_TOKEN` al proyecto. Sin eso, el filesystem de las funciones no conserva cambios entre ejecuciones.
 
 En Azure App Registration, añade todos los redirect URIs que uses:
 
