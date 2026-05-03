@@ -13,8 +13,8 @@ function getConfiguredDataDir() {
 }
 
 function getKvConfig() {
-  const url = readServerEnv("KV_REST_API_URL").trim();
-  const token = readServerEnv("KV_REST_API_TOKEN").trim();
+  const url = (readServerEnv("KV_REST_API_URL") || readServerEnv("UPSTASH_REDIS_REST_URL")).trim();
+  const token = (readServerEnv("KV_REST_API_TOKEN") || readServerEnv("UPSTASH_REDIS_REST_TOKEN")).trim();
   const prefix = readServerEnv("CONTENT_KV_PREFIX").trim() || defaultKvPrefix;
 
   if (!url || !token) {
