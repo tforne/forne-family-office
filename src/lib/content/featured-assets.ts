@@ -1,6 +1,5 @@
 import "server-only";
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import { readContentFile, writeContentFile } from "@/lib/content/storage";
 
 export type FeaturedAsset = {
   id: string;
@@ -10,8 +9,6 @@ export type FeaturedAsset = {
   price: string;
   note: string;
 };
-
-const featuredAssetsFilePath = path.join(process.cwd(), "src", "data", "featured-assets.json");
 
 function normalizeItem(item: Partial<FeaturedAsset>, index: number): FeaturedAsset {
   return {
@@ -25,13 +22,13 @@ function normalizeItem(item: Partial<FeaturedAsset>, index: number): FeaturedAss
 }
 
 export async function listFeaturedAssets() {
-  const raw = await fs.readFile(featuredAssetsFilePath, "utf8");
+  const raw = await readContentFile("featured-assets.json");
   const parsed = JSON.parse(raw) as Partial<FeaturedAsset>[];
   return parsed.map(normalizeItem);
 }
 
 export async function saveFeaturedAssets(items: FeaturedAsset[]) {
   const normalized = items.map(normalizeItem);
-  await fs.writeFile(featuredAssetsFilePath, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
+  await writeContentFile("featured-assets.json", `${JSON.stringify(normalized, null, 2)}\n`);
   return normalized;
 }
