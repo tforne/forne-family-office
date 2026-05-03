@@ -24,6 +24,14 @@ function getKvConfig() {
   return { url: url.replace(/\/$/, ""), token, prefix };
 }
 
+function getKvOriginLabel(url: string) {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url;
+  }
+}
+
 function isVercelProduction() {
   return process.env.NODE_ENV === "production" && process.env.VERCEL === "1";
 }
@@ -57,20 +65,31 @@ async function sendKvCommand(command: Array<string>) {
     throw new Error("Vercel KV no está configurado.");
   }
 
-  const response = await fetch(kv.url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${kv.token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(command),
-    cache: "no-store"
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(kv.url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${kv.token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(command),
+      cache: "no-store"
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error de red desconocido";
+    throw new Error(
+      `No se pudo conectar con Vercel KV en ${getKvOriginLabel(kv.url)}. Revisa KV_REST_API_URL/UPSTASH_REDIS_REST_URL y el acceso al endpoint. Detalle: ${message}`
+    );
+  }
 
   const payload = (await response.json().catch(() => ({}))) as { result?: unknown; error?: string };
 
   if (!response.ok || payload.error) {
-    throw new Error(payload.error || `Error al acceder a Vercel KV (${response.status}).`);
+    throw new Error(
+      payload.error || `Error al acceder a Vercel KV (${response.status}) en ${getKvOriginLabel(kv.url)}.`
+    );
   }
 
   return payload.result;
