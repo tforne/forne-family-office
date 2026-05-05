@@ -1,12 +1,14 @@
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import AvailabilityInterestForm from "@/components/public/AvailabilityInterestForm";
-import { listFeaturedAssets } from "@/lib/content/featured-assets";
+import { listPublicFeaturedAssets } from "@/lib/public/featured-assets.service";
 
 const HERO_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-calle-gRs5ApjQ7HD5b5Mu9TdWPe.webp";
 
 export default async function Hero() {
-  const featuredAssets = await listFeaturedAssets();
+  noStore();
+  const featuredAssets = await listPublicFeaturedAssets();
 
   return (
     <section className="relative overflow-hidden bg-white">
@@ -109,22 +111,28 @@ export default async function Hero() {
           </div>
 
           <div className="mt-8 grid gap-4 xl:grid-cols-3">
-            {featuredAssets.map((asset) => (
-              <article
-                key={asset.id}
-                className="rounded-[22px] border border-[#D7E7F5] bg-white/92 p-5 shadow-[0_18px_40px_-32px_rgba(0,58,108,0.22)]"
-              >
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#0078D4]">
-                  {asset.badge}
-                </div>
-                <h3 className="mt-3 text-xl font-semibold leading-tight tracking-[-0.02em] text-[#0F172A]">
-                  {asset.title}
-                </h3>
-                <div className="mt-2 text-sm font-medium text-[#605E5C]">{asset.location}</div>
-                <div className="mt-4 text-2xl font-semibold text-[#003A6C]">{asset.price}</div>
-                <p className="mt-3 text-sm leading-6 text-[#605E5C]">{asset.note}</p>
+            {featuredAssets.length > 0 ? (
+              featuredAssets.map((asset) => (
+                <article
+                  key={asset.id}
+                  className="rounded-[22px] border border-[#D7E7F5] bg-white/92 p-5 shadow-[0_18px_40px_-32px_rgba(0,58,108,0.22)]"
+                >
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#0078D4]">
+                    {asset.badge}
+                  </div>
+                  <h3 className="mt-3 text-xl font-semibold leading-tight tracking-[-0.02em] text-[#0F172A]">
+                    {asset.title}
+                  </h3>
+                  <div className="mt-2 text-sm font-medium text-[#605E5C]">{asset.location}</div>
+                  <div className="mt-4 text-2xl font-semibold text-[#003A6C]">{asset.price}</div>
+                  <p className="mt-3 text-sm leading-6 text-[#605E5C]">{asset.note}</p>
+                </article>
+              ))
+            ) : (
+              <article className="rounded-[22px] border border-dashed border-[#B7D5EE] bg-white/85 p-6 text-sm leading-7 text-[#605E5C] xl:col-span-3">
+                En este momento no hay inmuebles con estado <strong>En alquiler</strong> para mostrar en portada.
               </article>
-            ))}
+            )}
           </div>
 
           <AvailabilityInterestForm />

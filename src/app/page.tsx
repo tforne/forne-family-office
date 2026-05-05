@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
 import AboutSection from "@/components/public/AboutSection";
 import ClientAreaSection from "@/components/public/ClientAreaSection";
 import ContactSection from "@/components/public/ContactSection";
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  noStore();
+
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",

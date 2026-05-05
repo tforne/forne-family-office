@@ -19,7 +19,6 @@ const adminItems = [
   { href: "/portal/invoices", label: "Facturas" },
   { href: "/portal/incidents", label: "Incidencias" },
   { href: "/portal/admin/users", label: "Usuarios" },
-  { href: "/portal/admin/featured-assets", label: "Activos" },
   { href: "/portal/admin/news", label: "Noticias" },
 ];
 
