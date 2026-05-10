@@ -21,6 +21,7 @@ const adminItems = [
   { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
   { href: "/portal/admin/users", label: "Usuarios", icon: "operations" as const },
   { href: "/portal/admin/news", label: "Noticias", icon: "guide" as const },
+  { href: "/portal/admin/chat", label: "Chat", icon: "portal" as const },
 ];
 
 export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boolean }) {

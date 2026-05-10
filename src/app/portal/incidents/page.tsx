@@ -65,9 +65,21 @@ export default async function IncidentsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <PortalStatCard title="Abiertas" value={String(openCount)} />
-        <PortalStatCard title="Solicitudes" value={String(requestCount)} />
-        <PortalStatCard title="Problemas" value={String(problemCount)} />
+        <PortalStatCard
+          title="Abiertas"
+          value={String(openCount)}
+          description="Total de incidencias que siguen en curso y todavia requieren seguimiento."
+        />
+        <PortalStatCard
+          title="Solicitudes"
+          value={String(requestCount)}
+          description="Consultas o peticiones de gestion que no siempre implican una averia tecnica."
+        />
+        <PortalStatCard
+          title="Problemas"
+          value={String(problemCount)}
+          description="Casos asociados a averias, incidencias tecnicas o situaciones que necesitan resolucion."
+        />
       </div>
 
       {isAdmin ? null : <NewIncidentForm contracts={contractOptions} />}

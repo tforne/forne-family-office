@@ -1,6 +1,9 @@
 import PortalHeader from "@/components/portal/PortalHeader";
+import PortalChatLauncher from "@/components/portal/PortalChatLauncher";
 import PortalSidebar from "@/components/portal/PortalSidebar";
 import { getPortalSession } from "@/lib/auth/session";
+import { getChatSettings } from "@/lib/content/chat-settings";
+import { env } from "@/lib/config/env";
 import { isPortalAdminEmail } from "@/lib/portal/admin-auth";
 import { resolvePortalUserContext } from "@/lib/portal/user-context";
 import { redirect } from "next/navigation";
@@ -22,6 +25,8 @@ export default async function PortalLayout({ children }: { children: React.React
   }
 
   const showAdmin = isPortalAdminEmail(session.email);
+  const chatSettings = await getChatSettings();
+  const showChat = env.chatAvailable && chatSettings.enabled;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#f4f7fb_48%,#f8fafc_100%)] text-forne-ink">
@@ -34,6 +39,7 @@ export default async function PortalLayout({ children }: { children: React.React
           </main>
         </div>
       </div>
+      {showChat ? <PortalChatLauncher /> : null}
     </div>
   );
 }

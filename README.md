@@ -72,6 +72,7 @@ Variables principales:
 ```env
 USE_DEMO_LOGIN=false
 USE_MOCK_API=false
+CHAT_AVAILABLE=false
 APP_BASE_URL=https://tu-dominio.com
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
@@ -96,6 +97,19 @@ BC_PROFILE_USERS_ENDPOINT=tenantPortalUsers
 BC_PROFILE_USER_EMAIL_FIELD=email
 BC_PROFILE_USER_CUSTOMER_NO_FIELD=customerNo
 ```
+
+### Activar o desactivar el chat manualmente
+
+El portal queda preparado con dos niveles de control:
+
+- `CHAT_AVAILABLE=true` permite que el chat pueda mostrarse en ese entorno.
+- Desde `Portal > Administración > Chat` puedes activar o desactivar manualmente su visibilidad para usuarios.
+
+Si `CHAT_AVAILABLE=false`, el chat no se mostrará aunque se active desde administración.
+
+Guia detallada:
+
+- [Configuracion y puesta en marcha del chat](docs/chat-portal-setup.md)
 
 Si despliegas en Vercel y quieres que `Activos destacados` y `Noticias` sean persistentes, necesitas conectar un storage compatible desde Marketplace, por ejemplo Upstash Redis / Vercel KV. La app acepta tanto `KV_REST_API_URL` y `KV_REST_API_TOKEN` como `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`. Sin eso, el filesystem de las funciones no conserva cambios entre ejecuciones.
 

@@ -20,6 +20,7 @@ function normalizeUrl(value: string) {
 export const env = {
   useMockApi: readServerEnv("USE_MOCK_API") !== "false",
   useDemoLogin: readServerEnv("USE_DEMO_LOGIN") !== "false",
+  chatAvailable: readServerEnv("CHAT_AVAILABLE") === "true",
   appBaseUrl: normalizeUrl(readServerEnv("APP_BASE_URL") || "http://localhost:3000"),
   entraTenantId: readServerEnv("ENTRA_TENANT_ID"),
   entraClientId: readServerEnv("ENTRA_CLIENT_ID"),

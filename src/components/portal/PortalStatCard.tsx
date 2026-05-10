@@ -1,10 +1,23 @@
 import Link from "next/link";
 
-export default function PortalStatCard({ title, value, href }: { title: string; value: string; href?: string }) {
+export default function PortalStatCard({
+  title,
+  value,
+  href,
+  description
+}: {
+  title: string;
+  value: string;
+  href?: string;
+  description?: string;
+}) {
   const content = (
     <>
       <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">{title}</div>
       <div className="mt-4 text-4xl font-semibold tracking-tight text-forne-ink">{value}</div>
+      {description ? (
+        <p className="mt-3 max-w-xs text-sm leading-6 text-forne-muted">{description}</p>
+      ) : null}
       <div className="mt-3 h-px w-12 bg-forne-line" />
     </>
   );
