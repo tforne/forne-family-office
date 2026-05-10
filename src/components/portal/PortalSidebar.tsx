@@ -3,23 +3,24 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import BrandIcon from "@/components/brand/BrandIcon";
 import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
 
 const items = [
-  { href: "/portal", label: "Inicio" },
-  { href: "/portal/notices", label: "Avisos" },
-  { href: "/portal/invoices", label: "Facturas" },
-  { href: "/portal/incidents", label: "Incidencias" },
-  { href: "/portal/profile", label: "Perfil" },
+  { href: "/portal", label: "Inicio", icon: "clarity" as const },
+  { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
+  { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
+  { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
+  { href: "/portal/profile", label: "Perfil", icon: "portal" as const },
 ];
 
 const adminItems = [
-  { href: "/portal", label: "Inicio" },
-  { href: "/portal/notices", label: "Avisos" },
-  { href: "/portal/invoices", label: "Facturas" },
-  { href: "/portal/incidents", label: "Incidencias" },
-  { href: "/portal/admin/users", label: "Usuarios" },
-  { href: "/portal/admin/news", label: "Noticias" },
+  { href: "/portal", label: "Inicio", icon: "clarity" as const },
+  { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
+  { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
+  { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
+  { href: "/portal/admin/users", label: "Usuarios", icon: "operations" as const },
+  { href: "/portal/admin/news", label: "Noticias", icon: "guide" as const },
 ];
 
 export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boolean }) {
@@ -51,7 +52,10 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
                   : "border border-transparent text-forne-muted hover:border-forne-line hover:bg-white hover:text-forne-ink hover:shadow-sm"
               }`}
             >
-              {item.label}
+              <span className="inline-flex items-center gap-3">
+                <BrandIcon name={item.icon} className="h-4 w-4" />
+                <span>{item.label}</span>
+              </span>
             </Link>
           </li>
         );
@@ -98,14 +102,17 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
-                  className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                href={item.href}
+                className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
                     active
                       ? "bg-forne-ink text-white shadow-[0_14px_28px_-22px_rgba(7,11,26,0.8)]"
                       : "border border-forne-line bg-white text-forne-muted"
                   }`}
                 >
-                  {item.label}
+                  <span className="inline-flex items-center gap-2">
+                    <BrandIcon name={item.icon} className="h-3.5 w-3.5" />
+                    <span>{item.label}</span>
+                  </span>
                 </Link>
               );
             })}

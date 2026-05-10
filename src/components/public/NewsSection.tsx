@@ -1,19 +1,39 @@
 import { listNewsItems } from "@/lib/content/news";
 
-function pickRandomItems<T>(items: T[], count: number) {
-  const shuffled = [...items];
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+function parseSpanishDate(value: string) {
+  const parsed = Date.parse(value);
+  if (!Number.isNaN(parsed)) {
+    return parsed;
   }
 
-  return shuffled.slice(0, count);
+  const normalized = value
+    .toLowerCase()
+    .replace("enero", "january")
+    .replace("febrero", "february")
+    .replace("marzo", "march")
+    .replace("abril", "april")
+    .replace("mayo", "may")
+    .replace("junio", "june")
+    .replace("julio", "july")
+    .replace("agosto", "august")
+    .replace("septiembre", "september")
+    .replace("octubre", "october")
+    .replace("noviembre", "november")
+    .replace("diciembre", "december");
+
+  const translated = Date.parse(normalized);
+  return Number.isNaN(translated) ? 0 : translated;
+}
+
+function pickFeaturedNewsItems<T extends { date: string }>(items: T[], count: number) {
+  return [...items]
+    .sort((left, right) => parseSpanishDate(right.date) - parseSpanishDate(left.date))
+    .slice(0, count);
 }
 
 export default async function NewsSection() {
   const newsItems = await listNewsItems();
-  const featuredNewsItems = pickRandomItems(newsItems, 3);
+  const featuredNewsItems = pickFeaturedNewsItems(newsItems, 3);
 
   return (
     <section id="noticias" className="bg-white py-20 lg:py-28">
@@ -36,7 +56,7 @@ export default async function NewsSection() {
           {featuredNewsItems.map((item) => (
             <article
               key={item.id}
-              className="rounded-[18px] border border-[#E1DFDD] bg-white p-6 shadow-[0_18px_40px_-34px_rgba(0,58,108,0.22)]"
+              className="ffo-elevate rounded-[18px] border border-[#E1DFDD] bg-white p-6 shadow-[0_18px_40px_-34px_rgba(0,58,108,0.22)]"
             >
               <div className="flex items-center justify-between gap-4">
                 <span
@@ -69,6 +89,15 @@ export default async function NewsSection() {
               ) : null}
             </article>
           ))}
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <a
+            href="/noticias"
+            className="inline-flex items-center justify-center rounded border border-[#0078D4] px-6 py-3 text-sm font-semibold text-[#0078D4] transition hover:bg-[#EFF6FC]"
+          >
+            Ver todas las noticias y avisos
+          </a>
         </div>
       </div>
     </section>

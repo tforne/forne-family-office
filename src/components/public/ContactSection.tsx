@@ -13,6 +13,12 @@ const clientFeatures = [
   "Mantén comunicación con contexto"
 ];
 
+const responsePoints = [
+  "Consultas sobre disponibilidad",
+  "Información sobre gestión de alquileres",
+  "Soporte para clientes ya registrados en el portal"
+];
+
 export default function ContactSection() {
   return (
     <section className="bg-white py-20 lg:py-28">
@@ -57,6 +63,18 @@ export default function ContactSection() {
             })}
           </div>
 
+          <div className="mt-10 rounded-[24px] border border-[#D7E7F5] bg-[#F8FBFE] p-6">
+            <div className="text-sm font-semibold text-[#003A6C]">Te ayudamos con</div>
+            <div className="mt-4 grid gap-3">
+              {responsePoints.map((item) => (
+                <div key={item} className="flex items-start gap-3 text-sm leading-6 text-[#605E5C]">
+                  <span className="mt-1 text-[#0078D4]">•</span>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/contacto"
@@ -73,7 +91,7 @@ export default function ContactSection() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[28px] bg-[#003A6C] p-8 text-white shadow-[0_34px_74px_-36px_rgba(0,58,108,0.58)] lg:p-10">
+        <div className="ffo-noise relative overflow-hidden rounded-[28px] bg-[#003A6C] p-8 text-white shadow-[0_34px_74px_-36px_rgba(0,58,108,0.58)] lg:p-10">
           <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#0078D4]/15 blur-3xl" />
           <h3 className="relative text-2xl font-semibold">¿Ya eres cliente?</h3>
           <p className="relative mt-3 text-sm leading-7 text-[#C8DCF0]">

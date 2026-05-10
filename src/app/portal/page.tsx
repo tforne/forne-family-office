@@ -270,6 +270,45 @@ function SummaryDetail({
   );
 }
 
+function QuickActionCard({
+  href,
+  title,
+  description,
+  helper
+}: {
+  href: string;
+  title: string;
+  description: string;
+  helper: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)] transition hover:-translate-y-0.5 hover:border-[#0078D4]/30 hover:shadow-[0_32px_70px_-40px_rgba(15,23,42,0.3)]"
+    >
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">Autoservicio</div>
+      <h3 className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{title}</h3>
+      <p className="mt-3 text-sm leading-7 text-forne-muted">{description}</p>
+      <div className="mt-4 text-sm font-semibold text-[#0078D4]">{helper}</div>
+    </Link>
+  );
+}
+
+function HelpItem({
+  title,
+  description
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <article className="rounded-2xl border border-forne-line bg-white/80 p-5">
+      <h3 className="text-base font-semibold text-forne-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
+    </article>
+  );
+}
+
 export default async function PortalPage() {
   const [meResult, invoicesResult, incidentsResult, incidentRequestsResult, contractsResult, noticesResult, newsResult, isAdmin] = await Promise.all([
     safeLoad("me summary", getMe, null),
@@ -318,6 +357,8 @@ export default async function PortalPage() {
   const insuranceEmail = priorityIncident?.insuranceEmail || null;
   const insurancePhone = priorityIncident?.insurancePhoneNo || null;
   const greeting = `${greetingForNow()}${me?.customerName ? `, ${me.customerName}` : ""}`;
+  const unreadNotices = notices.filter((notice) => notice.isUnread).length;
+  const hasPendingInvoice = Boolean(nextPendingInvoice);
 
   return (
     <div className="space-y-8">
@@ -338,6 +379,68 @@ export default async function PortalPage() {
 
       {!isAdmin ? (
         <div className="space-y-6">
+          <section className="rounded-[28px] border border-forne-line bg-[linear-gradient(135deg,#0F172A_0%,#172554_100%)] p-6 text-white shadow-[0_30px_70px_-40px_rgba(15,23,42,0.42)]">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">
+                  Centro de autoservicio
+                </div>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight">
+                  Accesos rápidos para resolver gestiones sin esperar.
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/70">
+                  El objetivo del portal es que puedas consultar, entender y avanzar en tus
+                  gestiones con el menor rozamiento posible.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Avisos</div>
+                  <div className="mt-2 text-2xl font-semibold">{unreadNotices}</div>
+                  <div className="mt-1 text-xs text-white/65">pendientes de revisar</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Facturación</div>
+                  <div className="mt-2 text-2xl font-semibold">{pendingInvoices}</div>
+                  <div className="mt-1 text-xs text-white/65">recibos pendientes</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Incidencias</div>
+                  <div className="mt-2 text-2xl font-semibold">{openIncidents}</div>
+                  <div className="mt-1 text-xs text-white/65">gestiones abiertas</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 xl:grid-cols-4">
+              <QuickActionCard
+                href="/portal/notices"
+                title="Revisar avisos"
+                description="Consulta comunicaciones activas y confirma lectura cuando sea necesario."
+                helper={unreadNotices > 0 ? `${unreadNotices} aviso(s) pendientes` : "Todo al día"}
+              />
+              <QuickActionCard
+                href="/portal/invoices"
+                title="Consultar facturas"
+                description="Comprueba importes, vencimientos y el estado de tus facturas sin salir del portal."
+                helper={hasPendingInvoice ? "Hay facturas pendientes" : "Sin importes pendientes"}
+              />
+              <QuickActionCard
+                href="/portal/incidents"
+                title="Abrir o seguir incidencias"
+                description="Da de alta una nueva gestión o revisa el avance de solicitudes abiertas."
+                helper={openIncidents > 0 ? `${openIncidents} incidencia(s) abierta(s)` : "Sin incidencias abiertas"}
+              />
+              <QuickActionCard
+                href="/portal/profile"
+                title="Ver tus datos"
+                description="Consulta la información asociada a tu perfil y el entorno del portal."
+                helper="Revisar perfil y contexto"
+              />
+            </div>
+          </section>
+
           {notices.length > 0 ? (
             <section className="space-y-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -424,6 +527,34 @@ export default async function PortalPage() {
                   helper="Referencia temporal del próximo movimiento económico."
                 />
               </div>
+            </div>
+          </section>
+
+          <section className="rounded-[28px] border border-forne-line bg-[#F8FAFC] p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.18)]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">
+                  Ayuda rápida
+                </div>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">
+                  Qué puedes resolver desde aquí
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 xl:grid-cols-3">
+              <HelpItem
+                title="Antes de abrir una incidencia"
+                description="Comprueba si ya existe una gestión abierta y aporta detalles concretos: contrato, zona afectada y teléfono de contacto."
+              />
+              <HelpItem
+                title="Si necesitas una factura"
+                description="Desde Facturas puedes ver importes, vencimientos y solicitar copia cuando la necesites sin depender de un correo manual."
+              />
+              <HelpItem
+                title="Si el aviso requiere acción"
+                description="Revisa la sección Avisos y marca la lectura cuando se solicite confirmación para dejar trazabilidad en el portal."
+              />
             </div>
           </section>
         </div>

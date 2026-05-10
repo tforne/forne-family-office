@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const PORTAL_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-interior-bajvhnKciECoKnLinUir5M.webp";
@@ -8,6 +9,12 @@ const features = [
   "Comunica incidencias del inmueble",
   "Revisa el estado de cada gestión",
   "Mantén comunicación con contexto"
+];
+
+const portalHighlights = [
+  { label: "Facturas", value: "Histórico y vencimientos" },
+  { label: "Incidencias", value: "Seguimiento estructurado" },
+  { label: "Avisos", value: "Comunicaciones visibles" }
 ];
 
 export default function ClientAreaSection() {
@@ -52,13 +59,29 @@ export default function ClientAreaSection() {
           </Link>
         </div>
 
-        <div>
+        <div className="relative">
           <div className="overflow-hidden rounded-[28px] shadow-[0_30px_70px_-36px_rgba(0,0,0,0.45)]">
-            <img
+            <Image
               src={PORTAL_IMAGE}
               alt="Portal de clientes Forné Family Office"
+              width={1200}
+              height={1400}
               className="h-[360px] w-full object-cover sm:h-[460px] lg:h-[520px]"
             />
+          </div>
+
+          <div className="absolute inset-x-5 bottom-5 rounded-[24px] border border-white/10 bg-[#072448]/88 p-5 text-white shadow-[0_26px_60px_-30px_rgba(0,0,0,0.65)] backdrop-blur">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/55">
+              Vista rápida del portal
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {portalHighlights.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="text-sm font-semibold">{item.label}</div>
+                  <div className="mt-1 text-sm text-white/70">{item.value}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

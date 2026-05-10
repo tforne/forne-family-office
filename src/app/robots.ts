@@ -10,6 +10,16 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/portal/", "/api/", "/login"]
       },
       {
+        userAgent: "Bingbot",
+        allow: ["/", "/alquileres", "/contacto", "/noticias"],
+        disallow: ["/portal/", "/api/", "/login"]
+      },
+      {
+        userAgent: "Googlebot",
+        allow: ["/", "/alquileres", "/contacto", "/noticias"],
+        disallow: ["/portal/", "/api/", "/login"]
+      },
+      {
         userAgent: "OAI-SearchBot",
         allow: ["/", "/alquileres", "/contacto", "/noticias"],
         disallow: ["/portal/", "/api/", "/login"]

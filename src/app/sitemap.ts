@@ -24,10 +24,40 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8
     },
     {
+      url: `${env.appBaseUrl}/guias`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85
+    },
+    {
+      url: `${env.appBaseUrl}/guias/portal-privado`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8
+    },
+    {
+      url: `${env.appBaseUrl}/guias/incidencias-alquiler`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8
+    },
+    {
+      url: `${env.appBaseUrl}/guias/facturas-y-vencimientos`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8
+    },
+    {
       url: `${env.appBaseUrl}/noticias`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7
+    },
+    {
+      url: `${env.appBaseUrl}/llms.txt`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3
     }
   ];
 }

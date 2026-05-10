@@ -3,29 +3,80 @@
 @tailwind utilities;
 
 :root {
-  --ffo-blue: #0078d4;
-  --ffo-blue-dark: #003a6c;
-  --ffo-blue-mid: #106ebe;
-  --ffo-blue-soft: #eff6fc;
-  --ffo-gray-soft: #f3f2f1;
-  --ffo-text: #201f1e;
-  --ffo-text-muted: #605e5c;
-  --ffo-line: #e1dfdd;
+  --ffo-blue: #1b6fd8;
+  --ffo-blue-dark: #0f2f57;
+  --ffo-blue-mid: #2f87de;
+  --ffo-blue-soft: #edf5ff;
+  --ffo-mist: #f7fbff;
+  --ffo-gray-soft: #f4f1ec;
+  --ffo-sand: #d9c8b0;
+  --ffo-text: #18202b;
+  --ffo-text-muted: #5d6776;
+  --ffo-line: rgba(24, 32, 43, 0.1);
+  --ffo-line-strong: rgba(24, 32, 43, 0.18);
+  --ffo-shadow: 0 30px 70px -42px rgba(15, 47, 87, 0.28);
+  --ffo-shadow-strong: 0 40px 100px -54px rgba(15, 47, 87, 0.36);
+  --ffo-radius: 28px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(0, 120, 212, 0.08), transparent 26%),
-    linear-gradient(180deg, #ffffff 0%, #f8fbfe 38%, #ffffff 100%);
+    radial-gradient(circle at top left, rgba(27, 111, 216, 0.12), transparent 24%),
+    radial-gradient(circle at 85% 20%, rgba(217, 200, 176, 0.18), transparent 22%),
+    linear-gradient(180deg, #fbfdff 0%, #f2f7fd 38%, #ffffff 100%);
   color: var(--ffo-text);
-  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
-* { box-sizing: border-box; }
-a { text-decoration: none; }
-button, input, textarea { font: inherit; }
+
+* {
+  box-sizing: border-box;
+}
+
+*::selection {
+  background: rgba(27, 111, 216, 0.18);
+  color: var(--ffo-blue-dark);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+img {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(27, 111, 216, 0.45);
+  outline-offset: 3px;
+}
 
 @layer components {
   .ffo-shell {
@@ -35,20 +86,47 @@ button, input, textarea { font: inherit; }
   .ffo-kicker {
     @apply text-xs font-semibold uppercase tracking-[0.28em];
     color: var(--ffo-blue);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
   .ffo-accent-line {
     display: inline-block;
     width: 2.5rem;
     height: 2px;
-    background: var(--ffo-blue);
+    background: linear-gradient(90deg, var(--ffo-sand) 0%, var(--ffo-blue) 100%);
   }
 
   .ffo-card {
     border: 1px solid var(--ffo-line);
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 24px 60px -34px rgba(0, 58, 108, 0.28);
-    backdrop-filter: blur(6px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(247, 251, 255, 0.94) 100%);
+    box-shadow: var(--ffo-shadow);
+    backdrop-filter: blur(14px);
+  }
+
+  .ffo-glass {
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--ffo-shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .ffo-panel {
+    border: 1px solid var(--ffo-line);
+    border-radius: var(--ffo-radius);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 254, 0.96) 100%);
+    box-shadow: var(--ffo-shadow);
+  }
+
+  .ffo-button-primary {
+    background: linear-gradient(135deg, var(--ffo-blue) 0%, var(--ffo-blue-mid) 100%);
+    box-shadow: 0 22px 40px -24px rgba(27, 111, 216, 0.65);
+  }
+
+  .ffo-button-secondary {
+    border: 1px solid rgba(27, 111, 216, 0.22);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 18px 40px -30px rgba(15, 47, 87, 0.18);
   }
 
   .ffo-link-underline {
@@ -62,11 +140,57 @@ button, input, textarea { font: inherit; }
     bottom: -6px;
     width: 0;
     height: 2px;
-    background: var(--ffo-blue);
-    transition: width 180ms ease;
+    background: linear-gradient(90deg, var(--ffo-sand) 0%, var(--ffo-blue) 100%);
+    transition: width 220ms ease;
   }
 
   .ffo-link-underline:hover::after {
     width: 100%;
+  }
+
+  .ffo-elevate {
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .ffo-elevate:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--ffo-shadow-strong);
+  }
+
+  .ffo-noise {
+    position: relative;
+  }
+
+  .ffo-noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.4) 0.5px, transparent 0.5px);
+    background-size: 12px 12px;
+    opacity: 0.18;
+    mix-blend-mode: soft-light;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ffo-fade-up {
+    animation: ffoFadeUp 650ms ease both;
+  }
+}
+
+@keyframes ffoFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -41,33 +41,44 @@ export default function AvailabilityInterestForm() {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <input
-          type="text"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Tu nombre"
-          className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-          required
-          maxLength={120}
-        />
-        <input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="Tu correo electrónico"
-          className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-          required
-          maxLength={180}
-        />
+        <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
+          Nombre
+          <input
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Tu nombre"
+            className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
+            required
+            maxLength={120}
+            autoComplete="name"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
+          Correo electrónico
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="Tu correo electrónico"
+            className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
+            required
+            maxLength={180}
+            autoComplete="email"
+          />
+        </label>
       </div>
-      <textarea
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
-        placeholder="Ejemplo: Busco un piso de 2 habitaciones en Barcelona o alrededores, disponible en los próximos meses."
-        className="min-h-28 w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm leading-6 text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-        required
-        maxLength={1000}
-      />
+      <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
+        Qué estás buscando
+        <textarea
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          placeholder="Ejemplo: Busco un piso de 2 habitaciones en Barcelona o alrededores, disponible en los próximos meses."
+          className="min-h-28 w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal leading-6 text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
+          required
+          maxLength={1000}
+        />
+      </label>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-xs leading-5 text-[#605E5C]">
           Te responderemos desde Forné Family Office a la dirección indicada.

@@ -26,6 +26,12 @@ const priorities = [
   { value: "Low", label: "Baja" }
 ];
 
+const practicalTips = [
+  "Indica dónde ocurre el problema y desde cuándo sucede.",
+  "Si afecta al uso normal del inmueble, marca prioridad alta.",
+  "Deja un teléfono válido para acelerar la coordinación."
+];
+
 export default function NewIncidentForm({ contracts }: Props) {
   const [contractNo, setContractNo] = useState(contracts[0]?.contractNo || "");
   const [caseType, setCaseType] = useState("Problem");
@@ -138,6 +144,19 @@ export default function NewIncidentForm({ contracts }: Props) {
             ))}
           </select>
         </label>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-forne-line bg-forne-cloud/70 p-4">
+        <div className="text-xs font-semibold uppercase tracking-[0.22em] text-forne-muted">
+          Recomendaciones para una gestión más rápida
+        </div>
+        <div className="mt-3 grid gap-2 lg:grid-cols-3">
+          {practicalTips.map((item) => (
+            <div key={item} className="rounded-xl bg-white px-3 py-3 text-sm leading-6 text-forne-muted shadow-sm">
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
