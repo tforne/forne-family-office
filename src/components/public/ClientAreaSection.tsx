@@ -19,7 +19,7 @@ const portalHighlights = [
 
 export default function ClientAreaSection() {
   return (
-    <section id="portal" className="relative overflow-hidden bg-[#003A6C] py-20 lg:py-28">
+    <section id="portal" className="relative overflow-hidden bg-[#003A6C] pb-12 pt-0 lg:pb-16">
       <div className="absolute right-[-6rem] top-12 h-56 w-56 rounded-full bg-[#0078D4]/20 blur-3xl" />
       <div className="ffo-shell grid gap-12 lg:grid-cols-[1fr_0.95fr] lg:items-center">
         <div>

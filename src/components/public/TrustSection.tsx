@@ -24,7 +24,7 @@ const highlights = [
 
 export default function TrustSection() {
   return (
-    <section className="bg-transparent py-20 lg:py-28">
+    <section className="bg-transparent pb-12 pt-0 lg:pb-16">
       <div className="ffo-shell">
         <div className="ffo-panel overflow-hidden p-8 lg:p-10">
           <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">

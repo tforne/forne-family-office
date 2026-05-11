@@ -28,7 +28,7 @@ const principles = [
 
 export default function AboutSection() {
   return (
-    <section id="quienes-somos" className="bg-white py-20 lg:py-28">
+    <section id="quienes-somos" className="bg-white pb-12 pt-0 lg:pb-16">
       <div className="ffo-shell grid gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div className="relative">
           <div className="absolute -left-4 -top-4 h-32 w-32 rounded-[28px] bg-[#EFF6FC]" />

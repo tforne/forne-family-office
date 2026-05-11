@@ -21,7 +21,7 @@ const responsePoints = [
 
 export default function ContactSection() {
   return (
-    <section className="bg-white py-20 lg:py-28">
+    <section className="bg-white pb-20 pt-0 lg:pb-24">
       <div className="ffo-shell grid gap-14 lg:grid-cols-[1fr_0.92fr] lg:items-start">
         <div>
           <div className="mb-4 flex items-center gap-3">

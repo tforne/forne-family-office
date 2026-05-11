@@ -121,7 +121,7 @@ export default async function Hero() {
         </div>
       </div>
 
-      <div id="disponibilidad" className="ffo-shell pb-20 lg:pb-24">
+      <div id="disponibilidad" className="ffo-shell pb-0">
         <div className="ffo-card rounded-[28px] border border-[#E1DFDD] bg-[#EFF6FC]/60 p-8 lg:p-10">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3">

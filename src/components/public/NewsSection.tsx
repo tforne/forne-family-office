@@ -36,7 +36,7 @@ export default async function NewsSection() {
   const featuredNewsItems = pickFeaturedNewsItems(newsItems, 3);
 
   return (
-    <section id="noticias" className="bg-white py-20 lg:py-28">
+    <section id="noticias" className="bg-white pb-12 pt-0 lg:pb-16">
       <div className="ffo-shell">
         <div className="max-w-4xl">
           <div className="mb-4 flex items-center gap-3">

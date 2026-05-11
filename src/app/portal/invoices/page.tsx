@@ -2,8 +2,10 @@ import Link from "next/link";
 import InvoiceCopyRequestButton from "@/components/portal/InvoiceCopyRequestButton";
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import PortalTableCard from "@/components/portal/PortalTableCard";
+import { getContracts } from "@/lib/portal/contracts.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import { isCurrentPortalAdmin } from "@/lib/portal/admin-auth";
+import type { ContractDto } from "@/lib/dto/contract.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
 
 function cleanDate(value: string | null) {
@@ -36,8 +38,12 @@ function statusClass(status: string) {
   return "bg-emerald-50 text-emerald-800 ring-emerald-200";
 }
 
+function pickInvoiceContract(invoice: InvoiceDto, contracts: ContractDto[]) {
+  return contracts.find((contract) => contract.customerNo === invoice.billToCustomerNo);
+}
+
 export default async function InvoicesPage() {
-  const [isAdmin, invoices] = await Promise.all([isCurrentPortalAdmin(), getInvoices()]);
+  const [isAdmin, invoices, contracts] = await Promise.all([isCurrentPortalAdmin(), getInvoices(), getContracts()]);
   const totalAmount = invoices.reduce((sum, invoice) => sum + (invoice.amountIncludingVat || 0), 0);
   const pendingAmount = invoices.reduce((sum, invoice) => sum + (invoice.remainingAmount || 0), 0);
   const pendingCount = invoices.filter((invoice) => (invoice.remainingAmount || 0) > 0).length;
@@ -94,6 +100,7 @@ export default async function InvoicesPage() {
               <tbody className="divide-y divide-forne-line bg-white">
                 {invoices.map((invoice) => {
                   const status = invoiceStatus(invoice);
+                  const contract = pickInvoiceContract(invoice, contracts);
 
                   return (
                     <tr key={invoice.id} className="align-top">
@@ -126,6 +133,7 @@ export default async function InvoicesPage() {
                           invoiceId={invoice.id}
                           invoiceNo={invoice.invoiceNo}
                           customerNo={invoice.billToCustomerNo}
+                          contractNo={contract?.contractNo}
                         />
                       </td>
                       <td className="whitespace-nowrap px-5 py-4">

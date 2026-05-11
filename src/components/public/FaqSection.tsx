@@ -25,7 +25,7 @@ const faqs = [
 
 export default function FaqSection() {
   return (
-    <section className="bg-transparent py-20 lg:py-28">
+    <section className="bg-transparent pb-12 pt-0 lg:pb-16">
       <div className="ffo-shell">
         <div className="mb-8 max-w-3xl">
           <div className="mb-4 flex items-center gap-3">

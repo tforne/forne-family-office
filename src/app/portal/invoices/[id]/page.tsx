@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import InvoiceCopyRequestButton from "@/components/portal/InvoiceCopyRequestButton";
+import { getContracts } from "@/lib/portal/contracts.service";
 import { getInvoiceById, getInvoiceLines } from "@/lib/portal/invoices.service";
 
 function cleanDate(value: string | null) {
@@ -50,7 +51,8 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
   const invoice = await getInvoiceById(id);
 
   if (!invoice) notFound();
-  const lines = await getInvoiceLines(invoice);
+  const [lines, contracts] = await Promise.all([getInvoiceLines(invoice), getContracts()]);
+  const contract = contracts.find((item) => item.customerNo === invoice.billToCustomerNo);
 
   const status = statusLabel(invoice.remainingAmount);
 
@@ -91,6 +93,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
               invoiceId={invoice.id}
               invoiceNo={invoice.invoiceNo}
               customerNo={invoice.billToCustomerNo}
+              contractNo={contract?.contractNo}
             />
           </div>
         </div>

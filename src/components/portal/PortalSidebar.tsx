@@ -11,6 +11,7 @@ const items = [
   { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
   { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
   { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
+  { href: "/portal/incident-requests", label: "Peticiones", icon: "guide" as const },
   { href: "/portal/profile", label: "Perfil", icon: "portal" as const },
 ];
 
@@ -19,6 +20,7 @@ const adminItems = [
   { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
   { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
   { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
+  { href: "/portal/incident-requests", label: "Peticiones", icon: "guide" as const },
   { href: "/portal/admin/users", label: "Usuarios", icon: "operations" as const },
   { href: "/portal/admin/news", label: "Noticias", icon: "guide" as const },
   { href: "/portal/admin/chat", label: "Chat", icon: "portal" as const },

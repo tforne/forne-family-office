@@ -6,7 +6,7 @@ El portal crea incidencias mediante `POST` contra la API custom configurada en:
 BC_CREATE_INCIDENTS_ENDPOINT=tenantIncidentRequests
 ```
 
-Si esta variable no está definida, el portal usa `tenantIncidents`. Ese endpoint puede servir para listar incidencias, pero Business Central devolverá `405 BadRequest_MethodNotAllowed` si la API Page tiene `InsertAllowed = false`, si la entidad es de solo lectura, o si la tabla/origen no admite inserción.
+Si esta variable no está definida, el portal usa `tenantIncidentRequests`. El endpoint `tenantIncidents` puede servir para listar incidencias, pero Business Central devolverá `405 BadRequest_MethodNotAllowed` si se usa para altas y la API Page tiene `InsertAllowed = false`, si la entidad es de solo lectura, o si la tabla/origen no admite inserción.
 
 ## Recomendación
 

@@ -25,25 +25,34 @@ function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function hasText(value: string | null | undefined) {
+  return Boolean(value && value.trim());
+}
+
 export async function createIncident(input: CreateIncidentInput): Promise<IncidentDto> {
   const user = await resolvePortalUserContext();
   const endpoint = env.bcCreateIncidentsEndpoint || "tenantIncidentRequests";
   const incidentDate = todayIsoDate();
+  const normalizedEndpoint = endpoint.trim().toLowerCase();
+  const supportsFixedRealEstateNo = normalizedEndpoint !== "tenantincidentrequests";
 
-  const payload = {
+  const payload: Record<string, string> = {
     incidentDate,
-    title: input.title,
-    description: input.description,
+    title: input.title.trim(),
+    description: input.description.trim(),
     caseType: input.caseType || "Problem",
     priority: input.priority || "Normal",
-    contractNo: input.contractNo || "",
-    fixedRealEstateNo: input.fixedRealEstateNo || "",
-    refDescription: input.refDescription || "",
     contactName: user.customerName,
-    contactPhoneNo: input.contactPhoneNo || "",
-    contactEmail: user.email || user.customerNo,
-    portalUserEmail: user.email || ""
+    contactEmail: user.email || user.customerNo
   };
+
+  if (hasText(input.contractNo)) payload.contractNo = input.contractNo!.trim();
+  if (supportsFixedRealEstateNo && hasText(input.fixedRealEstateNo)) {
+    payload.fixedRealEstateNo = input.fixedRealEstateNo!.trim();
+  }
+  if (hasText(input.refDescription)) payload.refDescription = input.refDescription!.trim();
+  if (hasText(input.contactPhoneNo)) payload.contactPhoneNo = input.contactPhoneNo!.trim();
+  if (hasText(user.email)) payload.portalUserEmail = user.email.trim();
 
   if (env.useMockApi) {
     return {
@@ -52,15 +61,15 @@ export async function createIncident(input: CreateIncidentInput): Promise<Incide
       incidentDate,
       title: payload.title,
       description: payload.description,
-      refDescription: payload.refDescription,
+      refDescription: payload.refDescription || "",
       caseType: payload.caseType,
       priority: payload.priority,
       stateCode: "Active",
       statusCode: "New",
-      contractNo: payload.contractNo,
-      fixedRealEstateNo: payload.fixedRealEstateNo,
+      contractNo: payload.contractNo || "",
+      fixedRealEstateNo: payload.fixedRealEstateNo || "",
       contactName: payload.contactName,
-      contactPhoneNo: payload.contactPhoneNo,
+      contactPhoneNo: payload.contactPhoneNo || "",
       contactEmail: payload.contactEmail,
       createdOn: new Date().toISOString(),
       modifiedOn: null,
@@ -82,15 +91,15 @@ export async function createIncident(input: CreateIncidentInput): Promise<Incide
     incidentDate: created.incidentDate || incidentDate,
     title: created.title || payload.title,
     description: created.description || payload.description,
-    refDescription: created.refDescription || payload.refDescription,
+    refDescription: created.refDescription || payload.refDescription || "",
     caseType: created.caseType || payload.caseType,
     priority: created.priority || payload.priority,
     stateCode: created.stateCode || created.status || "New",
     statusCode: created.statusCode || created.status || "New",
-    contractNo: created.contractNo || payload.contractNo,
-    fixedRealEstateNo: created.fixedRealEstateNo || payload.fixedRealEstateNo,
+    contractNo: created.contractNo || payload.contractNo || "",
+    fixedRealEstateNo: created.fixedRealEstateNo || payload.fixedRealEstateNo || "",
     contactName: created.contactName || payload.contactName,
-    contactPhoneNo: created.contactPhoneNo || payload.contactPhoneNo,
+    contactPhoneNo: created.contactPhoneNo || payload.contactPhoneNo || "",
     contactEmail: created.contactEmail || payload.contactEmail,
     createdOn: created.createdOn || new Date().toISOString(),
     modifiedOn: created.modifiedOn || null,

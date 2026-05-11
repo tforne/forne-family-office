@@ -90,6 +90,10 @@ function getLatestInvoices(invoices: InvoiceDto[]) {
   return invoices.slice(0, 4);
 }
 
+function getLatestIncidentRequests<T>(requests: T[]) {
+  return requests.slice(0, 4);
+}
+
 function getPriorityIncident(incidents: IncidentDto[]) {
   return [...incidents].sort((left, right) => {
     const leftDate = left.incidentDate || left.createdOn || "";
@@ -353,6 +357,7 @@ export default async function PortalPage() {
   const primaryContract = getPrimaryContract(contracts);
   const nextPendingInvoice = getNextPendingInvoice(invoices);
   const latestInvoices = getLatestInvoices(invoices);
+  const latestIncidentRequests = getLatestIncidentRequests(incidentRequests);
   const priorityIncident = getPriorityIncident(incidents);
   const insuranceEmail = priorityIncident?.insuranceEmail || null;
   const insurancePhone = priorityIncident?.insurancePhoneNo || null;
@@ -563,9 +568,79 @@ export default async function PortalPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <PortalStatCard title="Facturas pendientes" value={String(pendingInvoices)} href="/portal/invoices" />
         <PortalStatCard title="Incidencias abiertas" value={String(openIncidents)} href="/portal/incidents" />
-        <PortalStatCard title="Peticiones de incidencia" value={String(pendingIncidentRequests)} />
+        <PortalStatCard title="Peticiones de incidencia" value={String(pendingIncidentRequests)} href="/portal/incident-requests" />
         <PortalStatCard title="Contratos activos" value={String(activeContracts)} />
       </div>
+
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Peticiones de incidencia</div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Últimas 4 peticiones</h2>
+            <p className="mt-2 text-sm leading-6 text-forne-muted">
+              Seguimiento rápido de solicitudes enviadas desde el portal y su estado de tramitación.
+            </p>
+          </div>
+          <Link
+            href="/portal/incident-requests"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+          >
+            Ver todas
+            <span aria-hidden="true">›</span>
+          </Link>
+        </div>
+
+        {latestIncidentRequests.length === 0 ? (
+          <div className="rounded-3xl border border-forne-line bg-white px-6 py-8 text-sm text-forne-muted shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+            No hay peticiones de incidencia registradas en este momento.
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl border border-forne-line bg-white shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+            <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+              <thead className="bg-[#fbfcfd] text-xs uppercase tracking-wide text-forne-muted">
+                <tr>
+                  <th className="px-5 py-4 font-semibold">Fecha</th>
+                  <th className="px-5 py-4 font-semibold">Petición</th>
+                  <th className="px-5 py-4 font-semibold">Contrato</th>
+                  <th className="px-5 py-4 font-semibold">Estado</th>
+                  <th className="px-5 py-4 font-semibold">Ver</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-forne-line bg-white">
+                {latestIncidentRequests.map((request) => (
+                  <tr key={request.id || request.requestId || String(request.entryNo)}>
+                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                      {formatDate(request.createdAt || request.incidentDate)}
+                    </td>
+                    <td className="min-w-72 px-5 py-4">
+                      <div className="font-medium text-forne-ink">
+                        {request.title || request.requestId || "Petición de incidencia"}
+                      </div>
+                      <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
+                        {request.description || request.refDescription || request.createdIncidentNo || "Sin detalle adicional"}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                      {request.contractNo || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                      {request.status || "Sin estado"}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4">
+                      <Link
+                        href="/portal/incident-requests"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+                      >
+                        Abrir listado
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       `Factura: ${invoiceNo || "-"}`,
       `Id factura: ${invoiceId || "-"}`,
       `Cliente factura: ${customerNo || "-"}`,
+      `Contrato: ${contractNo || "-"}`,
       message ? "" : undefined,
       message || undefined
     ].filter(Boolean).join("\n");
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
         description: copyDescription,
         caseType: "Request",
         priority: "Normal",
+        contractNo,
         refDescription: `Factura ${invoiceNo || invoiceId}`,
         contactPhoneNo: ""
       });
@@ -78,6 +80,7 @@ export async function POST(req: NextRequest) {
           `Número: ${invoiceNo || "-"}`,
           `Id: ${invoiceId || "-"}`,
           `Cliente: ${customerNo || "-"}`,
+          `Contrato: ${incident.contractNo || contractNo || "-"}`,
           "",
           "Incidencia creada",
           `Referencia: ${incident.incidentId || incident.id || "Pendiente"}`,

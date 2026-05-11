@@ -7,10 +7,11 @@ type Props = {
   invoiceId: string;
   invoiceNo: string;
   customerNo?: string | null;
+  contractNo?: string | null;
   compact?: boolean;
 };
 
-export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, customerNo, compact = false }: Props) {
+export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, customerNo, contractNo, compact = false }: Props) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,7 +28,8 @@ export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, custome
         requestType: "invoiceCopy",
         invoiceId,
         invoiceNo,
-        customerNo
+        customerNo,
+        contractNo
       })
     });
 

@@ -38,6 +38,10 @@ function initialSuggestions(pathname: string) {
     return ["Quiero abrir una incidencia", "Que datos debo indicar en una incidencia", "Cuantas incidencias tengo abiertas"];
   }
 
+  if (pathname.startsWith("/portal/incident-requests")) {
+    return ["Que peticiones tengo pendientes", "Como se tramita una peticion", "Donde veo si una peticion genero incidencia"];
+  }
+
   if (pathname.startsWith("/portal/notices")) {
     return ["Tengo avisos sin leer", "Que significa confirmacion requerida", "Donde reviso mis avisos"];
   }
@@ -52,6 +56,7 @@ function initialSuggestions(pathname: string) {
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/portal/invoices")) return "Asistente de facturas";
   if (pathname.startsWith("/portal/incidents")) return "Asistente de incidencias";
+  if (pathname.startsWith("/portal/incident-requests")) return "Asistente de peticiones";
   if (pathname.startsWith("/portal/notices")) return "Asistente de avisos";
   if (pathname.startsWith("/portal/profile")) return "Asistente de perfil";
   return "Asistente del portal";
