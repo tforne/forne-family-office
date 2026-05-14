@@ -29,7 +29,7 @@ export default function DownloadLatestInvoicesButton({
         cache: "no-store"
       });
       const payload = await response.json();
-      const downloadableInvoices = Array.isArray(payload?.invoices) ? payload.invoices : [];
+      const downloadableInvoices: InvoiceDownloadItem[] = Array.isArray(payload?.invoices) ? payload.invoices : [];
 
       if (downloadableInvoices.length === 0) {
         setStatusTone("warning");
