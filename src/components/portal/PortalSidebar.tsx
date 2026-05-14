@@ -26,7 +26,13 @@ const adminItems = [
   { href: "/portal/admin/chat", label: "Chat", icon: "portal" as const },
 ];
 
-export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boolean }) {
+export default function PortalSidebar({
+  showAdmin = false,
+  version
+}: {
+  showAdmin?: boolean;
+  version?: string;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
@@ -98,6 +104,11 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
             Salir
           </button>
         </div>
+        {version ? (
+          <div className="mt-3 text-[11px] font-medium text-forne-muted">
+            Version {version}
+          </div>
+        ) : null}
         <div className="mt-4 overflow-x-auto">
           <div className="flex min-w-max gap-2">
             {visibleItems.map((item) => {
@@ -146,6 +157,13 @@ export default function PortalSidebar({ showAdmin = false }: { showAdmin?: boole
       <nav className="flex-1 px-5 py-6">
         {navItems}
       </nav>
+      {version ? (
+        <div className="border-t border-forne-line/80 px-7 py-5">
+          <div className="rounded-2xl border border-forne-line bg-white/80 px-4 py-3 text-xs text-forne-muted shadow-[0_18px_40px_-34px_rgba(15,23,42,0.28)]">
+            Version {version}
+          </div>
+        </div>
+      ) : null}
       </aside>
 
       <ConfirmationDialog
