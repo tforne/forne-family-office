@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import InvoiceCopyRequestButton from "@/components/portal/InvoiceCopyRequestButton";
+import InvoicePdfButton from "@/components/portal/InvoicePdfButton";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getInvoiceById, getInvoiceLines } from "@/lib/portal/invoices.service";
 
@@ -81,14 +82,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </div>
         <div className="mt-6">
           <div className="flex flex-wrap gap-3">
-            <a
-              href={`/api/me/invoices/${encodeURIComponent(invoice.id || invoice.invoiceNo)}/pdf`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
-            >
-              Ver PDF oficial
-            </a>
+            <InvoicePdfButton invoiceId={invoice.id || invoice.invoiceNo} />
             <InvoiceCopyRequestButton
               invoiceId={invoice.id}
               invoiceNo={invoice.invoiceNo}

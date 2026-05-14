@@ -365,49 +365,6 @@ export default async function ContractsPage() {
         </article>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Atributos del inmueble</div>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Relación disponible</h3>
-            </div>
-            <div className="text-sm text-forne-muted">{visibleAssetAttributes.length} atributo(s)</div>
-          </div>
-
-          {visibleAssetAttributes.length === 0 ? (
-            <div className="mt-6 rounded-2xl bg-[#F7FAFC] px-5 py-6 text-sm text-forne-muted">
-              No hay atributos disponibles para este inmueble en este momento.
-            </div>
-          ) : (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
-              <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
-                  <tr>
-                    <th className="px-5 py-4 font-semibold">Atributo</th>
-                    <th className="px-5 py-4 font-semibold">Valor</th>
-                    <th className="px-5 py-4 font-semibold">Unidad</th>
-                    <th className="px-5 py-4 font-semibold">Comentario</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-forne-line bg-white">
-                  {visibleAssetAttributes.map((attribute) => (
-                    <tr key={attribute.id}>
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-forne-ink">{safeText(attribute.attributeName, "Sin atributo")}</div>
-                      </td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.value, "No disponible")}</td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.unitOfMeasure, "-")}</td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.comment, "-")}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
-      </section>
-
       <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -475,6 +432,49 @@ export default async function ContractsPage() {
               helper={primaryContract?.description || "Resumen del contrato actual asociado al activo."}
             />
           </div>
+        </article>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Atributos del inmueble</div>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Relación disponible</h3>
+            </div>
+            <div className="text-sm text-forne-muted">{visibleAssetAttributes.length} atributo(s)</div>
+          </div>
+
+          {visibleAssetAttributes.length === 0 ? (
+            <div className="mt-6 rounded-2xl bg-[#F7FAFC] px-5 py-6 text-sm text-forne-muted">
+              No hay atributos disponibles para este inmueble en este momento.
+            </div>
+          ) : (
+            <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
+              <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+                <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                  <tr>
+                    <th className="px-5 py-4 font-semibold">Atributo</th>
+                    <th className="px-5 py-4 font-semibold">Valor</th>
+                    <th className="px-5 py-4 font-semibold">Unidad</th>
+                    <th className="px-5 py-4 font-semibold">Comentario</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-forne-line bg-white">
+                  {visibleAssetAttributes.map((attribute) => (
+                    <tr key={attribute.id}>
+                      <td className="px-5 py-4">
+                        <div className="font-medium text-forne-ink">{safeText(attribute.attributeName, "Sin atributo")}</div>
+                      </td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.value, "No disponible")}</td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.unitOfMeasure, "-")}</td>
+                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.comment, "-")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </article>
       </section>
     </div>

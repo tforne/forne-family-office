@@ -27,7 +27,7 @@ type ChatReply = {
 };
 
 const welcomeMessage =
-  "Puedo ayudarte con facturas, incidencias, avisos, perfil y el uso del portal. Elige una sugerencia o escribe tu consulta.";
+  "Puedo ayudarte con facturas, documentos, incidencias, avisos, perfil y el uso del portal. Elige una sugerencia o escribe tu consulta.";
 
 function initialSuggestions(pathname: string) {
   if (pathname.startsWith("/portal/invoices")) {
@@ -41,6 +41,15 @@ function initialSuggestions(pathname: string) {
 
   if (pathname.startsWith("/portal/incidents")) {
     return ["Quiero abrir una incidencia", "Que datos debo indicar en una incidencia", "Cuantas incidencias tengo abiertas"];
+  }
+
+  if (pathname.startsWith("/portal/documents")) {
+    return [
+      "Como descargar un documento",
+      "Que documentos puedo descargar",
+      "Como pido una copia de un documento",
+      "Tengo documentos pendientes"
+    ];
   }
 
   if (pathname.startsWith("/portal/incident-requests")) {
@@ -61,6 +70,7 @@ function initialSuggestions(pathname: string) {
 function titleForPath(pathname: string) {
   if (pathname.startsWith("/portal/invoices")) return "Asistente de facturas";
   if (pathname.startsWith("/portal/incidents")) return "Asistente de incidencias";
+  if (pathname.startsWith("/portal/documents")) return "Asistente de documentos";
   if (pathname.startsWith("/portal/incident-requests")) return "Asistente de peticiones";
   if (pathname.startsWith("/portal/notices")) return "Asistente de avisos";
   if (pathname.startsWith("/portal/profile")) return "Asistente de perfil";
@@ -306,7 +316,7 @@ export default function PortalChatLauncher() {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 rows={2}
-                placeholder="Escribe tu pregunta sobre facturas, avisos, incidencias o perfil..."
+                placeholder="Escribe tu pregunta sobre facturas, documentos, avisos, incidencias o perfil..."
                 className="w-full resize-none rounded-2xl border border-forne-line bg-white px-4 py-3 text-sm text-forne-ink outline-none transition placeholder:text-forne-muted/75 focus:border-forne-ink"
               />
             </label>

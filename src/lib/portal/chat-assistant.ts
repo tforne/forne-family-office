@@ -1,6 +1,7 @@
 import "server-only";
 
 import { isCurrentPortalAdmin } from "@/lib/portal/admin-auth";
+import { getDocuments } from "@/lib/portal/documents.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import { getMe } from "@/lib/portal/me.service";
@@ -51,6 +52,15 @@ function pageSuggestions(page: string) {
       "Quiero abrir una incidencia",
       "Que datos debo indicar en una incidencia",
       "Cuantas incidencias tengo abiertas"
+    ];
+  }
+
+  if (page.startsWith("/portal/documents")) {
+    return [
+      "Como descargar un documento",
+      "Que documentos puedo descargar",
+      "Como pido una copia de un documento",
+      "Tengo documentos pendientes"
     ];
   }
 
@@ -122,6 +132,18 @@ function unresolvedIncidentsSummary(openCount: number) {
   return `Tienes ${openCount} incidencias abiertas. Desde Incidencias puedes revisar el estado de cada una y abrir una nueva si hace falta.`;
 }
 
+function documentsSummary(downloadableCount: number, totalCount: number, pendingReview: number) {
+  if (totalCount === 0) {
+    return "Ahora mismo no veo documentos publicados para tu perfil en el portal.";
+  }
+
+  if (downloadableCount === 0) {
+    return `Veo ${totalCount} documento(s) publicado(s), pero ninguno con descarga directa ahora mismo.`;
+  }
+
+  return `Veo ${totalCount} documento(s) en portal, ${downloadableCount} con descarga disponible y ${pendingReview} pendiente(s) o sin revisar.`;
+}
+
 export async function buildPortalChatReply(page: string, rawMessage: string): Promise<PortalChatReply> {
   const isAdmin = await isCurrentPortalAdmin();
   const message = rawMessage.trim();
@@ -163,6 +185,7 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
       suggestions: dedupeSuggestions([
         "Tengo facturas pendientes",
         "Cuantas incidencias tengo abiertas",
+        "Como descargar un documento",
         "Tengo avisos sin leer",
         ...pageSuggestions(page)
       ])
@@ -291,6 +314,79 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
     };
   }
 
+  if (includesAny(context.normalizedMessage, ["documento", "documentos", "archivo", "archivos", "adjunto", "adjuntos", "descarga", "descargar"])) {
+    const documents = await getDocuments();
+    const downloadableDocuments = documents.filter((document) => document.hasAttachment && document.downloadAllowed !== false);
+    const pendingReview = documents.filter((document) => {
+      const normalized = document.reviewStatus?.trim().toLowerCase() || "";
+      return document.missingMandatoryData || normalized !== "reviewed";
+    }).length;
+
+    if (includesAny(context.normalizedMessage, ["copia", "solicitar", "pedir"])) {
+      return {
+        answer:
+          "Desde Documentos puedes descargar directamente los archivos publicados. Si un documento no tiene descarga disponible, puedes usar el boton de solicitar copia para que el equipo lo revise y te contacte si hace falta.",
+        links: [
+          { href: "/portal/documents", label: "Ir a documentos" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Como descargar un documento",
+          "Que documentos puedo descargar",
+          "Tengo documentos pendientes"
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["descargar uno", "descargar un documento", "bajar un documento", "abrir un documento"])) {
+      return {
+        answer:
+          "Para descargar un documento, entra en Documentos y pulsa 'Descargar documento' en la fila correspondiente. El portal pedirá el archivo al backend y lanzará la descarga sin depender del enlace externo.",
+        links: [
+          { href: "/portal/documents", label: "Abrir documentos" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Que documentos puedo descargar",
+          "Como pido una copia de un documento",
+          "Tengo documentos pendientes"
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["que documentos puedo descargar", "cuales puedo descargar", "descarga disponible"])) {
+      return {
+        answer:
+          downloadableDocuments.length > 0
+            ? `Ahora mismo veo ${downloadableDocuments.length} documento(s) con descarga disponible. Entra en Documentos y usa el boton de descarga de cada fila para bajar el archivo correspondiente.`
+            : "Ahora mismo no veo documentos con descarga directa disponible. Si necesitas uno concreto, entra en Documentos y usa la opcion de solicitar copia.",
+        links: [
+          { href: "/portal/documents", label: "Ver documentos" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Como descargar un documento",
+          "Como pido una copia de un documento",
+          "Resume mi situacion actual"
+        ])
+      };
+    }
+
+    return {
+      answer: `${documentsSummary(downloadableDocuments.length, documents.length, pendingReview)} ${
+        downloadableDocuments.length > 0
+          ? "Si necesitas uno concreto, la mejor siguiente accion es abrir Documentos y usar el boton de descarga."
+          : "Si buscas uno concreto y no aparece descarga, puedes pedir copia desde esa misma seccion."
+      }`,
+      links: [
+        { href: "/portal/documents", label: "Abrir documentos" }
+      ],
+      suggestions: dedupeSuggestions([
+        "Como descargar un documento",
+        "Que documentos puedo descargar",
+        "Como pido una copia de un documento",
+        ...pageSuggestions("/portal/documents")
+      ])
+    };
+  }
+
   if (includesAny(context.normalizedMessage, ["aviso", "avisos", "comunicado", "lectura", "confirmacion"])) {
     const notices = await getTenantMyNotices().catch(() => []);
     const unreadCount = notices.filter((notice) => notice.isUnread).length;
@@ -348,10 +444,11 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
   if (includesAny(context.normalizedMessage, ["que puedo hacer", "como funciona", "portal"])) {
     return {
       answer:
-        "Desde el portal puedes revisar avisos, consultar facturas, seguir incidencias y ver tu perfil. Si me dices en que necesitas ayuda, te llevo a la seccion adecuada y te explico el siguiente paso.",
+        "Desde el portal puedes revisar avisos, consultar facturas, descargar documentos, seguir incidencias y ver tu perfil. Si me dices en que necesitas ayuda, te llevo a la seccion adecuada y te explico el siguiente paso.",
       links: [
         { href: "/portal", label: "Inicio del portal" },
         { href: "/portal/invoices", label: "Facturas" },
+        { href: "/portal/documents", label: "Documentos" },
         { href: "/portal/incidents", label: "Incidencias" }
       ],
       suggestions: pageSuggestions(page)

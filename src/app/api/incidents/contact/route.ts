@@ -34,6 +34,10 @@ export async function POST(req: NextRequest) {
   const fixedRealEstateNo = clean(body.fixedRealEstateNo);
   const invoiceNo = clean(body.invoiceNo);
   const invoiceId = clean(body.invoiceId);
+  const documentNo = clean(body.documentNo);
+  const documentId = clean(body.documentId);
+  const documentTitle = clean(body.documentTitle);
+  const sourceNo = clean(body.sourceNo);
   const customerNo = clean(body.customerNo);
   const caseType = clean(body.caseType);
   const priority = clean(body.priority);
@@ -93,6 +97,65 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, incident });
     } catch (error) {
       console.error("Invoice copy request failed:", error);
+      return NextResponse.json(
+        { error: userFacingCreateError(error) },
+        { status: 500 }
+      );
+    }
+  }
+
+  if (requestType === "documentCopy") {
+    if (!documentNo && !documentId) {
+      return NextResponse.json({ error: "Faltan datos del documento." }, { status: 400 });
+    }
+
+    const copyTitle = `Petición de copia de documento ${documentNo || documentId}`;
+    const copyDescription = [
+      "Se solicita copia de documento desde el portal.",
+      "",
+      `Documento: ${documentNo || "-"}`,
+      `Id documento: ${documentId || "-"}`,
+      `Título: ${documentTitle || "-"}`,
+      `Origen relacionado: ${sourceNo || "-"}`,
+      message ? "" : undefined,
+      message || undefined
+    ].filter(Boolean).join("\n");
+
+    try {
+      const incident = await createIncident({
+        title: copyTitle,
+        description: copyDescription,
+        caseType: "Request",
+        priority: "Normal",
+        refDescription: documentTitle || `Documento ${documentNo || documentId}`,
+        contactPhoneNo: ""
+      });
+
+      await sendIncidentEmail({
+        subject: `Petición de copia de documento: ${documentNo || documentId}`,
+        text: [
+          "Se ha creado una petición de copia de documento desde el portal.",
+          "",
+          `Usuario: ${session.email || "Sin email de sesión"}`,
+          `Proveedor de autenticación: ${session.provider || "-"}`,
+          "",
+          "Documento",
+          `Número: ${documentNo || "-"}`,
+          `Id: ${documentId || "-"}`,
+          `Título: ${documentTitle || "-"}`,
+          `Origen relacionado: ${sourceNo || "-"}`,
+          "",
+          "Incidencia creada",
+          `Referencia: ${incident.incidentId || incident.id || "Pendiente"}`,
+          `Título: ${incident.title || copyTitle}`
+        ].join("\n")
+      });
+
+      revalidatePath("/portal/incidents");
+
+      return NextResponse.json({ ok: true, incident });
+    } catch (error) {
+      console.error("Document copy request failed:", error);
       return NextResponse.json(
         { error: userFacingCreateError(error) },
         { status: 500 }

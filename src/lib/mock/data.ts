@@ -218,6 +218,7 @@ export const mockDocuments: DocumentDto[] = [
     notes: null,
     hasAttachment: false,
     hasLinks: false,
+    downloadAllowed: false,
     missingMandatoryData: false,
     companyName: null
   }

@@ -9,7 +9,8 @@ export const bcEndpoints = {
   incidents: "tenantIncidents",
   incidentRequests: "tenantIncidentRequests",
   incidentComments: "tenantIncidentComments",
-  documents: "tenantDocuments",
+  documents: env.bcDocumentsEndpoint,
+  documentFiles: env.bcDocumentFilesEndpoint,
   tenantPortalUsers: env.bcTenantPortalUsersEndpoint,
   tenantPortalConfigurations: env.bcTenantPortalConfigurationEndpoint
 };
