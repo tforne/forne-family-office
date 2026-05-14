@@ -428,8 +428,8 @@ export default async function PortalPage() {
               <QuickActionCard
                 href="/portal/invoices"
                 title="Consultar facturas"
-                description="Comprueba importes, vencimientos y el estado de tus facturas sin salir del portal."
-                helper={hasPendingInvoice ? "Hay facturas pendientes" : "Sin importes pendientes"}
+                description="Comprueba importes, vencimientos, el estado de tus facturas y descarga rapidamente las 3 ultimas sin salir del portal."
+                helper={hasPendingInvoice ? "Hay facturas pendientes y descarga rapida disponible" : "Sin importes pendientes y descarga rapida disponible"}
               />
               <QuickActionCard
                 href="/portal/incidents"

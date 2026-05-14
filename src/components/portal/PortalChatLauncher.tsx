@@ -31,7 +31,12 @@ const welcomeMessage =
 
 function initialSuggestions(pathname: string) {
   if (pathname.startsWith("/portal/invoices")) {
-    return ["Tengo facturas pendientes", "Como pido una copia de factura", "Que significa el estado de una factura"];
+    return [
+      "Tengo facturas pendientes",
+      "Como descargar una factura",
+      "Como descargar las ultimas 3 facturas",
+      "Como pido una copia de factura"
+    ];
   }
 
   if (pathname.startsWith("/portal/incidents")) {

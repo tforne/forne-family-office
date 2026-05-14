@@ -39,6 +39,8 @@ function pageSuggestions(page: string) {
   if (page.startsWith("/portal/invoices")) {
     return [
       "Tengo facturas pendientes",
+      "Como descargar una factura",
+      "Como descargar las ultimas 3 facturas",
       "Como pido una copia de factura",
       "Que significa el estado de una factura"
     ];
@@ -172,6 +174,36 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
     const pendingInvoices = invoices.filter((invoice) => (invoice.remainingAmount || 0) > 0);
     const totalPendingAmount = pendingInvoices.reduce((sum, invoice) => sum + (invoice.remainingAmount || 0), 0);
 
+    if (includesAny(context.normalizedMessage, ["ultimas 3", "ultimas tres", "descargar las ultimas", "descargar ultimas"])) {
+      return {
+        answer:
+          "Desde la seccion Facturas veras un boton para descargar las ultimas 3 facturas con PDF oficial disponible. Al pulsarlo, el portal prepara la descarga y lanza los archivos automaticamente.",
+        links: [
+          { href: "/portal/invoices", label: "Ir a facturas" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Como descargar una factura",
+          "Como pido una copia de factura",
+          "Que significa el estado de una factura"
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["descargar una factura", "bajar una factura", "descargar factura"])) {
+      return {
+        answer:
+          "Para descargar una factura, entra en Facturas, abre el detalle de la factura que te interesa y pulsa la accion de ver o descargar el PDF oficial. Si esa factura no tiene PDF oficial disponible, puedes usar el boton de peticion de copia.",
+        links: [
+          { href: "/portal/invoices", label: "Abrir facturas" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Como descargar las ultimas 3 facturas",
+          "Como pido una copia de factura",
+          "Tengo facturas pendientes"
+        ])
+      };
+    }
+
     if (includesAny(context.normalizedMessage, ["copia", "pdf"])) {
       return {
         answer:
@@ -180,6 +212,8 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
           { href: "/portal/invoices", label: "Ir a facturas" }
         ],
         suggestions: dedupeSuggestions([
+          "Como descargar una factura",
+          "Como descargar las ultimas 3 facturas",
           "Tengo facturas pendientes",
           "Que significa el estado de una factura",
           "Resume mi situacion actual"
@@ -197,6 +231,8 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
         { href: "/portal/invoices", label: "Abrir facturas" }
       ],
       suggestions: dedupeSuggestions([
+        "Como descargar una factura",
+        "Como descargar las ultimas 3 facturas",
         "Como pido una copia de factura",
         "Que significa el estado de una factura",
         ...pageSuggestions("/portal/invoices")

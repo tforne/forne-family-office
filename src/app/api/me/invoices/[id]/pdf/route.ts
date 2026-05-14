@@ -3,7 +3,7 @@ import { getPortalSession } from "@/lib/auth/session";
 import { getInvoiceById, getInvoicePdf } from "@/lib/portal/invoices.service";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
   const session = await getPortalSession();
@@ -21,12 +21,14 @@ export async function GET(
 
   try {
     const pdf = await getInvoicePdf(invoice);
+    const url = new URL(req.url);
+    const shouldDownload = url.searchParams.get("download") === "1";
 
     return new NextResponse(pdf.bytes, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="${pdf.fileName}"`,
+        "Content-Disposition": `${shouldDownload ? "attachment" : "inline"}; filename="${pdf.fileName}"`,
         "Cache-Control": "no-store"
       }
     });

@@ -2,6 +2,7 @@ import { env } from "@/lib/config/env";
 import { mockInvoiceLines, mockInvoices } from "@/lib/mock/data";
 import { resolvePortalUserContext } from "./user-context";
 import { isCurrentPortalAdmin } from "./admin-auth";
+import { getBusinessCentralAccessToken } from "@/lib/bc/auth";
 import { bcGet, bcGetForCompany, bcStandardGetForCompany, bcStandardGetResponseForCompany } from "@/lib/bc/client";
 import { bcEndpoints } from "@/lib/bc/endpoints";
 import { eqFilter, odataQuery, orFilters, unwrap } from "@/lib/bc/odata";
@@ -9,7 +10,7 @@ import type { InvoiceLineDto } from "@/lib/dto/invoice-line.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
 
 function invoiceSortTimestamp(invoice: InvoiceDto) {
-  const rawDate = invoice.postingDate || invoice.documentDate || invoice.dueDate || "";
+  const rawDate = invoice.postingDate || "";
   const timestamp = rawDate ? Date.parse(rawDate) : Number.NaN;
 
   return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
@@ -92,15 +93,20 @@ type PdfDocumentDto = {
   id: string;
   parentId?: string | null;
   parentType?: string | null;
+  "pdfDocumentContent@odata.mediaReadLink"?: string | null;
 };
 
-export async function getInvoicePdf(invoice: InvoiceDto) {
-  if (env.useMockApi) {
-    throw new Error("PDF no disponible en modo mock.");
-  }
+type InvoicePdfSource = {
+  invoiceNo: string;
+  fileName: string;
+  company: { companyName?: string };
+  salesInvoice: StandardSalesInvoiceDto;
+  pdfDocument: PdfDocumentDto;
+};
 
+async function resolveInvoicePdfSource(invoice: InvoiceDto): Promise<InvoicePdfSource> {
   const user = await resolvePortalUserContext();
-  const company = { companyId: user.bcCompanyId, companyName: user.bcCompanyName };
+  const company = { companyName: user.bcCompanyName };
   const salesInvoicePayload = await bcStandardGetForCompany<{ value?: StandardSalesInvoiceDto[] }>(
     company,
     "salesInvoices",
@@ -130,17 +136,70 @@ export async function getInvoicePdf(invoice: InvoiceDto) {
     throw new Error(`Business Central devolvió la salesInvoice ${salesInvoice.id}, pero no informó un pdfDocument para la factura ${invoice.invoiceNo}.`);
   }
 
-  const response = await bcStandardGetResponseForCompany(
+  return {
+    invoiceNo: invoice.invoiceNo,
+    fileName: `${invoice.invoiceNo || salesInvoice.number || "factura"}.pdf`,
     company,
-    `salesInvoices(${salesInvoice.id})/pdfDocument(${pdfDocument.id})/content`,
-    undefined,
-    "application/pdf"
-  );
+    salesInvoice,
+    pdfDocument
+  };
+}
+
+export async function getLatestInvoicesWithOfficialPdf(limit = 3, scanLimit = 10) {
+  const invoices = await getInvoices();
+  const candidates = invoices.slice(0, Math.max(limit, scanLimit));
+  const downloadable: Array<{ id: string; invoiceNo: string }> = [];
+
+  for (const invoice of candidates) {
+    try {
+      await resolveInvoicePdfSource(invoice);
+      downloadable.push({ id: invoice.id || invoice.invoiceNo, invoiceNo: invoice.invoiceNo });
+      if (downloadable.length >= limit) break;
+    } catch {
+      // Skip invoices without official PDF available in Business Central.
+    }
+  }
+
+  return downloadable;
+}
+
+export async function getInvoicePdf(invoice: InvoiceDto) {
+  if (env.useMockApi) {
+    throw new Error("PDF no disponible en modo mock.");
+  }
+
+  const { company, salesInvoice, pdfDocument, fileName } = await resolveInvoicePdfSource(invoice);
+
+  const mediaReadLink = pdfDocument["pdfDocumentContent@odata.mediaReadLink"];
+  let response: Response;
+
+  if (mediaReadLink) {
+    const token = await getBusinessCentralAccessToken();
+    response = await fetch(mediaReadLink, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/pdf"
+      },
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Business Central error ${response.status} (${mediaReadLink}): ${text}`);
+    }
+  } else {
+    response = await bcStandardGetResponseForCompany(
+      company,
+      `salesInvoices(${salesInvoice.id})/pdfDocument/pdfDocumentContent`,
+      undefined,
+      "application/pdf"
+    );
+  }
 
   const bytes = await response.arrayBuffer();
 
   return {
     bytes,
-    fileName: `${invoice.invoiceNo || salesInvoice.number || "factura"}.pdf`
+    fileName
   };
 }

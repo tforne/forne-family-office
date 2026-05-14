@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DownloadLatestInvoicesButton from "@/components/portal/DownloadLatestInvoicesButton";
 import InvoiceCopyRequestButton from "@/components/portal/InvoiceCopyRequestButton";
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import PortalTableCard from "@/components/portal/PortalTableCard";
@@ -47,6 +48,10 @@ export default async function InvoicesPage() {
   const totalAmount = invoices.reduce((sum, invoice) => sum + (invoice.amountIncludingVat || 0), 0);
   const pendingAmount = invoices.reduce((sum, invoice) => sum + (invoice.remainingAmount || 0), 0);
   const pendingCount = invoices.filter((invoice) => (invoice.remainingAmount || 0) > 0).length;
+  const latestInvoicesForDownload = invoices.slice(0, 3).map((invoice) => ({
+    id: invoice.id || invoice.invoiceNo,
+    invoiceNo: invoice.invoiceNo
+  }));
 
   return (
     <div className="space-y-8">
@@ -77,6 +82,7 @@ export default async function InvoicesPage() {
             ? `${invoices.length} factura${invoices.length === 1 ? "" : "s"} encontradas. Se muestran las últimas 250.`
             : `${invoices.length} factura${invoices.length === 1 ? "" : "s"} encontradas`
         }
+        action={<DownloadLatestInvoicesButton invoices={latestInvoicesForDownload} />}
       >
         {invoices.length === 0 ? (
           <div className="px-5 py-10 text-sm text-forne-muted">
