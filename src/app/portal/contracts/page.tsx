@@ -291,7 +291,7 @@ export default async function ContractsPage() {
             <div className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-[2.65rem]">
               {nextPendingInvoice
                 ? formatMoney(nextPendingInvoice.remainingAmount, nextPendingInvoice.currencyCode || "EUR")
-                : formatMoney(primaryAsset?.lastContractPrice ?? primaryContract?.amountPerPeriod)}
+                : formatMoney(primaryContract?.amountPerPeriod ?? primaryAsset?.lastContractPrice)}
             </div>
             <div className="mt-3 text-base text-[#C8CFDD]">
               {nextPendingInvoice
@@ -350,7 +350,7 @@ export default async function ContractsPage() {
             <div>
               <div className="text-sm text-forne-muted">Contrato actual</div>
               <div className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">
-                {formatMoney(primaryAsset?.lastContractPrice ?? primaryContract?.amountPerPeriod)}
+                {formatMoney(primaryContract?.amountPerPeriod ?? primaryAsset?.lastContractPrice)}
               </div>
             </div>
             <div>
