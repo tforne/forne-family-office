@@ -4,6 +4,7 @@ export const bcEndpoints = {
   assets: env.bcAssetsEndpoint,
   me: "tenantProfiles",
   contracts: "tenantContracts",
+  contractLines: env.bcContractLinesEndpoint,
   invoices: "tenantInvoices",
   invoiceLines: "tenantInvoiceLines",
   incidents: "tenantIncidents",

@@ -1,4 +1,14 @@
-import type { AssetDto, MeDto, ContractDto, InvoiceDto, IncidentDto, DocumentDto, InvoiceLineDto, EquipmentDto } from "@/lib/dto";
+import type {
+  AssetDto,
+  MeDto,
+  ContractDto,
+  ContractLineDto,
+  InvoiceDto,
+  IncidentDto,
+  DocumentDto,
+  InvoiceLineDto,
+  EquipmentDto
+} from "@/lib/dto";
 
 export const mockMe: MeDto = {
   userId: "external-demo-user",
@@ -155,6 +165,31 @@ export const mockInvoiceLines: InvoiceLineDto[] = [
     amount: 150,
     amountIncludingVat: 150,
     vatPercent: 0,
+    currencyCode: "EUR"
+  }
+];
+
+export const mockContractLines: ContractLineDto[] = [
+  {
+    id: "cl-1",
+    contractNo: "CONT-0001",
+    lineNo: 10000,
+    description: "Renta base mensual",
+    quantity: 1,
+    unitPrice: 750,
+    amount: 750,
+    amountIncludingVat: 750,
+    currencyCode: "EUR"
+  },
+  {
+    id: "cl-2",
+    contractNo: "CONT-0001",
+    lineNo: 20000,
+    description: "Repercusión de gastos comunes",
+    quantity: 1,
+    unitPrice: 45,
+    amount: 45,
+    amountIncludingVat: 45,
     currencyCode: "EUR"
   }
 ];

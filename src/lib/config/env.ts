@@ -55,6 +55,7 @@ export const env = {
   bcDocumentsEndpoint: readServerEnv("BC_DOCUMENTS_ENDPOINT") || "portalDocuments",
   bcDocumentFilesEndpoint: readServerEnv("BC_DOCUMENT_FILES_ENDPOINT") || "portalDocumentFiles",
   bcInvoiceLinesEndpoint: readServerEnv("BC_INVOICE_LINES_ENDPOINT") || "tenantInvoiceLines",
+  bcContractLinesEndpoint: readServerEnv("BC_CONTRACT_LINES_ENDPOINT") || "tenantContractLines",
   bcProfileUsersEndpoint: readServerEnv("BC_PROFILE_USERS_ENDPOINT"),
   bcProfileUserEmailField: readServerEnv("BC_PROFILE_USER_EMAIL_FIELD") || "email",
   bcProfileUserCustomerNoField: readServerEnv("BC_PROFILE_USER_CUSTOMER_NO_FIELD") || "customerNo",

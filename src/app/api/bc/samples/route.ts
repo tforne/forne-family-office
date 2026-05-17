@@ -21,6 +21,7 @@ export async function GET() {
         ? await readSample(env.bcProfileUsersEndpoint)
         : { error: "BC_PROFILE_USERS_ENDPOINT is not configured" },
       tenantContracts: await readSample(bcEndpoints.contracts),
+      tenantContractLines: await readSample(bcEndpoints.contractLines),
       tenantInvoices: await readSample(bcEndpoints.invoices),
       tenantIncidents: await readSample(bcEndpoints.incidents),
       tenantDocuments: await readSample(bcEndpoints.documents)

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getAssets } from "@/lib/portal/assets.service";
 import { getAssetAttributes } from "@/lib/portal/asset-attributes.service";
+import { getContractLines } from "@/lib/portal/contract-lines.service";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getEquipment } from "@/lib/portal/equipment.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import type { AssetDto } from "@/lib/dto/asset.dto";
 import type { AssetAttributeDto } from "@/lib/dto/asset-attribute.dto";
 import type { ContractDto } from "@/lib/dto/contract.dto";
+import type { ContractLineDto } from "@/lib/dto/contract-line.dto";
 import type { EquipmentDto } from "@/lib/dto/equipment.dto";
 import type { InvoiceDto } from "@/lib/dto/invoice.dto";
 
@@ -42,9 +44,20 @@ function formatMoney(value: number | null | undefined, currencyCode = "EUR") {
   }).format(value);
 }
 
+function formatMoneyOrBlankWhenZero(value: number | null | undefined, currencyCode = "EUR") {
+  if (value == null) return "-";
+  if (value === 0) return "";
+  return formatMoney(value, currencyCode);
+}
+
 function formatNumber(value: number | null | undefined, suffix = "") {
   if (value == null) return "No disponible";
   return `${new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 }).format(value)}${suffix}`;
+}
+
+function formatCompactNumber(value: number | null | undefined) {
+  if (value == null) return "-";
+  return new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 }).format(value);
 }
 
 function safeText(value: string | null | undefined, fallback: string) {
@@ -151,6 +164,27 @@ function formatBoolean(value: boolean) {
   return value ? "Sí" : "No";
 }
 
+function invoicePeriodLabel(value: string | null | undefined) {
+  const normalized = value?.trim().toLowerCase() || "";
+
+  if (normalized === "month" || normalized === "monthly") return "Mensual";
+  if (normalized === "quarter" || normalized === "quarterly") return "Trimestral";
+  if (normalized === "semester" || normalized === "semiannual") return "Semestral";
+  if (normalized === "year" || normalized === "yearly" || normalized === "annual") return "Anual";
+
+  return value && value.trim() ? value : "No disponible";
+}
+
+function hasContractLineContent(line: ContractLineDto) {
+  return Boolean(
+    (line.description && line.description.trim()) ||
+      line.quantity != null ||
+      line.unitPrice != null ||
+      line.amount != null ||
+      line.amountIncludingVat != null
+  );
+}
+
 function DetailCard({
   label,
   value,
@@ -183,6 +217,7 @@ export default async function ContractsPage() {
   const primaryContract = getPrimaryContract(contracts);
   const primaryAsset = getPrimaryAsset(assets, primaryContract);
   const nextPendingInvoice = getNextPendingInvoice(invoices, primaryContract);
+  const contractLinesResult = await safeLoad<ContractLineDto[]>(() => getContractLines(primaryContract), []);
   const assetAttributesResult = await safeLoad<AssetAttributeDto[]>(
     () => getAssetAttributes(primaryAsset?.number || primaryContract?.fixedRealEstateNo),
     []
@@ -192,6 +227,7 @@ export default async function ContractsPage() {
     []
   );
   const visibleAssetAttributes = assetAttributesResult.data.filter(hasMeaningfulAttributeContent);
+  const visibleContractLines = contractLinesResult.data.filter(hasContractLineContent);
   const visibleEquipment = equipmentResult.data.filter((item) =>
     Boolean(item.description?.trim() || item.serialNo?.trim() || item.modelNo?.trim())
   );
@@ -335,6 +371,102 @@ export default async function ContractsPage() {
               value={primaryAsset?.underMaintenance ? "En mantenimiento" : "Operativo"}
               helper={primaryAsset?.insured ? "El activo consta como asegurado." : "Sin información de seguro."}
             />
+          </div>
+
+          <div className="mt-8 border-t border-forne-line pt-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Detalle contrato</div>
+            <div className="mt-4 overflow-hidden rounded-2xl border border-forne-line">
+              <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+                <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                  <tr>
+                    <th className="px-5 py-4 font-semibold">Concepto</th>
+                    <th className="px-5 py-4 font-semibold">Valor</th>
+                    <th className="px-5 py-4 font-semibold">Detalle</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-forne-line bg-white">
+                  <tr>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">Periodicidad</div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">{invoicePeriodLabel(primaryContract?.invoicePeriod)}</td>
+                    <td className="px-5 py-4 text-forne-muted">Frecuencia de facturación del contrato.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">Renta por periodo</div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">
+                      {formatMoney(primaryContract?.amountPerPeriod ?? primaryAsset?.lastContractPrice)}
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">Importe vigente aplicado a cada periodo.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">Importe anual</div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">{formatMoney(primaryContract?.annualAmount)}</td>
+                    <td className="px-5 py-4 text-forne-muted">Total anual informado en el contrato.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">Fianza</div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">{formatMoney(primaryContract?.amountRentalDeposit)}</td>
+                    <td className="px-5 py-4 text-forne-muted">Garantía económica asociada al alquiler.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-5 py-4">
+                      <div className="font-medium text-forne-ink">Próxima facturación</div>
+                    </td>
+                    <td className="px-5 py-4 text-forne-muted">{formatDate(primaryContract?.nextInvoiceDate)}</td>
+                    <td className="px-5 py-4 text-forne-muted">
+                      {primaryContract?.description || "Siguiente vencimiento registrado para el contrato."}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-forne-line pt-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Líneas del contrato</div>
+              <div className="text-sm text-forne-muted">{visibleContractLines.length} línea(s)</div>
+            </div>
+
+            {visibleContractLines.length === 0 ? (
+              <div className="mt-4 rounded-2xl bg-[#F7FAFC] px-5 py-6 text-sm text-forne-muted">
+                No hay líneas de contrato disponibles para este contrato en este momento.
+              </div>
+            ) : (
+              <div className="mt-4 overflow-hidden rounded-2xl border border-forne-line">
+                <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+                  <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                    <tr>
+                      <th className="px-5 py-4 font-semibold">Descripción</th>
+                      <th className="px-5 py-4 font-semibold">Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-forne-line bg-white">
+                    {visibleContractLines.map((line) => (
+                      <tr key={line.id}>
+                        <td className="px-5 py-4">
+                          <div className="font-medium text-forne-ink">{safeText(line.description, "Sin descripción")}</div>
+                        </td>
+                        <td className="px-5 py-4 text-forne-muted">
+                          {line.amount != null
+                            ? formatMoneyOrBlankWhenZero(line.amount, line.currencyCode || "EUR")
+                            : line.amountIncludingVat != null
+                            ? formatMoneyOrBlankWhenZero(line.amountIncludingVat, line.currencyCode || "EUR")
+                            : "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </article>
 
