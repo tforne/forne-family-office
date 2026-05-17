@@ -2,6 +2,7 @@ import "server-only";
 
 import { isCurrentPortalAdmin } from "@/lib/portal/admin-auth";
 import { getDocuments } from "@/lib/portal/documents.service";
+import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
 import { getInvoices } from "@/lib/portal/invoices.service";
 import { getMe } from "@/lib/portal/me.service";
@@ -61,6 +62,15 @@ function pageSuggestions(page: string) {
       "Que documentos puedo descargar",
       "Como pido una copia de un documento",
       "Tengo documentos pendientes"
+    ];
+  }
+
+  if (page.startsWith("/portal/incident-requests")) {
+    return [
+      "Que peticiones tengo pendientes",
+      "Donde veo la respuesta de una peticion",
+      "Como ver el texto completo de la respuesta",
+      "Donde veo si una peticion genero incidencia"
     ];
   }
 
@@ -142,6 +152,26 @@ function documentsSummary(downloadableCount: number, totalCount: number, pending
   }
 
   return `Veo ${totalCount} documento(s) en portal, ${downloadableCount} con descarga disponible y ${pendingReview} pendiente(s) o sin revisar.`;
+}
+
+function incidentRequestStatusLabel(status: string | null | undefined, createdIncidentNo: string | null | undefined) {
+  const normalized = (status || "").trim().toLowerCase();
+
+  if (normalized === "error") return "Error";
+  if (["created", "new", "pending"].includes(normalized)) return "Pendiente";
+  if (["active", "processing", "inprogress", "in progress"].includes(normalized)) return "En curso";
+  if (["resolved", "closed", "completed"].includes(normalized)) return "Cerrada";
+  if (createdIncidentNo) return "Tramitada";
+
+  return status || "Sin estado";
+}
+
+function incidentRequestsSummary(pendingCount: number, inProgressCount: number, processedCount: number) {
+  if (pendingCount === 0 && inProgressCount === 0 && processedCount === 0) {
+    return "Ahora mismo no veo peticiones de incidencia registradas en tu portal.";
+  }
+
+  return `Veo ${pendingCount} peticion(es) pendiente(s), ${inProgressCount} en curso y ${processedCount} con incidencia creada o referencia interna.`;
 }
 
 export async function buildPortalChatReply(page: string, rawMessage: string): Promise<PortalChatReply> {
@@ -259,6 +289,91 @@ export async function buildPortalChatReply(page: string, rawMessage: string): Pr
         "Como pido una copia de factura",
         "Que significa el estado de una factura",
         ...pageSuggestions("/portal/invoices")
+      ])
+    };
+  }
+
+  if (includesAny(context.normalizedMessage, ["peticion", "peticiones", "solicitud", "solicitudes", "respuesta", "texto completo"])) {
+    const incidentRequests = await getIncidentRequests();
+    const pendingCount = incidentRequests.filter((request) => incidentRequestStatusLabel(request.status, request.createdIncidentNo) === "Pendiente").length;
+    const inProgressCount = incidentRequests.filter((request) => incidentRequestStatusLabel(request.status, request.createdIncidentNo) === "En curso").length;
+    const processedCount = incidentRequests.filter((request) => request.createdIncidentNo).length;
+    const answeredCount = incidentRequests.filter((request) => Boolean(request.portalDecisionMessage)).length;
+
+    if (includesAny(context.normalizedMessage, ["pendiente", "pendientes"])) {
+      return {
+        answer:
+          pendingCount > 0
+            ? `Tienes ${pendingCount} peticion(es) pendiente(s). En Peticiones puedes revisar su estado y, si ya existe una contestacion, verla en la columna Respuesta.`
+            : "Ahora mismo no veo peticiones pendientes. Puedes entrar en Peticiones para revisar el historico y comprobar si alguna ya tiene respuesta o incidencia creada.",
+        links: [{ href: "/portal/incident-requests", label: "Ver peticiones" }],
+        suggestions: dedupeSuggestions([
+          "Donde veo la respuesta de una peticion",
+          "Como ver el texto completo de la respuesta",
+          "Donde veo si una peticion genero incidencia",
+          ...pageSuggestions("/portal/incident-requests")
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["respuesta", "ver la respuesta", "donde veo la respuesta"])) {
+      return {
+        answer:
+          answeredCount > 0
+            ? "La respuesta aparece en la columna Respuesta dentro del listado de Peticiones. Veras un resumen en la celda y, si existe mas texto, puedes abrirlo desde el enlace Ver texto completo."
+            : "Ahora mismo no veo respuestas publicadas en tus peticiones. Aun asi, puedes entrar en Peticiones para revisar el estado y comprobar si se ha creado una incidencia asociada.",
+        links: [{ href: "/portal/incident-requests", label: "Abrir peticiones" }],
+        suggestions: dedupeSuggestions([
+          "Como ver el texto completo de la respuesta",
+          "Donde veo si una peticion genero incidencia",
+          "Que peticiones tengo pendientes"
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["texto completo", "ver completo", "ver el texto completo"])) {
+      return {
+        answer:
+          "En la columna Respuesta veras un extracto. Para leer todo el contenido, pulsa el enlace Ver texto completo dentro de la misma fila y el portal desplegara el mensaje completo sin salir de la pagina.",
+        links: [{ href: "/portal/incident-requests", label: "Ir a peticiones" }],
+        suggestions: dedupeSuggestions([
+          "Donde veo la respuesta de una peticion",
+          "Donde veo si una peticion genero incidencia",
+          "Que peticiones tengo pendientes"
+        ])
+      };
+    }
+
+    if (includesAny(context.normalizedMessage, ["genero incidencia", "ha generado incidencia", "referencia creada", "tramita", "tramitada"])) {
+      return {
+        answer:
+          processedCount > 0
+            ? "Cuando una peticion ya ha generado una incidencia o referencia interna, lo veras en la columna Referencia creada. Si aparece un codigo, puedes pulsarlo para abrir el detalle de la incidencia asociada."
+            : "Todavia no veo peticiones con incidencia creada. Puedes revisar la columna Referencia creada en Peticiones para comprobar cuando se asigne una.",
+        links: [
+          { href: "/portal/incident-requests", label: "Ver peticiones" },
+          { href: "/portal/incidents", label: "Ver incidencias" }
+        ],
+        suggestions: dedupeSuggestions([
+          "Donde veo la respuesta de una peticion",
+          "Como ver el texto completo de la respuesta",
+          "Que peticiones tengo pendientes"
+        ])
+      };
+    }
+
+    return {
+      answer: `${incidentRequestsSummary(pendingCount, inProgressCount, processedCount)} ${
+        answeredCount > 0
+          ? "Ademas, algunas ya tienen contenido en la columna Respuesta y puedes ampliar el mensaje desde Ver texto completo."
+          : "Si una peticion recibe contestacion, la veras en la columna Respuesta."
+      }`,
+      links: [{ href: "/portal/incident-requests", label: "Abrir peticiones" }],
+      suggestions: dedupeSuggestions([
+        "Que peticiones tengo pendientes",
+        "Donde veo la respuesta de una peticion",
+        "Como ver el texto completo de la respuesta",
+        "Donde veo si una peticion genero incidencia"
       ])
     };
   }

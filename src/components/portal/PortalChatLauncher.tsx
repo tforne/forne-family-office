@@ -53,7 +53,12 @@ function initialSuggestions(pathname: string) {
   }
 
   if (pathname.startsWith("/portal/incident-requests")) {
-    return ["Que peticiones tengo pendientes", "Como se tramita una peticion", "Donde veo si una peticion genero incidencia"];
+    return [
+      "Que peticiones tengo pendientes",
+      "Donde veo la respuesta de una peticion",
+      "Como ver el texto completo de la respuesta",
+      "Donde veo si una peticion genero incidencia"
+    ];
   }
 
   if (pathname.startsWith("/portal/notices")) {

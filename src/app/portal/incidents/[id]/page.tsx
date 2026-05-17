@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import IncidentContactForm from "@/components/portal/IncidentContactForm";
 import { getIncidentComments } from "@/lib/portal/incident-comments.service";
+import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
 import type { IncidentCommentDto } from "@/lib/dto/incident-comment.dto";
+import type { IncidentRequestDto } from "@/lib/dto/incident-request.dto";
 
 function cleanDate(value: string | null) {
   if (!value || value.startsWith("0001-01-01")) return "Sin fecha";
@@ -72,6 +74,30 @@ function getBooleanValue(record: IncidentDto, keys: string[]) {
   }
 
   return null;
+}
+
+function normalizeIncidentKey(value: string | null | undefined) {
+  return (value || "").trim().replace(/[{}]/g, "").toLowerCase();
+}
+
+function requestStatusLabel(request: IncidentRequestDto) {
+  const normalized = request.status?.toLowerCase() || "";
+
+  if (normalized === "error") return "Error";
+  if (["created", "new", "pending"].includes(normalized)) return "Pendiente";
+  if (["active", "processing", "inprogress", "in progress"].includes(normalized)) return "En curso";
+  if (["resolved", "closed", "completed"].includes(normalized)) return "Cerrada";
+  if (request.createdIncidentNo) return "Tramitada";
+
+  return request.status || "Sin estado";
+}
+
+function requestStatusClass(status: string) {
+  if (status === "Pendiente") return "bg-amber-50 text-amber-800 ring-amber-200";
+  if (status === "En curso" || status === "Tramitada") return "bg-sky-50 text-sky-800 ring-sky-200";
+  if (status === "Cerrada") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+  if (status === "Error") return "bg-rose-50 text-rose-800 ring-rose-200";
+  return "bg-forne-cloud text-forne-muted ring-forne-line";
 }
 
 function isImageUrl(value: string) {
@@ -179,11 +205,97 @@ function CommentItem({ comment }: { comment: IncidentCommentDto }) {
 }
 
 export default async function IncidentDetailPage({ params }: { params: { id: string } }) {
-  const incidents = await getIncidents();
+  const [incidents, incidentRequests] = await Promise.all([getIncidents(), getIncidentRequests()]);
   const incidentId = decodeURIComponent(params.id);
-  const incident = incidents.find((item) => item.id === incidentId || item.incidentId === incidentId);
+  const normalizedIncidentId = normalizeIncidentKey(incidentId);
+  const incident = incidents.find(
+    (item) =>
+      normalizeIncidentKey(item.id) === normalizedIncidentId ||
+      normalizeIncidentKey(item.incidentId) === normalizedIncidentId
+  );
 
-  if (!incident) notFound();
+  if (!incident) {
+    const request = incidentRequests.find(
+      (item) =>
+        normalizeIncidentKey(item.id) === normalizedIncidentId ||
+        normalizeIncidentKey(item.requestId) === normalizedIncidentId ||
+        normalizeIncidentKey(item.createdIncidentNo) === normalizedIncidentId
+    );
+
+    if (!request) notFound();
+
+    const status = requestStatusLabel(request);
+
+    return (
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div>
+              <Link
+                href="/portal/incident-requests"
+                className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-2 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
+              >
+                Volver a peticiones
+              </Link>
+              <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-forne-muted">
+                {request.createdIncidentNo || request.requestId || request.id}
+              </div>
+              <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-forne-ink">
+                {request.title || "Petición de incidencia"}
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-forne-muted">
+                Esta referencia todavía no tiene una ficha de incidencia publicada en el portal. Mostramos el detalle disponible de la petición enviada.
+              </p>
+            </div>
+            <span className={`inline-flex w-fit rounded-full px-4 py-2 text-xs font-semibold ring-1 ${requestStatusClass(status)}`}>
+              {status}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-6">
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="text-base font-semibold text-forne-ink">Descripción</div>
+              <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
+                {request.description || "No hay descripción adicional para esta petición."}
+              </div>
+            </section>
+          </div>
+
+          <aside className="space-y-6">
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="text-base font-semibold text-forne-ink">Datos de la petición</div>
+              <div className="mt-3">
+                <DetailItem label="Id petición" value={request.requestId || request.id} />
+                <DetailItem label="Referencia creada" value={request.createdIncidentNo} />
+                <DetailItem label="Fecha" value={cleanDate(request.createdAt || request.incidentDate)} />
+                <DetailItem label="Tipo" value={request.caseType} />
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="text-base font-semibold text-forne-ink">Inmueble y contrato</div>
+              <div className="mt-3">
+                <DetailItem label="Inmueble" value={request.refDescription} />
+                <DetailItem label="Referencia inmueble" value={request.fixedRealEstateNo} />
+                <DetailItem label="Contrato" value={request.contractNo} />
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+              <div className="text-base font-semibold text-forne-ink">Contacto</div>
+              <div className="mt-3">
+                <DetailItem label="Nombre" value={request.contactName} />
+                <DetailItem label="Teléfono" value={request.contactPhoneNo} />
+                <DetailItem label="Email" value={request.contactEmail} />
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    );
+  }
 
   const comments = await getIncidentComments(incident.incidentId, incident.id);
   const status = statusLabel(incident);

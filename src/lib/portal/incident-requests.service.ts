@@ -26,6 +26,7 @@ export async function getIncidentRequests(): Promise<IncidentRequestDto[]> {
       portalUserEmail: incident.contactEmail,
       source: "PORTAL",
       status: incident.stateCode,
+      portalDecisionMessage: null,
       createdIncidentNo: incident.incidentId,
       errorMessage: null,
       createdAt: incident.createdOn,

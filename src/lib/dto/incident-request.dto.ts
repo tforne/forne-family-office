@@ -16,6 +16,7 @@ export interface IncidentRequestDto {
   portalUserEmail: string | null;
   source: string | null;
   status: string | null;
+  portalDecisionMessage?: string | null;
   createdIncidentNo: string | null;
   errorMessage: string | null;
   createdAt: string | null;

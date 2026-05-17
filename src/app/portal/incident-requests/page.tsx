@@ -42,6 +42,10 @@ function requestStatusClass(status: string) {
   return "bg-forne-cloud text-forne-muted ring-forne-line";
 }
 
+function normalizeIncidentHref(value: string) {
+  return value.trim().replace(/[{}]/g, "");
+}
+
 export default async function IncidentRequestsPage() {
   const incidentRequests = await getIncidentRequests();
   const pendingCount = incidentRequests.filter((request) => requestStatusLabel(request) === "Pendiente").length;
@@ -114,6 +118,7 @@ export default async function IncidentRequestsPage() {
                   <th className="px-5 py-3 font-semibold">Inmueble</th>
                   <th className="px-5 py-3 font-semibold">Contrato</th>
                   <th className="px-5 py-3 font-semibold">Estado</th>
+                  <th className="px-5 py-3 font-semibold">Respuesta</th>
                   <th className="px-5 py-3 font-semibold">Referencia creada</th>
                 </tr>
               </thead>
@@ -156,8 +161,36 @@ export default async function IncidentRequestsPage() {
                           {status}
                         </span>
                       </td>
+                      <td className="min-w-64 px-5 py-4 text-forne-muted">
+                        {request.portalDecisionMessage ? (
+                          <div className="max-w-md">
+                            <div className="line-clamp-3 leading-6 text-forne-muted">
+                              {request.portalDecisionMessage}
+                            </div>
+                            <details className="mt-2">
+                              <summary className="cursor-pointer list-none font-medium text-[#0078D4] transition hover:text-[#005A9E] hover:underline">
+                                Ver texto completo
+                              </summary>
+                              <div className="mt-3 rounded-2xl bg-forne-cloud/70 px-3 py-3 text-sm leading-6 text-forne-ink">
+                                {request.portalDecisionMessage}
+                              </div>
+                            </details>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
                       <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                        {request.createdIncidentNo || request.errorMessage || "-"}
+                        {request.createdIncidentNo ? (
+                          <Link
+                            href={`/portal/incidents/${encodeURIComponent(normalizeIncidentHref(request.createdIncidentNo))}`}
+                            className="font-medium text-[#0078D4] transition hover:text-[#005A9E] hover:underline"
+                          >
+                            {request.createdIncidentNo}
+                          </Link>
+                        ) : (
+                          request.errorMessage || "-"
+                        )}
                       </td>
                     </tr>
                   );
