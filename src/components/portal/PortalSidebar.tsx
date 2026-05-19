@@ -50,22 +50,37 @@ export default function PortalSidebar({
   };
 
   const navItems = (
-    <ul className="space-y-2">
+    <ul className="space-y-2.5">
       {visibleItems.map((item) => {
         const active = pathname === item.href;
         return (
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`block rounded-2xl px-4 py-3 text-sm font-medium transition duration-200 ${
+              className={`group block rounded-[22px] px-4 py-3.5 text-sm font-medium transition duration-200 ${
                 active
-                  ? "border border-forne-ink/10 bg-forne-ink text-white shadow-[0_18px_35px_-24px_rgba(7,11,26,0.9)]"
-                  : "border border-transparent text-forne-muted hover:border-forne-line hover:bg-white hover:text-forne-ink hover:shadow-sm"
+                  ? "border border-white/12 bg-white/14 text-white shadow-[0_26px_42px_-28px_rgba(5,12,24,0.7)]"
+                  : "border border-transparent text-white/72 hover:border-white/10 hover:bg-white/8 hover:text-white"
               }`}
             >
               <span className="inline-flex items-center gap-3">
-                <BrandIcon name={item.icon} className="h-4 w-4" />
-                <span>{item.label}</span>
+                <span
+                  className={`inline-flex h-9 w-9 items-center justify-center rounded-2xl border transition ${
+                    active
+                      ? "border-white/12 bg-white/12 text-white"
+                      : "border-white/10 bg-white/5 text-white/72 group-hover:border-white/12 group-hover:bg-white/10 group-hover:text-white"
+                  }`}
+                >
+                  <BrandIcon name={item.icon} className="h-4 w-4" />
+                </span>
+                <span className="flex-1">{item.label}</span>
+                <span
+                  className={`text-white/45 transition ${
+                    active ? "translate-x-0 text-white/70" : "group-hover:translate-x-0.5 group-hover:text-white/70"
+                  }`}
+                >
+                  ›
+                </span>
               </span>
             </Link>
           </li>
@@ -76,7 +91,7 @@ export default function PortalSidebar({
           type="button"
           onClick={() => setIsLogoutDialogOpen(true)}
           disabled={isLoggingOut}
-          className="block w-full rounded-2xl border border-transparent px-4 py-3 text-left text-sm font-medium text-forne-muted transition duration-200 hover:border-forne-line hover:bg-white hover:text-forne-ink hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+          className="block w-full rounded-[22px] border border-white/10 bg-white/5 px-4 py-3.5 text-left text-sm font-medium text-white/72 transition duration-200 hover:border-white/12 hover:bg-white/8 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           Salir
         </button>
@@ -86,11 +101,11 @@ export default function PortalSidebar({
 
   return (
     <>
-      <div className="border-b border-forne-line/80 bg-white/90 px-5 py-4 backdrop-blur lg:hidden">
+      <div className="border-b border-forne-line/70 bg-white/78 px-5 py-4 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <Link href="/portal" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-forne-ink text-sm font-semibold text-white shadow-[0_16px_30px_-18px_rgba(7,11,26,0.8)]">
-              F
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-sm font-semibold text-white shadow-[0_20px_35px_-22px_rgba(15,47,87,0.7)]">
+              FF
             </div>
             <div>
               <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Portal</div>
@@ -101,7 +116,7 @@ export default function PortalSidebar({
             type="button"
             onClick={() => setIsLogoutDialogOpen(true)}
             disabled={isLoggingOut}
-            className="rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl border border-forne-line bg-white/90 px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
           >
             Salir
           </button>
@@ -118,11 +133,11 @@ export default function PortalSidebar({
               return (
                 <Link
                   key={item.href}
-                href={item.href}
-                className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                  href={item.href}
+                  className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
                     active
-                      ? "bg-forne-ink text-white shadow-[0_14px_28px_-22px_rgba(7,11,26,0.8)]"
-                      : "border border-forne-line bg-white text-forne-muted"
+                      ? "bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-white shadow-[0_16px_30px_-22px_rgba(15,47,87,0.68)]"
+                      : "border border-forne-line bg-white/90 text-forne-muted"
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -136,36 +151,37 @@ export default function PortalSidebar({
         </div>
       </div>
 
-      <aside className="hidden w-80 flex-col border-r border-forne-line/80 bg-[#f6f8fb] lg:flex">
-      <div className="border-b border-forne-line/80 p-7">
-        <Link href="/portal" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-forne-ink text-sm font-semibold text-white shadow-[0_18px_35px_-22px_rgba(7,11,26,0.8)]">
-            F
-          </div>
-          <div>
-            <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Portal</div>
-            <div className="text-xs text-forne-muted">Espacio privado de cliente</div>
-          </div>
-        </Link>
-      </div>
-      <div className="px-7 pt-6">
-        <div className="rounded-3xl border border-forne-line bg-white/80 px-4 py-4 shadow-[0_22px_45px_-34px_rgba(15,23,42,0.28)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">Navegación</div>
-          <div className="mt-1 text-sm leading-6 text-forne-muted">
-            Acceso directo a tu información y gestiones.
+      <aside className="ffo-portal-dark hidden w-[320px] flex-col border-r border-white/8 text-white lg:flex">
+        <div className="border-b border-white/8 p-7">
+          <Link href="/portal" className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[20px] border border-white/12 bg-white/10 text-sm font-semibold text-white shadow-[0_22px_42px_-24px_rgba(6,17,33,0.7)]">
+              FF
+            </div>
+            <div>
+              <div className="text-sm font-semibold tracking-[0.12em] text-white">Forné Portal</div>
+              <div className="text-xs text-white/58">Espacio privado de cliente</div>
+            </div>
+          </Link>
+        </div>
+        <div className="px-6 pt-6">
+          <div className="rounded-[28px] border border-white/10 bg-white/8 px-5 py-5 shadow-[0_28px_45px_-30px_rgba(6,17,33,0.58)] backdrop-blur">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/52">Workspace</div>
+            <div className="mt-3 text-xl font-semibold tracking-tight text-white">Control centralizado</div>
+            <div className="mt-2 text-sm leading-6 text-white/68">
+              Accede a tus documentos, avisos y gestiones con una vista clara y profesional.
+            </div>
           </div>
         </div>
-      </div>
-      <nav className="flex-1 px-5 py-6">
-        {navItems}
-      </nav>
-      {version ? (
-        <div className="border-t border-forne-line/80 px-7 py-5">
-          <div className="rounded-2xl border border-forne-line bg-white/80 px-4 py-3 text-xs text-forne-muted shadow-[0_18px_40px_-34px_rgba(15,23,42,0.28)]">
-            Version {version}
+        <nav className="flex-1 px-5 py-6">
+          {navItems}
+        </nav>
+        {version ? (
+          <div className="border-t border-white/8 px-6 py-5">
+            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 text-xs text-white/62 backdrop-blur">
+              Version {version}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
       </aside>
 
       <ConfirmationDialog

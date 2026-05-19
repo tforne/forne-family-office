@@ -20,13 +20,12 @@ export default async function AdminChatPage() {
   return (
     <div className="space-y-8">
       <section id="chat-admin" className="space-y-5">
-        <div className="border-b border-slate-300 pb-4">
-          <div>
-            <h2 className="text-xl font-semibold">Panel de chat</h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Controla cuándo puede mostrarse el chat del portal.
-            </p>
-          </div>
+        <div className="ffo-portal-dark rounded-[30px] border border-white/8 p-6 text-white">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Administración</div>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight">Panel de chat</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+            Controla cuándo puede mostrarse el chat del portal.
+          </p>
         </div>
 
         <AdminChatSettingsClient

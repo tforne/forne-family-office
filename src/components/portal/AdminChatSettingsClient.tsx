@@ -62,7 +62,7 @@ export default function AdminChatSettingsClient({
         </div>
       ) : null}
 
-      <section className="rounded-[24px] border border-forne-line bg-white p-6 shadow-sm">
+      <section className="ffo-portal-card rounded-[28px] p-6">
         <div className="flex flex-col gap-4 border-b border-forne-line pb-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-forne-ink">Chat del portal</h2>
@@ -74,7 +74,7 @@ export default function AdminChatSettingsClient({
             type="button"
             onClick={saveSettings}
             disabled={pending || !chatAvailable}
-            className="rounded-xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="ffo-portal-button rounded-2xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? "Guardando..." : "Guardar cambios"}
           </button>

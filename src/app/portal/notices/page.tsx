@@ -1,4 +1,5 @@
 import PortalStatCard from "@/components/portal/PortalStatCard";
+import PortalEmptyState from "@/components/portal/PortalEmptyState";
 import PortalTableCard from "@/components/portal/PortalTableCard";
 import NoticeReadButton from "@/components/portal/NoticeReadButton";
 import { getTenantMyNotices } from "@/lib/portal/tenant-my-notices.service";
@@ -45,14 +46,38 @@ export default async function NoticesPage() {
   const confirmationCount = notices.filter((notice) => notice.requiresReadConfirmation).length;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Portal privado</div>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Avisos</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-forne-muted">
-          Avisos y comunicaciones visibles en el portal para tus contratos, activos e incidencias.
-        </p>
-      </div>
+    <div className="space-y-6 sm:space-y-8">
+      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+        <div className="relative z-[1] grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+              Portal privado
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.35rem]">Avisos</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
+              Avisos y comunicaciones visibles en el portal para tus contratos, activos e incidencias.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Avisos</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{notices.length}</div>
+              <div className="mt-1 text-xs text-white/65">comunicaciones activas</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">No leídos</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{unreadCount}</div>
+              <div className="mt-1 text-xs text-white/65">pendientes de revisar</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Confirmación</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{confirmationCount}</div>
+              <div className="mt-1 text-xs text-white/65">requieren lectura confirmada</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="grid gap-4 md:grid-cols-3">
         <PortalStatCard title="Avisos activos" value={String(notices.length)} />
@@ -65,27 +90,31 @@ export default async function NoticesPage() {
         subtitle={`${notices.length} aviso${notices.length === 1 ? "" : "s"} encontrado${notices.length === 1 ? "" : "s"}`}
       >
         {notices.length === 0 ? (
-          <div className="px-6 py-10 text-sm text-forne-muted">
-            No hay avisos visibles en este momento.
+          <div className="p-5">
+            <PortalEmptyState
+              icon="attention"
+              title="No hay avisos visibles"
+              description="No hay avisos visibles en este momento."
+            />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-              <thead className="bg-[#fbfcfd] text-xs uppercase tracking-wide text-forne-muted">
+              <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                 <tr>
-                  <th className="px-5 py-4 font-semibold">Aviso</th>
-                  <th className="px-5 py-4 font-semibold">Publicado</th>
-                  <th className="px-5 py-4 font-semibold">Tipo</th>
-                  <th className="px-5 py-4 font-semibold">Prioridad</th>
-                  <th className="px-5 py-4 font-semibold">Contrato / activo</th>
-                  <th className="px-5 py-4 font-semibold">Estado</th>
-                  <th className="px-5 py-4 font-semibold">Acción</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Aviso</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Publicado</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Tipo</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Prioridad</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Contrato / activo</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Estado</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-forne-line bg-white">
                 {notices.map((notice) => (
-                  <tr key={`${notice.noticeId}-${notice.lineNo ?? 0}`} className="align-top">
-                    <td className="min-w-80 px-5 py-4">
+                  <tr key={`${notice.noticeId}-${notice.lineNo ?? 0}`} className="align-top transition hover:bg-[#f8fbff]">
+                    <td className="min-w-[18rem] px-4 py-3 sm:px-5 sm:py-4">
                       <div className="flex flex-wrap items-center gap-2">
                         <div className="font-medium text-forne-ink">{notice.title || notice.noticeNo || "Aviso"}</div>
                         {notice.requiresReadConfirmation ? (
@@ -98,13 +127,13 @@ export default async function NoticesPage() {
                         {notice.description || "Sin descripción adicional."}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                    <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       {formatDateTime(notice.publishFrom)}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
+                    <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       {notice.noticeType || "-"}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4">
+                    <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
                       {notice.priority ? (
                         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${priorityClass(notice.priority)}`}>
                           {notice.priority}
@@ -113,16 +142,16 @@ export default async function NoticesPage() {
                         <span className="text-forne-muted">-</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       <div>{notice.headerContractNo || notice.contractNo || "-"}</div>
                       <div className="mt-1 text-xs text-forne-muted/75">{notice.headerAssetNo || notice.assetNo || "-"}</div>
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4">
+                    <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${statusClass(notice)}`}>
                         {statusLabel(notice)}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4">
+                    <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
                       {notice.isUnread || notice.requiresReadConfirmation ? (
                         <NoticeReadButton
                           compact

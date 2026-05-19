@@ -18,11 +18,11 @@ function LoginContent() {
       : error;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fbfe_38%,#ffffff_100%)] px-6 py-10">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(27,111,216,0.12),transparent_24%),radial-gradient(circle_at_85%_18%,rgba(217,200,176,0.16),transparent_22%),linear-gradient(180deg,#ffffff_0%,#f8fbfe_38%,#ffffff_100%)] px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto flex max-w-7xl items-center justify-between py-2">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-[#0078D4] text-sm font-semibold text-white shadow-sm">
-            F
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-sm font-semibold text-white shadow-[0_20px_35px_-22px_rgba(15,47,87,0.65)]">
+            FF
           </div>
           <div>
             <div className="text-sm font-semibold tracking-wide text-[#201F1E]">Forné Family Office</div>
@@ -32,13 +32,13 @@ function LoginContent() {
 
         <Link
           href="/"
-          className="rounded border border-[#E1DFDD] bg-white px-4 py-2.5 text-sm font-semibold text-[#201F1E] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
+          className="rounded-2xl border border-[#E1DFDD] bg-white px-4 py-2.5 text-sm font-semibold text-[#201F1E] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
         >
           Volver al inicio
         </Link>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 py-10 lg:grid-cols-[1fr_420px] lg:py-16">
+      <div className="mx-auto grid max-w-7xl gap-10 py-8 lg:grid-cols-[1fr_420px] lg:py-16">
         <section className="flex flex-col justify-center">
           <div className="text-xs font-semibold uppercase tracking-[0.32em] text-[#0078D4]">
             Acceso privado
@@ -67,7 +67,7 @@ function LoginContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[#E1DFDD] bg-white/90 p-5 shadow-[0_24px_60px_-36px_rgba(0,58,108,0.25)]"
+                className="rounded-[24px] border border-[#E1DFDD] bg-white/90 p-5 shadow-[0_24px_60px_-36px_rgba(0,58,108,0.25)] backdrop-blur"
               >
                 <div className="text-sm font-semibold text-[#201F1E]">{item.title}</div>
                 <div className="mt-2 text-sm leading-6 text-[#605E5C]">{item.text}</div>
@@ -76,7 +76,7 @@ function LoginContent() {
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-[#E1DFDD] bg-white/95 p-8 shadow-[0_30px_70px_-38px_rgba(0,58,108,0.3)] backdrop-blur">
+        <section className="rounded-[32px] border border-[#E1DFDD] bg-white/95 p-6 shadow-[0_30px_70px_-38px_rgba(0,58,108,0.3)] backdrop-blur sm:p-8">
           <div className="text-xs font-semibold uppercase tracking-[0.28em] text-[#0078D4]">
             Acceso clientes
           </div>
@@ -102,14 +102,14 @@ function LoginContent() {
           <div className="mt-8 space-y-4">
             <a
               href="/api/auth/entra"
-              className="flex w-full items-center justify-center rounded-2xl bg-[#0078D4] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_18px_38px_-24px_rgba(0,120,212,0.9)] transition hover:bg-[#106EBE]"
+              className="flex w-full items-center justify-center rounded-2xl bg-[#0078D4] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_18px_38px_-24px_rgba(0,120,212,0.9)] transition hover:-translate-y-0.5 hover:bg-[#106EBE]"
             >
               Entrar con Microsoft
             </a>
 
             <Link
               href="/"
-              className="flex w-full items-center justify-center rounded-2xl border border-[#E1DFDD] bg-white px-4 py-3.5 text-sm font-semibold text-[#201F1E] transition hover:border-[#0078D4] hover:text-[#0078D4]"
+              className="flex w-full items-center justify-center rounded-2xl border border-[#E1DFDD] bg-white px-4 py-3.5 text-sm font-semibold text-[#201F1E] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
             >
               Cancelar y volver al inicio
             </Link>

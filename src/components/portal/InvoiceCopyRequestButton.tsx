@@ -52,8 +52,8 @@ export default function InvoiceCopyRequestButton({ invoiceId, invoiceNo, custome
         disabled={status === "sending" || status === "sent"}
         className={
           compact
-            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
-            : "inline-flex rounded-xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
+            : "ffo-portal-button inline-flex rounded-2xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         }
       >
         {status === "sending" ? "Creando..." : status === "sent" ? "Petición creada" : "Petición de copia"}

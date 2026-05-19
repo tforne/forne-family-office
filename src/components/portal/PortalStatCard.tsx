@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandIcon from "@/components/brand/BrandIcon";
 
 export default function PortalStatCard({
   title,
@@ -13,16 +14,27 @@ export default function PortalStatCard({
 }) {
   const content = (
     <>
-      <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">{title}</div>
-      <div className="mt-4 text-4xl font-semibold tracking-tight text-forne-ink">{value}</div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">{title}</div>
+        {href ? (
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+            <BrandIcon name="arrow" className="h-4 w-4" />
+          </span>
+        ) : (
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-forne-line bg-white/70 text-forne-muted">
+            <BrandIcon name="clarity" className="h-4 w-4" />
+          </span>
+        )}
+      </div>
+      <div className="mt-6 text-4xl font-semibold tracking-tight text-forne-ink">{value}</div>
       {description ? (
         <p className="mt-3 max-w-xs text-sm leading-6 text-forne-muted">{description}</p>
       ) : null}
-      <div className="mt-3 h-px w-12 bg-forne-line" />
+      <div className="mt-5 h-px w-14 bg-gradient-to-r from-[#1b6fd8]/45 to-transparent" />
     </>
   );
 
-  const className = "block rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.3)] transition duration-200 hover:-translate-y-0.5 hover:border-forne-ink/15 hover:shadow-[0_28px_60px_-36px_rgba(15,23,42,0.34)]";
+  const className = "ffo-portal-card block rounded-[28px] p-6 transition duration-200 hover:-translate-y-1 hover:border-[#1b6fd8]/14 hover:shadow-[0_34px_80px_-46px_rgba(15,47,87,0.34)]";
 
   if (href) {
     return (
@@ -33,7 +45,7 @@ export default function PortalStatCard({
   }
 
   return (
-    <div className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.3)]">
+    <div className="ffo-portal-card rounded-[28px] p-6">
       {content}
     </div>
   );

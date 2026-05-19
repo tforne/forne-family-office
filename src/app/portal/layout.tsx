@@ -31,13 +31,15 @@ export default async function PortalLayout({ children }: { children: React.React
   const appVersion = packageJson.version;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#f4f7fb_48%,#f8fafc_100%)] text-forne-ink">
-      <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="ffo-portal-shell min-h-screen text-forne-ink">
+      <div className="relative flex min-h-screen flex-col lg:flex-row">
         <PortalSidebar showAdmin={showAdmin} version={appVersion} />
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div id="portal-main-shell" className="flex min-h-screen flex-1 flex-col transition-[margin] duration-300 ease-out">
           <PortalHeader email={session.email} provider={session.provider} />
-          <main className="flex-1 p-5 lg:p-8 xl:p-10">
-            <div className="mx-auto max-w-7xl">{children}</div>
+          <main className="flex-1 p-4 sm:p-5 lg:p-8 xl:p-10">
+            <div id="portal-main-content" className="mx-auto max-w-7xl rounded-[32px] border border-white/50 bg-white/28 p-3 shadow-[0_24px_70px_-50px_rgba(15,47,87,0.28)] backdrop-blur-[2px] transition-[max-width] duration-300 ease-out sm:p-4 lg:p-5">
+              {children}
+            </div>
           </main>
         </div>
       </div>

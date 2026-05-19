@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import BrandIcon from "@/components/brand/BrandIcon";
 import IncidentContactForm from "@/components/portal/IncidentContactForm";
+import PortalEmptyState from "@/components/portal/PortalEmptyState";
 import { getIncidentComments } from "@/lib/portal/incident-comments.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
@@ -204,6 +206,24 @@ function CommentItem({ comment }: { comment: IncidentCommentDto }) {
   );
 }
 
+function SummaryCard({
+  label,
+  value,
+  helper
+}: {
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-forne-line bg-[linear-gradient(180deg,#fbfdff_0%,#f5f9fe_100%)] p-5 shadow-[0_18px_38px_-34px_rgba(15,47,87,0.2)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+      <div className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">{value}</div>
+      <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div>
+    </div>
+  );
+}
+
 export default async function IncidentDetailPage({ params }: { params: { id: string } }) {
   const [incidents, incidentRequests] = await Promise.all([getIncidents(), getIncidentRequests()]);
   const incidentId = decodeURIComponent(params.id);
@@ -228,24 +248,34 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
     return (
       <div className="space-y-6">
-        <div className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+        <div className="ffo-portal-dark rounded-[34px] border border-white/8 p-6 text-white lg:p-7">
           <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
             <div>
               <Link
                 href="/portal/incident-requests"
-                className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-2 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
               >
+                <span aria-hidden="true">‹</span>
                 Volver a peticiones
               </Link>
-              <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-forne-muted">
+              <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-white/55">
                 {request.createdIncidentNo || request.requestId || request.id}
               </div>
-              <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-forne-ink">
+              <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-white sm:text-[2.35rem]">
                 {request.title || "Petición de incidencia"}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-forne-muted">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">
                 Esta referencia todavía no tiene una ficha de incidencia publicada en el portal. Mostramos el detalle disponible de la petición enviada.
               </p>
+              <div className="mt-5 rounded-[22px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur xl:max-w-[40rem]">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Lectura recomendada</div>
+                <div className="mt-2 text-base font-semibold text-white">
+                  Revisa primero el estado de la petición y la referencia creada.
+                </div>
+                <div className="mt-2 text-sm leading-6 text-white/64">
+                  Si todavía no existe una incidencia publicada, esta ficha actúa como expediente provisional de seguimiento.
+                </div>
+              </div>
             </div>
             <span className={`inline-flex w-fit rounded-full px-4 py-2 text-xs font-semibold ring-1 ${requestStatusClass(status)}`}>
               {status}
@@ -255,8 +285,9 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-              <div className="text-base font-semibold text-forne-ink">Descripción</div>
+            <section className="ffo-portal-card rounded-[30px] p-6">
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Expediente</div>
+              <div className="mt-2 text-base font-semibold text-forne-ink">Descripción</div>
               <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
                 {request.description || "No hay descripción adicional para esta petición."}
               </div>
@@ -264,7 +295,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
           </div>
 
           <aside className="space-y-6">
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <section className="ffo-portal-card rounded-[30px] p-6">
               <div className="text-base font-semibold text-forne-ink">Datos de la petición</div>
               <div className="mt-3">
                 <DetailItem label="Id petición" value={request.requestId || request.id} />
@@ -274,7 +305,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
               </div>
             </section>
 
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <section className="ffo-portal-card rounded-[30px] p-6">
               <div className="text-base font-semibold text-forne-ink">Inmueble y contrato</div>
               <div className="mt-3">
                 <DetailItem label="Inmueble" value={request.refDescription} />
@@ -283,7 +314,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
               </div>
             </section>
 
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <section className="ffo-portal-card rounded-[30px] p-6">
               <div className="text-base font-semibold text-forne-ink">Contacto</div>
               <div className="mt-3">
                 <DetailItem label="Nombre" value={request.contactName} />
@@ -324,25 +355,47 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
     notes: getTextValue(incident, ["insuranceNotes", "insuranceNote", "notasSeguro"])
   };
   const hasInsurance = Object.values(insurance).some(Boolean);
+  const nextControlDate = cleanDate(incident.expectedResolutionDate || incident.followupBy || incident.resolutionDate);
+  const recommendedAction =
+    status === "Abierta"
+      ? "Conviene revisar evolución, contacto y próxima fecha de seguimiento."
+      : "La incidencia parece cerrada; usa esta ficha como expediente de referencia y trazabilidad.";
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+    <div className="space-y-5 sm:space-y-6">
+      <div className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <Link
               href="/portal/incidents"
-              className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-2 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
             >
+              <span aria-hidden="true">‹</span>
               Salir de la incidencia
             </Link>
-            <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-forne-muted">
+            <div className="mt-5 text-xs font-semibold uppercase tracking-wide text-white/55">
               {incident.incidentId || incident.id}
             </div>
-            <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-forne-ink">{incident.title}</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-forne-muted">
+            <h1 className="mt-2 max-w-3xl text-3xl font-semibold text-white sm:text-[2.35rem]">{incident.title}</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">
               Seguimiento detallado de la incidencia, con contexto del inmueble, contacto y fechas relevantes.
             </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:max-w-[42rem]">
+              <div className="rounded-[22px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Lectura recomendada</div>
+                <div className="mt-2 text-base font-semibold text-white">{recommendedAction}</div>
+                <div className="mt-2 text-sm leading-6 text-white/64">
+                  Estado actual, referencias del inmueble y comentarios forman el núcleo de seguimiento más útil.
+                </div>
+              </div>
+              <div className="rounded-[22px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Siguiente control</div>
+                <div className="mt-2 text-base font-semibold text-white">{nextControlDate}</div>
+                <div className="mt-2 text-sm leading-6 text-white/64">
+                  Fecha de referencia para seguimiento o cierre prevista en el expediente.
+                </div>
+              </div>
+            </div>
           </div>
           <span className={`inline-flex w-fit rounded-full px-4 py-2 text-xs font-semibold ring-1 ${statusClass(status)}`}>
             {status}
@@ -350,19 +403,46 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         </div>
       </div>
 
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard
+          label="Estado"
+          value={status}
+          helper="Situación principal visible en el expediente."
+        />
+        <SummaryCard
+          label="Prioridad"
+          value={incident.priority || "-"}
+          helper="Nivel de atención informado en la incidencia."
+        />
+        <SummaryCard
+          label="Seguimiento"
+          value={cleanDate(incident.followupBy)}
+          helper="Siguiente fecha interna o de control disponible."
+        />
+        <SummaryCard
+          label="Contrato"
+          value={incident.contractNo || "-"}
+          helper="Referencia contractual asociada a la gestión."
+        />
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-ink">Descripción</div>
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Expediente</div>
+            <div className="mt-2 text-base font-semibold text-forne-ink">Descripción</div>
             <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
               {incident.description || "No hay descripción adicional para esta incidencia."}
             </div>
           </section>
 
           {imageUrls.length > 0 ? (
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+            <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-base font-semibold text-forne-ink">Imágenes adjuntas</div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Adjuntos</div>
+                  <div className="mt-2 text-base font-semibold text-forne-ink">Imágenes adjuntas</div>
+                </div>
                 <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
                   {imageUrls.length} imagen{imageUrls.length === 1 ? "" : "es"}
                 </div>
@@ -387,25 +467,33 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </section>
           ) : null}
 
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-ink">Evolución</div>
-            <div className="mt-5 grid gap-5 md:grid-cols-3">
-              <TimelineItem label="Apertura" value={cleanDate(incident.incidentDate)} />
-              <TimelineItem label="Seguimiento" value={cleanDate(incident.followupBy)} />
-              <TimelineItem label="Resolución prevista" value={cleanDate(incident.expectedResolutionDate)} />
-            </div>
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cronología</div>
+              <div className="mt-2 text-base font-semibold text-forne-ink">Evolución</div>
+              <div className="mt-5 grid gap-5 md:grid-cols-3">
+                <TimelineItem label="Apertura" value={cleanDate(incident.incidentDate)} />
+                <TimelineItem label="Seguimiento" value={cleanDate(incident.followupBy)} />
+                <TimelineItem label="Resolución prevista" value={cleanDate(incident.expectedResolutionDate)} />
+              </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-base font-semibold text-forne-ink">Comentarios</div>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Seguimiento narrativo</div>
+                <div className="mt-2 text-base font-semibold text-forne-ink">Comentarios</div>
+              </div>
               <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
                 {comments.length} comentario{comments.length === 1 ? "" : "s"}
               </div>
             </div>
             {comments.length === 0 ? (
-              <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
-                No hay comentarios publicados para esta incidencia.
+              <div className="mt-4">
+                <PortalEmptyState
+                  icon="attention"
+                  title="No hay comentarios publicados"
+                  description="Todavía no se han registrado comentarios visibles para esta incidencia."
+                />
               </div>
             ) : (
               <div className="mt-2">
@@ -417,8 +505,9 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
           </section>
 
           {hasInsurance ? (
-            <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-              <div className="text-base font-semibold text-forne-ink">Seguro</div>
+            <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+              <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cobertura</div>
+              <div className="mt-2 text-base font-semibold text-forne-ink">Seguro</div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl bg-forne-cloud p-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Póliza</div>
@@ -465,8 +554,9 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-ink">Datos de la incidencia</div>
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Ficha técnica</div>
+            <div className="mt-2 text-base font-semibold text-forne-ink">Datos de la incidencia</div>
             <div className="mt-3">
               <DetailItem label="Prioridad" value={incident.priority} />
               <DetailItem label="Tipo" value={incident.caseType} />
@@ -475,8 +565,9 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-ink">Inmueble y contrato</div>
+          <section className="ffo-portal-card rounded-[30px] p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Contexto</div>
+            <div className="mt-2 text-base font-semibold text-forne-ink">Inmueble y contrato</div>
             <div className="mt-3">
               <DetailItem label="Inmueble" value={incident.refDescription} />
               <DetailItem label="Referencia inmueble" value={incident.fixedRealEstateNo} />
@@ -484,8 +575,9 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
-          <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-            <div className="text-base font-semibold text-forne-ink">Contacto</div>
+          <section className="ffo-portal-card rounded-[30px] p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Interlocución</div>
+            <div className="mt-2 text-base font-semibold text-forne-ink">Contacto</div>
             <div className="mt-3">
               <DetailItem label="Nombre" value={incident.contactName} />
               <DetailItem label="Teléfono" value={incident.contactPhoneNo} />

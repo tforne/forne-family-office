@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BrandIcon from "@/components/brand/BrandIcon";
 
 type Props = {
   incidentId: string;
@@ -44,16 +45,23 @@ export default function IncidentContactForm({ incidentId, title, property, contr
   };
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-forne-line bg-white p-6 shadow-sm">
-      <div className="text-base font-semibold text-forne-ink">Enviar consulta sobre esta incidencia</div>
-      <p className="mt-2 max-w-3xl text-sm leading-7 text-forne-muted">
-        Escribe un mensaje y lo enviaremos automáticamente a Forné Family Office con la referencia de la incidencia.
-      </p>
+    <form onSubmit={onSubmit} className="ffo-portal-card rounded-[30px] p-6">
+      <div className="flex items-start gap-3">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+          <BrandIcon name="incident" className="h-4 w-4" />
+        </span>
+        <div>
+          <div className="text-base font-semibold text-forne-ink">Enviar consulta sobre esta incidencia</div>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-forne-muted">
+            Escribe un mensaje y lo enviaremos automáticamente a Forné Family Office con la referencia de la incidencia.
+          </p>
+        </div>
+      </div>
 
       <textarea
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        className="mt-5 min-h-36 w-full rounded-2xl border border-forne-line bg-white px-4 py-3 text-sm leading-6 text-forne-ink outline-none transition focus:border-forne-ink"
+        className="ffo-portal-input mt-5 min-h-36 w-full rounded-2xl px-4 py-3 text-sm leading-6 text-forne-ink outline-none"
         placeholder="Escribe aquí tu consulta o información adicional..."
         required
         maxLength={4000}
@@ -64,7 +72,7 @@ export default function IncidentContactForm({ incidentId, title, property, contr
         <button
           type="submit"
           disabled={status === "sending"}
-          className="rounded-xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="ffo-portal-button rounded-2xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_-24px_rgba(7,11,26,0.8)] transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === "sending" ? "Enviando..." : "Enviar mensaje"}
         </button>

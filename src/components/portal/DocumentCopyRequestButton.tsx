@@ -58,8 +58,8 @@ export default function DocumentCopyRequestButton({
         disabled={status === "sending" || status === "sent"}
         className={
           compact
-            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
-            : "inline-flex rounded-xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
+            : "ffo-portal-button inline-flex rounded-2xl bg-forne-ink px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         }
       >
         {status === "sending" ? "Creando..." : status === "sent" ? "Petición creada" : "Pedir copia"}
@@ -68,6 +68,9 @@ export default function DocumentCopyRequestButton({
         <div className={compact ? "max-w-48 text-xs leading-5 text-rose-700" : "text-sm text-rose-700"}>
           {error}
         </div>
+      ) : null}
+      {status === "sent" && !compact ? (
+        <div className="text-sm text-emerald-700">La petición se ha enviado correctamente.</div>
       ) : null}
       <ConfirmationDialog
         isOpen={isDialogOpen}

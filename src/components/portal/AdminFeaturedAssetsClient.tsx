@@ -77,7 +77,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
         </div>
       ) : null}
 
-      <section className="rounded-[24px] border border-forne-line bg-white p-5 shadow-sm">
+      <section className="ffo-portal-card rounded-[28px] p-5">
         <div className="flex flex-col gap-3 border-b border-forne-line pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-forne-ink">Activos destacados</h2>
@@ -89,7 +89,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
             <button
               type="button"
               onClick={addItem}
-              className="rounded-xl border border-forne-line px-4 py-2.5 text-sm font-semibold text-forne-ink transition hover:bg-forne-cloud"
+              className="rounded-2xl border border-forne-line px-4 py-2.5 text-sm font-semibold text-forne-ink transition hover:bg-forne-cloud"
             >
               Añadir activo
             </button>
@@ -97,7 +97,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
               type="button"
               onClick={saveItems}
               disabled={pending}
-              className="rounded-xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:opacity-60"
+              className="ffo-portal-button rounded-2xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-forne-ink/90 disabled:opacity-60"
             >
               {pending ? "Guardando..." : "Guardar cambios"}
             </button>
@@ -169,7 +169,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                   <input
                     value={item.badge}
                     onChange={(event) => updateItem(item.id, { badge: event.target.value })}
-                    className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm outline-none focus:border-forne-ink"
+                    className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                   />
                 </label>
                 <label className="space-y-2">
@@ -177,7 +177,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                   <input
                     value={item.price}
                     onChange={(event) => updateItem(item.id, { price: event.target.value })}
-                    className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm outline-none focus:border-forne-ink"
+                    className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                   />
                 </label>
               </div>
@@ -187,7 +187,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                 <input
                   value={item.title}
                   onChange={(event) => updateItem(item.id, { title: event.target.value })}
-                  className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm outline-none focus:border-forne-ink"
+                  className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
               </label>
 
@@ -196,7 +196,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                 <input
                   value={item.location}
                   onChange={(event) => updateItem(item.id, { location: event.target.value })}
-                  className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm outline-none focus:border-forne-ink"
+                  className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 />
               </label>
 
@@ -206,7 +206,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                   value={item.note}
                   onChange={(event) => updateItem(item.id, { note: event.target.value })}
                   rows={3}
-                  className="w-full rounded-xl border border-forne-line bg-white px-3 py-2.5 text-sm leading-6 outline-none focus:border-forne-ink"
+                  className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm leading-6 outline-none"
                 />
               </label>
             </article>

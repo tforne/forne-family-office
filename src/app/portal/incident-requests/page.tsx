@@ -1,4 +1,6 @@
 import Link from "next/link";
+import BrandIcon from "@/components/brand/BrandIcon";
+import PortalEmptyState from "@/components/portal/PortalEmptyState";
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import PortalTableCard from "@/components/portal/PortalTableCard";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
@@ -54,32 +56,53 @@ export default async function IncidentRequestsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Portal privado</div>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Peticiones de incidencia</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-forne-muted">
-            Listado de solicitudes enviadas desde el portal para consultar su estado, referencia contractual y trazabilidad.
-          </p>
+      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-6 text-white lg:p-7">
+        <div className="relative z-[1] grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+              Portal privado
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.35rem]">Peticiones de incidencia</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
+              Consulta el estado de cada solicitud enviada desde el portal, su respuesta y la referencia creada cuando ya se ha tramitado.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Link
+                href="/portal"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+              >
+                <span aria-hidden="true">‹</span>
+                Volver al resumen
+              </Link>
+              <Link
+                href="/portal/incidents"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/12"
+              >
+                Ver incidencias
+                <BrandIcon name="arrow" className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Pendientes</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{pendingCount}</div>
+              <div className="mt-1 text-xs text-white/65">recibidas y por tramitar</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">En curso</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{inProgressCount}</div>
+              <div className="mt-1 text-xs text-white/65">en seguimiento activo</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Tramitadas</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{processedCount}</div>
+              <div className="mt-1 text-xs text-white/65">con incidencia ya creada</div>
+            </div>
+          </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/portal"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-          >
-            <span aria-hidden="true">‹</span>
-            Volver
-          </Link>
-          <Link
-            href="/portal/incidents"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-          >
-            Ver incidencias
-            <span aria-hidden="true">›</span>
-          </Link>
-        </div>
-      </div>
+      </section>
 
       <div className="grid gap-4 md:grid-cols-3">
         <PortalStatCard
@@ -104,13 +127,17 @@ export default async function IncidentRequestsPage() {
         subtitle={`${incidentRequests.length} petición${incidentRequests.length === 1 ? "" : "es"} encontrada${incidentRequests.length === 1 ? "" : "s"}`}
       >
         {incidentRequests.length === 0 ? (
-          <div className="px-5 py-10 text-sm text-forne-muted">
-            No hay peticiones de incidencia registradas para tus contratos.
+          <div className="p-5">
+            <PortalEmptyState
+              icon="attention"
+              title="No hay peticiones registradas"
+              description="No hay peticiones de incidencia registradas para tus contratos en este momento."
+            />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-              <thead className="bg-forne-cloud text-xs uppercase tracking-wide text-forne-muted">
+              <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Fecha</th>
                   <th className="px-5 py-3 font-semibold">Petición</th>
@@ -127,25 +154,37 @@ export default async function IncidentRequestsPage() {
                   const status = requestStatusLabel(request);
 
                   return (
-                    <tr key={request.id || request.requestId || String(request.entryNo)} className="align-top">
+                    <tr
+                      key={request.id || request.requestId || String(request.entryNo)}
+                      className="align-top transition hover:bg-[#f8fbff]"
+                    >
                       <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
                         {cleanDate(request.createdAt || request.incidentDate)}
                       </td>
                       <td className="min-w-72 px-5 py-4">
-                        <div className="font-medium text-forne-ink">
-                          {request.title || request.requestId || "Petición de incidencia"}
-                        </div>
-                        <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
-                          {request.description || "Sin descripción adicional."}
-                        </div>
-                        {request.requestId ? (
-                          <div className="mt-2 text-xs text-forne-muted/80">
-                            Id petición: {request.requestId}
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+                            <BrandIcon name="guide" className="h-4 w-4" />
+                          </span>
+                          <div>
+                            <div className="font-medium text-forne-ink">
+                              {request.title || request.requestId || "Petición de incidencia"}
+                            </div>
+                            <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
+                              {request.description || "Sin descripción adicional."}
+                            </div>
+                            {request.requestId ? (
+                              <div className="mt-2 text-xs text-forne-muted/80">
+                                Id petición: {request.requestId}
+                              </div>
+                            ) : null}
                           </div>
-                        ) : null}
+                        </div>
                       </td>
                       <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                        {caseTypeLabel(request.caseType)}
+                        <span className="inline-flex rounded-full border border-forne-line bg-[#f8fbff] px-3 py-1 text-xs font-semibold text-forne-ink">
+                          {caseTypeLabel(request.caseType)}
+                        </span>
                       </td>
                       <td className="min-w-52 px-5 py-4 text-forne-muted">
                         <div>{request.refDescription || "Sin referencia"}</div>

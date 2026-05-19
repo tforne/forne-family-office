@@ -61,7 +61,7 @@ export default function InvoicePdfButton({ invoiceId }: Props) {
         type="button"
         onClick={handleClick}
         disabled={isLoading}
-        className="inline-flex rounded-xl border border-forne-line bg-white px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud disabled:cursor-wait disabled:opacity-70"
+        className="inline-flex rounded-2xl border border-forne-line bg-white px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud disabled:cursor-wait disabled:opacity-70"
       >
         {isLoading ? "Abriendo PDF..." : "Ver PDF oficial"}
       </button>

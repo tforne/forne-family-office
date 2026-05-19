@@ -52,9 +52,10 @@ export default function NoticeReadButton({
         disabled={lineNo == null || status === "sending" || status === "done"}
         className={
           compact
-            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
-            : "inline-flex rounded-xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+            ? "inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud disabled:cursor-not-allowed disabled:opacity-60"
+            : "ffo-portal-button inline-flex rounded-2xl bg-forne-ink px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
         }
+        aria-live="polite"
       >
         {status === "sending"
           ? "Guardando..."

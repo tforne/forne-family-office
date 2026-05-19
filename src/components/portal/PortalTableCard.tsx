@@ -10,12 +10,18 @@ export default function PortalTableCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-forne-line bg-white shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
-      <div className="border-b border-forne-line/80 bg-[#fbfcfd] px-6 py-5">
+    <div className="ffo-portal-card overflow-hidden rounded-[30px]">
+      <div className="border-b border-forne-line/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(247,251,255,0.92)_100%)] px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="text-lg font-semibold tracking-tight text-forne-ink">{title}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">
+              Datos
+            </div>
+            <div className="mt-2 text-lg font-semibold tracking-tight text-forne-ink">{title}</div>
             {subtitle ? <div className="mt-1 text-sm leading-6 text-forne-muted">{subtitle}</div> : null}
+            <div className="mt-2 max-w-xs text-xs leading-5 text-forne-muted sm:hidden">
+              Desliza horizontalmente si necesitas ver todas las columnas.
+            </div>
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>

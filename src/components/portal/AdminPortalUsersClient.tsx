@@ -142,7 +142,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
     <div className="space-y-6">
       {(message || error) ? (
         <div
-          className={`border px-4 py-3 text-sm ${
+          className={`rounded-2xl border px-4 py-3 text-sm ${
             error
               ? "border-rose-200 bg-rose-50 text-rose-800"
               : "border-emerald-200 bg-emerald-50 text-emerald-800"
@@ -152,7 +152,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
         </div>
       ) : null}
 
-      <section className="border border-slate-300 bg-white p-5">
+      <section className="ffo-portal-card rounded-[28px] p-5">
         <h2 className="text-lg font-semibold text-slate-950">Crear acceso portal</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Para emails externos usa invitación. Si el email pertenece a un dominio interno del tenant, crea el acceso interno indicando el External User Id.
@@ -171,7 +171,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
               name="email"
               type="email"
               required
-              className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
+              className="ffo-portal-input w-full rounded-2xl px-3 py-2.5 text-sm outline-none"
             />
           </label>
           <label className="space-y-2">
@@ -179,7 +179,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
             <input
               name="customerNo"
               required
-              className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
+              className="ffo-portal-input w-full rounded-2xl px-3 py-2.5 text-sm outline-none"
             />
           </label>
           <label className="space-y-2">
@@ -187,7 +187,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
             <input
               name="externalUserId"
               placeholder="Obligatorio para acceso interno"
-              className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
+              className="ffo-portal-input w-full rounded-2xl px-3 py-2.5 text-sm outline-none"
             />
           </label>
           <label className="space-y-2">
@@ -195,14 +195,14 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
             <input
               name="languageCode"
               placeholder="ESP"
-              className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
+              className="ffo-portal-input w-full rounded-2xl px-3 py-2.5 text-sm outline-none"
             />
           </label>
           <label className="space-y-2">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">Empresa BC</span>
             <input
               name="bcCompanyName"
-              className="w-full border border-slate-400 px-3 py-2 text-sm outline-none focus:border-teal-700"
+              className="ffo-portal-input w-full rounded-2xl px-3 py-2.5 text-sm outline-none"
             />
           </label>
           <div className="lg:col-span-5">
@@ -210,7 +210,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
               <button
                 type="submit"
                 disabled={pending === "create" || pending === "create-internal"}
-                className="bg-teal-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="ffo-portal-button rounded-2xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {pending === "create" ? "Creando..." : "Crear e invitar"}
               </button>
@@ -220,7 +220,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
                   void createUser("internal");
                 }}
                 disabled={pending === "create" || pending === "create-internal"}
-                className="border border-slate-400 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl border border-slate-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {pending === "create-internal" ? "Creando..." : "Crear acceso interno"}
               </button>
@@ -229,10 +229,11 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
         </form>
       </section>
 
-      <section className="overflow-hidden border border-slate-300 bg-white">
+      <section className="ffo-portal-card overflow-hidden rounded-[28px]">
         <div className="border-b border-slate-300 px-5 py-4">
           <h2 className="text-lg font-semibold text-slate-950">Usuarios portal</h2>
           <p className="mt-1 text-sm text-slate-600">{users.length} usuario{users.length === 1 ? "" : "s"} encontrado{users.length === 1 ? "" : "s"}</p>
+          <div className="mt-2 text-xs text-slate-500 sm:hidden">Desliza para ver todas las columnas.</div>
         </div>
 
         {users.length === 0 ? (
@@ -240,7 +241,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-300 text-left text-sm">
-              <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
+              <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-slate-600">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Usuario</th>
                   <th className="px-5 py-3 font-semibold">Cliente</th>
@@ -252,7 +253,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
                 {users.map((user) => (
-                  <tr key={user.id || `${user.email}-${user.customerNo}`} className="align-top">
+                  <tr key={user.id || `${user.email}-${user.customerNo}`} className="align-top transition hover:bg-[#f8fbff]">
                     <td className="min-w-72 px-5 py-4">
                       <div className="font-medium text-slate-950">{user.email || "-"}</div>
                       <div className="mt-1 max-w-80 break-all text-xs text-slate-600">{user.externalUserId || "Sin External User Id"}</div>
@@ -278,7 +279,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
                           type="button"
                           disabled={Boolean(pending)}
                           onClick={() => updateUser(user, { portalEnabled: !user.portalEnabled }, "enabled")}
-                          className="border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
+                          className="rounded-xl border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
                         >
                           {user.portalEnabled ? "Desactivar" : "Activar"}
                         </button>
@@ -286,7 +287,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
                           type="button"
                           disabled={Boolean(pending)}
                           onClick={() => updateUser(user, { blocked: !user.blocked }, "blocked")}
-                          className="border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
+                          className="rounded-xl border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
                         >
                           {user.blocked ? "Desbloquear" : "Bloquear"}
                         </button>
@@ -294,7 +295,7 @@ export default function AdminPortalUsersClient({ users }: { users: PortalUserDto
                           type="button"
                           disabled={Boolean(pending)}
                           onClick={() => updateUser(user, { invitationStatus: "Pending" }, "invite")}
-                          className="border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
+                          className="rounded-xl border border-slate-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-slate-100 disabled:opacity-60"
                         >
                           Marcar invitación
                         </button>

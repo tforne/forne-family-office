@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import BrandIcon from "@/components/brand/BrandIcon";
 
 type ConfirmationDialogProps = {
   isOpen: boolean;
@@ -52,8 +53,8 @@ export default function ConfirmationDialog({
 
   const confirmClassName =
     tone === "danger"
-      ? "bg-[#201614] text-white hover:bg-[#120b0a]"
-      : "bg-forne-ink text-white hover:bg-forne-ink/92";
+      ? "ffo-portal-button bg-[#201614] text-white hover:bg-[#120b0a]"
+      : "ffo-portal-button bg-forne-ink text-white hover:bg-forne-ink/92";
 
   return (
     <div
@@ -70,8 +71,12 @@ export default function ConfirmationDialog({
         aria-describedby="confirmation-dialog-description"
       >
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f172a_0%,#334155_100%)] text-sm font-semibold text-white shadow-[0_18px_32px_-20px_rgba(15,23,42,0.9)]">
-            F
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold text-white shadow-[0_18px_32px_-20px_rgba(15,23,42,0.9)] ${
+            tone === "danger"
+              ? "bg-[linear-gradient(135deg,#7f1d1d_0%,#991b1b_100%)]"
+              : "bg-[linear-gradient(135deg,#0f172a_0%,#334155_100%)]"
+          }`}>
+            <BrandIcon name={tone === "danger" ? "attention" : "clarity"} className="h-4.5 w-4.5" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">

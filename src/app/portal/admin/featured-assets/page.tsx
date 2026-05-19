@@ -18,16 +18,15 @@ export default async function AdminFeaturedAssetsPage() {
   return (
     <div className="space-y-8">
       <section id="featured-assets-admin" className="space-y-5">
-        <div className="border-b border-slate-300 pb-4">
-          <div>
-            <h2 className="text-xl font-semibold">Activos en portada</h2>
-            <p className="mt-1 text-sm text-slate-600">
-              La home pública ya no se edita manualmente desde el portal.
-            </p>
-          </div>
+        <div className="ffo-portal-dark rounded-[30px] border border-white/8 p-6 text-white">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Administración</div>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight">Activos en portada</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-white/72">
+            La home pública ya no se edita manualmente desde el portal.
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-forne-line bg-white p-6 shadow-sm">
+        <div className="ffo-portal-card rounded-[28px] p-6">
           <p className="text-sm leading-7 text-forne-muted">
             Los activos visibles en portada se obtienen automáticamente desde Business Central.
             Se muestran los inmuebles cuyo estado sea <strong>En alquiler</strong>, hasta un máximo de tres.
@@ -37,7 +36,7 @@ export default async function AdminFeaturedAssetsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <div className="ffo-portal-card rounded-[28px] p-6">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
             Diagnóstico BC
           </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandIcon from "@/components/brand/BrandIcon";
 import { getAssets } from "@/lib/portal/assets.service";
 import { getAssetAttributes } from "@/lib/portal/asset-attributes.service";
 import { getContractLines } from "@/lib/portal/contract-lines.service";
@@ -195,10 +196,28 @@ function DetailCard({
   helper?: string;
 }) {
   return (
-    <div className="rounded-2xl bg-[#F7FAFC] p-5">
+    <div className="rounded-[24px] bg-[linear-gradient(180deg,#f8fbff_0%,#f1f7ff_100%)] p-5">
       <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
       <div className="mt-3 text-xl font-semibold text-forne-ink">{value}</div>
       {helper ? <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div> : null}
+    </div>
+  );
+}
+
+function DossierCard({
+  label,
+  value,
+  helper
+}: {
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-forne-line bg-[linear-gradient(180deg,#fbfdff_0%,#f5f9fe_100%)] p-5 shadow-[0_18px_38px_-34px_rgba(15,47,87,0.2)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+      <div className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">{value}</div>
+      <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div>
     </div>
   );
 }
@@ -243,26 +262,82 @@ export default async function ContractsPage() {
   const showAssetsDiagnostics = assetsResult.failed;
   const showAssetAttributesDiagnostics = assetAttributesResult.failed;
   const showEquipmentDiagnostics = equipmentResult.failed;
+  const recommendedContractAction = nextPendingInvoice
+    ? `Tu siguiente revisión recomendable está en el recibo con vencimiento ${formatDate(nextPendingInvoice.dueDate)}.`
+    : "No vemos un vencimiento económico inmediato; esta ficha funciona como expediente operativo y contractual.";
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Activo inmobiliario</div>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Ficha del inmueble</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-forne-muted">
-            {introText}
-          </p>
+    <div className="space-y-6 sm:space-y-8">
+      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+        <div className="relative z-[1] grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+              Activo inmobiliario
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.35rem]">Ficha del inmueble</h1>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72">
+              {introText}
+            </p>
+            <div className="mt-5 rounded-[22px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur xl:max-w-[42rem]">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Lectura recomendada</div>
+              <div className="mt-2 text-base font-semibold text-white">{recommendedContractAction}</div>
+              <div className="mt-2 text-sm leading-6 text-white/64">
+                Empieza por situación económica y contractual, y después baja a equipamientos, atributos y detalle técnico.
+              </div>
+            </div>
+            <div className="mt-6">
+              <Link
+                href="/portal"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+              >
+                <span aria-hidden="true">‹</span>
+                Volver al resumen
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Contrato</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{primaryContract?.contractNo || "-"}</div>
+              <div className="mt-1 text-xs text-white/65">referencia principal</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Estado</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{statusLabel(primaryAsset?.status || primaryContract?.status)}</div>
+              <div className="mt-1 text-xs text-white/65">situación operativa actual</div>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Equipamientos</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{visibleEquipment.length}</div>
+              <div className="mt-1 text-xs text-white/65">elementos registrados</div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <Link
-          href="/portal"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-        >
-          <span aria-hidden="true">‹</span>
-          Volver al resumen
-        </Link>
-      </div>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <DossierCard
+          label="Contrato"
+          value={primaryContract?.contractNo || "-"}
+          helper="Referencia principal vinculada al activo."
+        />
+        <DossierCard
+          label="Estado"
+          value={statusLabel(primaryAsset?.status || primaryContract?.status)}
+          helper="Situación operativa visible en el portal."
+        />
+        <DossierCard
+          label="Próxima facturación"
+          value={formatDate(primaryContract?.nextInvoiceDate || nextPendingInvoice?.dueDate)}
+          helper="Siguiente hito económico registrado."
+        />
+        <DossierCard
+          label="Fin de contrato"
+          value={formatDate(primaryContract?.expirationDate)}
+          helper="Fecha contractual relevante para seguimiento."
+        />
+      </section>
 
       {showAssetsWarning ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
@@ -312,7 +387,7 @@ export default async function ContractsPage() {
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-[30px] bg-[#0B1020] p-6 text-white shadow-[0_30px_90px_-40px_rgba(11,16,32,0.65)] sm:p-8 lg:p-10">
+      <section className="ffo-portal-dark overflow-hidden rounded-[34px] p-5 text-white sm:p-8 lg:p-10">
         <div className="text-xs font-semibold uppercase tracking-[0.32em] text-[#CBB89A]">Activo principal</div>
         <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.3rem]">
           {buildFallbackAssetTitle(primaryAsset, primaryContract)}
@@ -351,8 +426,8 @@ export default async function ContractsPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-3">
-        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)] xl:col-span-2">
-          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Características del inmueble</div>
+        <article className="ffo-portal-card rounded-[30px] p-5 sm:p-6 xl:col-span-2">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Ficha descriptiva</div>
           <h3 className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">
             {buildFallbackAssetTitle(primaryAsset, primaryContract)}
           </h3>
@@ -374,53 +449,53 @@ export default async function ContractsPage() {
           </div>
 
           <div className="mt-8 border-t border-forne-line pt-6">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Detalle contrato</div>
-            <div className="mt-4 overflow-hidden rounded-2xl border border-forne-line">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Resumen contractual</div>
+            <div className="mt-4 overflow-x-auto rounded-2xl border border-forne-line">
               <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                   <tr>
-                    <th className="px-5 py-4 font-semibold">Concepto</th>
-                    <th className="px-5 py-4 font-semibold">Valor</th>
-                    <th className="px-5 py-4 font-semibold">Detalle</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Concepto</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Valor</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Detalle</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-forne-line bg-white">
                   <tr>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
                       <div className="font-medium text-forne-ink">Periodicidad</div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">{invoicePeriodLabel(primaryContract?.invoicePeriod)}</td>
-                    <td className="px-5 py-4 text-forne-muted">Frecuencia de facturación del contrato.</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{invoicePeriodLabel(primaryContract?.invoicePeriod)}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">Frecuencia de facturación del contrato.</td>
                   </tr>
                   <tr>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
                       <div className="font-medium text-forne-ink">Renta por periodo</div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       {formatMoney(primaryContract?.amountPerPeriod ?? primaryAsset?.lastContractPrice)}
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">Importe vigente aplicado a cada periodo.</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">Importe vigente aplicado a cada periodo.</td>
                   </tr>
                   <tr>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
                       <div className="font-medium text-forne-ink">Importe anual</div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">{formatMoney(primaryContract?.annualAmount)}</td>
-                    <td className="px-5 py-4 text-forne-muted">Total anual informado en el contrato.</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{formatMoney(primaryContract?.annualAmount)}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">Total anual informado en el contrato.</td>
                   </tr>
                   <tr>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
                       <div className="font-medium text-forne-ink">Fianza</div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">{formatMoney(primaryContract?.amountRentalDeposit)}</td>
-                    <td className="px-5 py-4 text-forne-muted">Garantía económica asociada al alquiler.</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{formatMoney(primaryContract?.amountRentalDeposit)}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">Garantía económica asociada al alquiler.</td>
                   </tr>
                   <tr>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
                       <div className="font-medium text-forne-ink">Próxima facturación</div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">{formatDate(primaryContract?.nextInvoiceDate)}</td>
-                    <td className="px-5 py-4 text-forne-muted">
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{formatDate(primaryContract?.nextInvoiceDate)}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       {primaryContract?.description || "Siguiente vencimiento registrado para el contrato."}
                     </td>
                   </tr>
@@ -440,21 +515,21 @@ export default async function ContractsPage() {
                 No hay líneas de contrato disponibles para este contrato en este momento.
               </div>
             ) : (
-              <div className="mt-4 overflow-hidden rounded-2xl border border-forne-line">
+              <div className="mt-4 overflow-x-auto rounded-2xl border border-forne-line">
                 <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                  <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                  <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                     <tr>
-                      <th className="px-5 py-4 font-semibold">Descripción</th>
-                      <th className="px-5 py-4 font-semibold">Importe</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Descripción</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Importe</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-forne-line bg-white">
                     {visibleContractLines.map((line) => (
-                      <tr key={line.id}>
-                        <td className="px-5 py-4">
+                      <tr key={line.id} className="transition hover:bg-[#f8fbff]">
+                        <td className="px-4 py-3 sm:px-5 sm:py-4">
                           <div className="font-medium text-forne-ink">{safeText(line.description, "Sin descripción")}</div>
                         </td>
-                        <td className="px-5 py-4 text-forne-muted">
+                        <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                           {line.amount != null
                             ? formatMoneyOrBlankWhenZero(line.amount, line.currencyCode || "EUR")
                             : line.amountIncludingVat != null
@@ -470,8 +545,8 @@ export default async function ContractsPage() {
           </div>
         </article>
 
-        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Resumen económico</div>
+        <article className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Dossier económico</div>
           <div className="mt-6 space-y-5">
             <div>
               <div className="text-sm text-forne-muted">Último precio de alquiler</div>
@@ -497,7 +572,7 @@ export default async function ContractsPage() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+      <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Equipamientos</div>
@@ -511,32 +586,39 @@ export default async function ContractsPage() {
             No hay equipamientos registrados para este inmueble en este momento.
           </div>
         ) : (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-forne-line">
             <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-              <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+              <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                 <tr>
-                  <th className="px-5 py-4 font-semibold">Descripción</th>
-                  <th className="px-5 py-4 font-semibold">Cantidad</th>
-                  <th className="px-5 py-4 font-semibold">Modelo</th>
-                  <th className="px-5 py-4 font-semibold">Serie</th>
-                  <th className="px-5 py-4 font-semibold">Garantía</th>
-                  <th className="px-5 py-4 font-semibold">Mantenimiento</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Descripción</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Cantidad</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Modelo</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Serie</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Garantía</th>
+                  <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Mantenimiento</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-forne-line bg-white">
                 {visibleEquipment.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-5 py-4">
-                      <div className="font-medium text-forne-ink">{safeText(item.description, "Sin descripción")}</div>
-                      <div className="mt-1 text-xs text-forne-muted">
-                        Alta: {formatDate(item.acquisitionDate)}
+                  <tr key={item.id} className="transition hover:bg-[#f8fbff]">
+                    <td className="px-4 py-3 sm:px-5 sm:py-4">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+                          <BrandIcon name="operations" className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <div className="font-medium text-forne-ink">{safeText(item.description, "Sin descripción")}</div>
+                          <div className="mt-1 text-xs text-forne-muted">
+                            Alta: {formatDate(item.acquisitionDate)}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-forne-muted">{formatNumber(item.quantity)}</td>
-                    <td className="px-5 py-4 text-forne-muted">{safeText(item.modelNo, "-")}</td>
-                    <td className="px-5 py-4 text-forne-muted">{safeText(item.serialNo, "-")}</td>
-                    <td className="px-5 py-4 text-forne-muted">{safeText(item.equipmentWarrantyPeriod, "-")}</td>
-                    <td className="px-5 py-4 text-forne-muted">
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{formatNumber(item.quantity)}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(item.modelNo, "-")}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(item.serialNo, "-")}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(item.equipmentWarrantyPeriod, "-")}</td>
+                    <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
                       {formatBoolean(item.needMaintenance)}
                       {item.maintenanceContractNo ? ` · ${item.maintenanceContractNo}` : ""}
                     </td>
@@ -549,7 +631,7 @@ export default async function ContractsPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+        <article className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Contrato vinculado</div>
           <h3 className="mt-3 text-2xl font-semibold tracking-tight text-forne-ink">
             {safeText(primaryContract?.contractNo, "Sin contrato principal")}
@@ -568,7 +650,7 @@ export default async function ContractsPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+        <article className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Atributos del inmueble</div>
@@ -582,25 +664,25 @@ export default async function ContractsPage() {
               No hay atributos disponibles para este inmueble en este momento.
             </div>
           ) : (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-forne-line">
+            <div className="mt-6 overflow-x-auto rounded-2xl border border-forne-line">
               <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                <thead className="bg-[#FBFCFD] text-xs uppercase tracking-wide text-forne-muted">
+                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                   <tr>
-                    <th className="px-5 py-4 font-semibold">Atributo</th>
-                    <th className="px-5 py-4 font-semibold">Valor</th>
-                    <th className="px-5 py-4 font-semibold">Unidad</th>
-                    <th className="px-5 py-4 font-semibold">Comentario</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Atributo</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Valor</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Unidad</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Comentario</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-forne-line bg-white">
                   {visibleAssetAttributes.map((attribute) => (
-                    <tr key={attribute.id}>
-                      <td className="px-5 py-4">
+                    <tr key={attribute.id} className="transition hover:bg-[#f8fbff]">
+                      <td className="px-4 py-3 sm:px-5 sm:py-4">
                         <div className="font-medium text-forne-ink">{safeText(attribute.attributeName, "Sin atributo")}</div>
                       </td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.value, "No disponible")}</td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.unitOfMeasure, "-")}</td>
-                      <td className="px-5 py-4 text-forne-muted">{safeText(attribute.comment, "-")}</td>
+                      <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(attribute.value, "No disponible")}</td>
+                      <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(attribute.unitOfMeasure, "-")}</td>
+                      <td className="px-4 py-3 text-forne-muted sm:px-5 sm:py-4">{safeText(attribute.comment, "-")}</td>
                     </tr>
                   ))}
                 </tbody>

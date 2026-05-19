@@ -76,9 +76,9 @@ export default function DownloadLatestInvoicesButton({
         type="button"
         onClick={handleClick}
         disabled={isLoading}
-        className="inline-flex items-center justify-center rounded-xl border border-forne-line bg-white px-4 py-2 text-sm font-semibold text-forne-ink shadow-sm transition hover:bg-forne-cloud disabled:cursor-wait disabled:opacity-70"
+        className="inline-flex items-center justify-center rounded-2xl border border-forne-line bg-white px-4 py-2.5 text-sm font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud disabled:cursor-wait disabled:opacity-70"
       >
-        {isLoading ? "Preparando descarga..." : `Descargar ultimas ${invoices.length}`}
+        {isLoading ? "Preparando descarga..." : `Descargar últimas ${invoices.length}`}
       </button>
       {statusMessage ? (
         <div className={`max-w-sm rounded-2xl border px-3 py-2 text-xs leading-5 shadow-sm ${statusClassName}`}>

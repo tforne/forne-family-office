@@ -1,6 +1,7 @@
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import NoticeReadButton from "@/components/portal/NoticeReadButton";
 import Link from "next/link";
+import BrandIcon from "@/components/brand/BrandIcon";
 import { listNewsItems } from "@/lib/content/news";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
@@ -134,30 +135,35 @@ function NoticeCard({ notice }: { notice: TenantMyNoticeDto }) {
   const showReadAction = notice.isUnread || requiresConfirmation;
 
   return (
-    <article className={`rounded-3xl border bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)] ${
+    <article className={`ffo-portal-card rounded-[30px] p-6 ${
       requiresConfirmation ? "border-amber-300 ring-1 ring-amber-200" : "border-forne-line"
     }`}>
-      <div className="flex flex-wrap items-center gap-2">
-        {notice.isUnread ? (
-          <span className="rounded-full bg-forne-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
-            Nuevo
-          </span>
-        ) : null}
-        {requiresConfirmation ? (
-          <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800 ring-1 ring-amber-200">
-            Confirmación requerida
-          </span>
-        ) : null}
-        {notice.priority ? (
-          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ring-1 ${noticePriorityClass(notice.priority)}`}>
-            {notice.priority}
-          </span>
-        ) : null}
-        {notice.noticeType ? (
-          <span className="rounded-full bg-forne-cloud px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted ring-1 ring-forne-line">
-            {notice.noticeType}
-          </span>
-        ) : null}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {notice.isUnread ? (
+            <span className="rounded-full bg-forne-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+              Nuevo
+            </span>
+          ) : null}
+          {requiresConfirmation ? (
+            <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800 ring-1 ring-amber-200">
+              Confirmación requerida
+            </span>
+          ) : null}
+          {notice.priority ? (
+            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ring-1 ${noticePriorityClass(notice.priority)}`}>
+              {notice.priority}
+            </span>
+          ) : null}
+          {notice.noticeType ? (
+            <span className="rounded-full bg-forne-cloud px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted ring-1 ring-forne-line">
+              {notice.noticeType}
+            </span>
+          ) : null}
+        </div>
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+          <BrandIcon name="attention" className="h-4.5 w-4.5" />
+        </span>
       </div>
 
       <h3 className="mt-4 text-xl font-semibold tracking-tight text-forne-ink">
@@ -288,9 +294,14 @@ function QuickActionCard({
   return (
     <Link
       href={href}
-      className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)] transition hover:-translate-y-0.5 hover:border-[#0078D4]/30 hover:shadow-[0_32px_70px_-40px_rgba(15,23,42,0.3)]"
+      className="ffo-portal-card group rounded-[30px] p-6 transition hover:-translate-y-1 hover:border-[#0078D4]/30 hover:shadow-[0_32px_70px_-40px_rgba(15,23,42,0.3)]"
     >
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">Autoservicio</div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">Autoservicio</div>
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8] transition group-hover:translate-x-0.5">
+          <BrandIcon name="arrow" className="h-4 w-4" />
+        </span>
+      </div>
       <h3 className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-forne-muted">{description}</p>
       <div className="mt-4 text-sm font-semibold text-[#0078D4]">{helper}</div>
@@ -306,10 +317,169 @@ function HelpItem({
   description: string;
 }) {
   return (
-    <article className="rounded-2xl border border-forne-line bg-white/80 p-5">
+    <article className="rounded-[26px] border border-forne-line bg-white/86 p-5 shadow-[0_20px_45px_-36px_rgba(15,47,87,0.22)]">
       <h3 className="text-base font-semibold text-forne-ink">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
     </article>
+  );
+}
+
+function HeroMetric({
+  label,
+  value,
+  helper
+}: {
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/50">{label}</div>
+      <div className="mt-2 text-3xl font-semibold text-white">{value}</div>
+      <div className="mt-1 text-xs text-white/65">{helper}</div>
+    </div>
+  );
+}
+
+function ConciergeActionCard({
+  href,
+  eyebrow,
+  title,
+  description,
+  cta,
+  tone = "default"
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  cta: string;
+  tone?: "default" | "urgent" | "calm";
+}) {
+  const toneClass =
+    tone === "urgent"
+      ? "border-amber-200 bg-[linear-gradient(180deg,rgba(255,251,235,0.96)_0%,rgba(255,247,237,0.98)_100%)]"
+      : tone === "calm"
+        ? "border-emerald-200 bg-[linear-gradient(180deg,rgba(240,253,244,0.96)_0%,rgba(247,254,250,0.98)_100%)]"
+        : "border-forne-line bg-white/96";
+
+  return (
+    <Link
+      href={href}
+      className={`group rounded-[28px] border p-5 shadow-[0_24px_55px_-40px_rgba(15,47,87,0.24)] transition hover:-translate-y-1 hover:shadow-[0_32px_70px_-42px_rgba(15,47,87,0.32)] ${toneClass}`}
+    >
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{eyebrow}</div>
+      <h3 className="mt-3 text-lg font-semibold tracking-tight text-forne-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
+      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition group-hover:text-[#0078D4]">
+        {cta}
+        <BrandIcon name="arrow" className="h-4 w-4" />
+      </div>
+    </Link>
+  );
+}
+
+function ActivityItem({
+  eyebrow,
+  title,
+  description,
+  href,
+  cta
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  href?: string;
+  cta?: string;
+}) {
+  return (
+    <article className="rounded-[24px] border border-forne-line bg-white/92 p-5 shadow-[0_18px_38px_-34px_rgba(15,47,87,0.22)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{eyebrow}</div>
+      <h3 className="mt-3 text-base font-semibold text-forne-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
+      {href && cta ? (
+        <Link
+          href={href}
+          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+        >
+          {cta}
+          <BrandIcon name="arrow" className="h-4 w-4" />
+        </Link>
+      ) : null}
+    </article>
+  );
+}
+
+function MilestoneCard({
+  label,
+  value,
+  helper
+}: {
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-forne-line bg-white/94 p-5 shadow-[0_18px_40px_-34px_rgba(15,47,87,0.22)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+      <div className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{value}</div>
+      <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div>
+    </div>
+  );
+}
+
+function TimelineStep({
+  label,
+  title,
+  description
+}: {
+  label: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="relative pl-8">
+      <span className="absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-white/18 bg-white/12">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+      </span>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/48">{label}</div>
+      <div className="mt-2 text-base font-semibold text-white">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-white/64">{description}</div>
+    </div>
+  );
+}
+
+function DataSectionHeader({
+  kicker,
+  title,
+  description,
+  href,
+  cta
+}: {
+  kicker: string;
+  title: string;
+  description: string;
+  href?: string;
+  cta?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">{kicker}</div>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
+      </div>
+      {href && cta ? (
+        <Link
+          href={href}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+        >
+          {cta}
+          <span aria-hidden="true">›</span>
+        </Link>
+      ) : null}
+    </div>
   );
 }
 
@@ -364,11 +534,199 @@ export default async function PortalPage() {
   const greeting = `${greetingForNow()}${me?.customerName ? `, ${me.customerName}` : ""}`;
   const unreadNotices = notices.filter((notice) => notice.isUnread).length;
   const hasPendingInvoice = Boolean(nextPendingInvoice);
+  const contractLabel = primaryContract?.fixedRealEstateDescription || primaryContract?.description || primaryContract?.contractNo || "tu contrato principal";
+  const executiveStatus =
+    unreadNotices > 0
+      ? {
+          label: "Atención requerida",
+          helper: "Hay avisos o confirmaciones que conviene revisar primero.",
+          chipClass: "bg-amber-50 text-amber-900 ring-amber-200"
+        }
+      : hasPendingInvoice
+        ? {
+            label: "Seguimiento económico",
+            helper: "Tu próxima acción recomendable está en facturación.",
+            chipClass: "bg-[#eaf3ff] text-[#123861] ring-[#bcd8fb]"
+          }
+        : openIncidents > 0
+          ? {
+              label: "Gestiones en curso",
+              helper: "Tienes incidencias abiertas en seguimiento.",
+              chipClass: "bg-emerald-50 text-emerald-800 ring-emerald-200"
+            }
+          : {
+              label: "Situación estable",
+              helper: "No detectamos acciones urgentes ahora mismo.",
+              chipClass: "bg-slate-100 text-slate-700 ring-slate-200"
+            };
+  const conciergeHeadline =
+    unreadNotices > 0
+      ? `Hoy te conviene empezar por los avisos vinculados a ${contractLabel}.`
+      : hasPendingInvoice
+        ? `Tu siguiente punto de control está en la facturación de ${contractLabel}.`
+        : openIncidents > 0
+          ? `La prioridad ahora es seguir el avance de tus gestiones activas en ${contractLabel}.`
+          : `Tu portal está al día y puedes usarlo como centro privado de seguimiento para ${contractLabel}.`;
+  const conciergeSummary =
+    unreadNotices > 0
+      ? `${unreadNotices} aviso(s) pendiente(s), ${pendingInvoices} factura(s) por revisar y ${openIncidents} incidencia(s) abierta(s).`
+      : hasPendingInvoice
+        ? `${pendingInvoices} factura(s) pendiente(s), ${openIncidents} incidencia(s) activa(s) y ${pendingIncidentRequests} petición(es) en curso.`
+        : `${activeContracts} contrato(s) activo(s), ${openIncidents} incidencia(s) abierta(s) y ${pendingIncidentRequests} petición(es) de seguimiento.`;
+  const nextMilestoneLabel = hasPendingInvoice
+    ? formatDate(nextPendingInvoice?.dueDate)
+    : formatDate(primaryContract?.nextInvoiceDate || primaryContract?.expirationDate);
+  const nextMilestoneTitle = hasPendingInvoice ? "Próximo vencimiento" : "Siguiente hito contractual";
+  const nextMilestoneDescription = hasPendingInvoice
+    ? `Recibo previsto por ${formatMoney(nextPendingInvoice?.remainingAmount, nextPendingInvoice?.currencyCode)}.`
+    : primaryContract?.expirationDate
+      ? `Tu contrato principal tiene como siguiente referencia el ${formatDate(primaryContract.expirationDate)}.`
+      : "No hay hitos económicos o contractuales inmediatos informados.";
+  const nextInvoiceDateValue = formatDate(primaryContract?.nextInvoiceDate || nextPendingInvoice?.dueDate);
+  const contractEndDateValue = formatDate(primaryContract?.expirationDate);
+  const recentActivity = [
+    unreadNotices > 0
+      ? {
+          eyebrow: "Avisos recientes",
+          title: `${unreadNotices} comunicación(es) pendiente(s)`,
+          description: "El portal detecta avisos sin revisar o con confirmación de lectura pendiente para que empieces por ellos.",
+          href: "/portal/notices",
+          cta: "Entrar en avisos"
+        }
+      : {
+          eyebrow: "Comunicaciones",
+          title: "Bandeja de avisos al día",
+          description: "No hay comunicaciones urgentes pendientes. Mantienes el histórico accesible desde el portal.",
+          href: "/portal/notices",
+          cta: "Ver bandeja"
+        },
+    hasPendingInvoice
+      ? {
+          eyebrow: "Facturación",
+          title: `Próximo recibo previsto el ${formatDate(nextPendingInvoice?.dueDate)}`,
+          description: `Hay importes pendientes para ${contractLabel}. Puedes revisar detalle, descargar y resolverlo desde la sección de facturas.`,
+          href: "/portal/invoices",
+          cta: "Abrir facturación"
+        }
+      : {
+          eyebrow: "Facturación",
+          title: "Sin importes pendientes",
+          description: "No vemos necesidad de actuación inmediata en recibos. La sección de facturas queda disponible como archivo y consulta.",
+          href: "/portal/invoices",
+          cta: "Ver histórico"
+        },
+    openIncidents > 0
+      ? {
+          eyebrow: "Seguimiento técnico",
+          title: `${openIncidents} incidencia(s) activa(s)`,
+          description: "Tus gestiones siguen abiertas y el portal centraliza avance, contactos y referencia contractual asociada.",
+          href: "/portal/incidents",
+          cta: "Seguir incidencias"
+        }
+      : {
+          eyebrow: "Seguimiento técnico",
+          title: "Sin incidencias abiertas",
+          description: "No hay gestiones técnicas activas en este momento. Si surge algo, puedes abrir una nueva incidencia desde el portal.",
+          href: "/portal/incidents",
+          cta: "Abrir incidencias"
+        }
+  ];
+  const advisorName = primaryContract?.description || primaryContract?.contractNo || me?.customerName || "Equipo Forné Family Office";
+  const advisorContact = primaryContract?.email || insuranceEmail || "office@forne.family";
+  const advisorPhone = primaryContract?.phoneNo || insurancePhone || "No disponible";
+  const recommendedJourney = [
+    unreadNotices > 0
+      ? {
+          label: "Paso 1",
+          title: "Revisa avisos y confirmaciones",
+          description: "Empieza por las comunicaciones pendientes para despejar bloqueos y asegurar trazabilidad contractual."
+        }
+      : {
+          label: "Paso 1",
+          title: "Mantén el contexto bajo control",
+          description: "Tus avisos están al día. Puedes usar el portal para una revisión rápida sin urgencias inmediatas."
+        },
+    hasPendingInvoice
+      ? {
+          label: "Paso 2",
+          title: "Valida la próxima facturación",
+          description: `Comprueba el recibo previsto para ${formatDate(nextPendingInvoice?.dueDate)} y descarga la documentación si la necesitas.`
+        }
+      : {
+          label: "Paso 2",
+          title: "Consulta la situación económica",
+          description: "No hay importes pendientes, pero la sección de facturas sigue siendo tu histórico privado de referencia."
+        },
+    openIncidents > 0
+      ? {
+          label: "Paso 3",
+          title: "Haz seguimiento de incidencias",
+          description: "Cierra el recorrido comprobando el avance de las gestiones activas y sus contactos asociados."
+        }
+      : {
+          label: "Paso 3",
+          title: "Cierra con revisión de contrato o perfil",
+          description: "Aprovecha para revisar tu contrato principal, próximos hitos y datos de contacto asociados."
+        }
+  ];
+  const focusActions = [
+    unreadNotices > 0
+      ? {
+          href: "/portal/notices",
+          eyebrow: "Prioridad inmediata",
+          title: `${unreadNotices} aviso(s) por revisar`,
+          description: "Empieza por las comunicaciones activas para confirmar lecturas y no perder contexto relevante del contrato.",
+          cta: "Abrir avisos",
+          tone: "urgent" as const
+        }
+      : {
+          href: "/portal/notices",
+          eyebrow: "Comunicaciones",
+          title: "Avisos al día",
+          description: "No hay avisos urgentes pendientes. Puedes revisar el histórico o futuras comunicaciones cuando quieras.",
+          cta: "Ver avisos",
+          tone: "calm" as const
+        },
+    hasPendingInvoice
+      ? {
+          href: "/portal/invoices",
+          eyebrow: "Siguiente acción",
+          title: `Factura pendiente para ${formatDate(nextPendingInvoice?.dueDate)}`,
+          description: `Consulta detalle, importe y descarga del próximo recibo previsto en ${contractLabel}.`,
+          cta: "Revisar facturación",
+          tone: "default" as const
+        }
+      : {
+          href: "/portal/invoices",
+          eyebrow: "Situación económica",
+          title: "Sin recibos pendientes",
+          description: "Tu facturación no requiere acción inmediata. Puedes entrar para descargar o revisar movimientos anteriores.",
+          cta: "Ver facturas",
+          tone: "calm" as const
+        },
+    openIncidents > 0
+      ? {
+          href: "/portal/incidents",
+          eyebrow: "Seguimiento activo",
+          title: `${openIncidents} incidencia(s) abierta(s)`,
+          description: "Haz seguimiento del estado, contactos y avances sin depender de llamadas o correos dispersos.",
+          cta: "Ir a incidencias",
+          tone: "default" as const
+        }
+      : {
+          href: "/portal/profile",
+          eyebrow: "Portal privado",
+          title: "Todo bajo control",
+          description: "Aprovecha este momento para revisar tus datos, contexto contractual y accesos de autoservicio.",
+          cta: "Revisar perfil",
+          tone: "default" as const
+        }
+  ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <div className="text-4xl font-semibold tracking-tight text-forne-ink">{greeting}</div>
+        <div className="text-3xl font-semibold tracking-tight text-forne-ink sm:text-4xl">{greeting}</div>
         <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Portal privado</div>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Resumen</h1>
         <p className="mt-2 text-sm leading-6 text-forne-muted">
@@ -384,41 +742,113 @@ export default async function PortalPage() {
 
       {!isAdmin ? (
         <div className="space-y-6">
-          <section className="rounded-[28px] border border-forne-line bg-[linear-gradient(135deg,#0F172A_0%,#172554_100%)] p-6 text-white shadow-[0_30px_70px_-40px_rgba(15,23,42,0.42)]">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">
-                  Centro de autoservicio
+          <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+            <div className="relative z-[1] flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+                  Dashboard concierge
                 </div>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                  Accesos rápidos para resolver gestiones sin esperar.
+                <div className={`mt-4 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ring-1 ${executiveStatus.chipClass}`}>
+                  {executiveStatus.label}
+                </div>
+                <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight sm:text-[2.35rem]">
+                  {conciergeHeadline}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-white/70">
-                  El objetivo del portal es que puedas consultar, entender y avanzar en tus
-                  gestiones con el menor rozamiento posible.
-                </p>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">{conciergeSummary}</p>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/58">{executiveStatus.helper}</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {unreadNotices > 0 ? (
+                    <Link
+                      href="/portal/notices"
+                      className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+                    >
+                      Revisar avisos
+                      <BrandIcon name="arrow" className="h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <Link
+                      href={hasPendingInvoice ? "/portal/invoices" : "/portal/incidents"}
+                      className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+                    >
+                      {hasPendingInvoice ? "Ir a facturación" : "Ver incidencias"}
+                      <BrandIcon name="arrow" className="h-4 w-4" />
+                    </Link>
+                  )}
+                  <Link
+                    href="/portal/contracts"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/12"
+                  >
+                    Ver contrato principal
+                  </Link>
+                </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Avisos</div>
-                  <div className="mt-2 text-2xl font-semibold">{unreadNotices}</div>
-                  <div className="mt-1 text-xs text-white/65">pendientes de revisar</div>
+              <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+                <HeroMetric label="Avisos" value={String(unreadNotices)} helper="pendientes de revisar" />
+                <HeroMetric label="Facturación" value={String(pendingInvoices)} helper="recibos pendientes" />
+                <HeroMetric label="Incidencias" value={String(openIncidents)} helper="gestiones abiertas" />
+              </div>
+            </div>
+
+            <div className="relative z-[1] mt-7 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
+              <div className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Resumen ejecutivo</div>
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
+                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">Contrato principal</div>
+                    <div className="mt-2 text-lg font-semibold text-white">
+                      {primaryContract?.contractNo || "Sin referencia"}
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-white/62">{contractLabel}</div>
+                  </div>
+                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
+                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">{nextMilestoneTitle}</div>
+                    <div className="mt-2 text-lg font-semibold text-white">{nextMilestoneLabel}</div>
+                    <div className="mt-2 text-sm leading-6 text-white/62">{nextMilestoneDescription}</div>
+                  </div>
+                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
+                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">Apoyo disponible</div>
+                    <div className="mt-2 text-lg font-semibold text-white">
+                      {insurancePhone || primaryContract?.phoneNo || "office@forne.family"}
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-white/62">
+                      Contacto rápido para seguimiento contractual, incidencias o soporte.
+                    </div>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Facturación</div>
-                  <div className="mt-2 text-2xl font-semibold">{pendingInvoices}</div>
-                  <div className="mt-1 text-xs text-white/65">recibos pendientes</div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/50">Incidencias</div>
-                  <div className="mt-2 text-2xl font-semibold">{openIncidents}</div>
-                  <div className="mt-1 text-xs text-white/65">gestiones abiertas</div>
+              </div>
+
+              <div className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Recorrido recomendado</div>
+                <div className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-white/10">
+                  {recommendedJourney.map((step) => (
+                    <TimelineStep
+                      key={step.title}
+                      label={step.label}
+                      title={step.title}
+                      description={step.description}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-4 xl:grid-cols-4">
+            <div className="relative z-[1] mt-4 grid gap-4 xl:grid-cols-3">
+              {focusActions.map((action) => (
+                <ConciergeActionCard
+                  key={action.title}
+                  href={action.href}
+                  eyebrow={action.eyebrow}
+                  title={action.title}
+                  description={action.description}
+                  cta={action.cta}
+                  tone={action.tone}
+                />
+              ))}
+            </div>
+
+            <div className="relative z-[1] mt-4 grid gap-4 xl:grid-cols-4">
               <QuickActionCard
                 href="/portal/notices"
                 title="Revisar avisos"
@@ -446,24 +876,118 @@ export default async function PortalPage() {
             </div>
           </section>
 
+          <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="ffo-portal-card rounded-[32px] p-5 sm:p-6">
+              <DataSectionHeader
+                kicker="Actividad reciente"
+                title="Qué está pasando en tu portal"
+                description="Una lectura rápida de los movimientos y focos actuales para no tener que revisar cada sección por separado."
+              />
+
+              <div className="mt-5 grid gap-4">
+                {recentActivity.map((item) => (
+                  <ActivityItem
+                    key={item.title}
+                    eyebrow={item.eyebrow}
+                    title={item.title}
+                    description={item.description}
+                    href={item.href}
+                    cta={item.cta}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <section className="ffo-portal-card rounded-[32px] p-5 sm:p-6">
+                <DataSectionHeader
+                  kicker="Próximos hitos"
+                  title="Calendario de control"
+                  description="Fechas clave y referencias prácticas para anticiparte sin tener que buscar entre pantallas."
+                />
+
+                <div className="mt-5 grid gap-4">
+                  <MilestoneCard
+                    label="Próxima facturación"
+                    value={nextInvoiceDateValue}
+                    helper={hasPendingInvoice
+                      ? `Importe estimado: ${formatMoney(nextPendingInvoice?.remainingAmount, nextPendingInvoice?.currencyCode)}.`
+                      : "No consta un recibo pendiente inmediato en este momento."}
+                  />
+                  <MilestoneCard
+                    label="Fin de contrato"
+                    value={contractEndDateValue}
+                    helper={primaryContract?.contractNo
+                      ? `Referencia principal: contrato ${primaryContract.contractNo}.`
+                      : "No hay una fecha contractual principal informada."}
+                  />
+                  <MilestoneCard
+                    label="Peticiones activas"
+                    value={String(pendingIncidentRequests)}
+                    helper={pendingIncidentRequests > 0
+                      ? "Conviene revisar si alguna petición requiere respuesta o seguimiento adicional."
+                      : "No hay peticiones activas que requieran actuación ahora mismo."}
+                  />
+                </div>
+              </section>
+
+              <section className="ffo-portal-dark rounded-[32px] border border-white/8 p-5 text-white sm:p-6">
+                <div className="relative z-[1]">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/62">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
+                    Acompañamiento
+                  </div>
+                  <h2 className="mt-4 text-2xl font-semibold tracking-tight">Tu punto de contacto preferente</h2>
+                  <p className="mt-3 text-sm leading-7 text-white/68">
+                    Cuando necesites escalar una consulta o confirmar contexto contractual, aquí tienes una referencia clara y privada.
+                  </p>
+
+                  <div className="mt-5 rounded-[24px] border border-white/10 bg-white/7 p-5 backdrop-blur">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/50">Responsable / referencia</div>
+                    <div className="mt-2 text-xl font-semibold text-white">{advisorName}</div>
+                    <div className="mt-2 text-sm leading-6 text-white/66">{contractLabel}</div>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Email</div>
+                      <div className="mt-2 text-sm font-medium text-white">{advisorContact}</div>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Teléfono</div>
+                      <div className="mt-2 text-sm font-medium text-white">{advisorPhone}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      href="/portal/profile"
+                      className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+                    >
+                      Revisar perfil
+                      <BrandIcon name="arrow" className="h-4 w-4" />
+                    </Link>
+                    <a
+                      href={`mailto:${advisorContact}`}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/12"
+                    >
+                      Escribir ahora
+                    </a>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+
           {notices.length > 0 ? (
             <section className="space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Mis avisos</div>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Avisos activos del portal</h2>
-                  <p className="mt-2 text-sm leading-6 text-forne-muted">
-                    Comunicaciones relevantes vinculadas a tus contratos y activos, visibles desde Business Central.
-                  </p>
-                </div>
-                <Link
-                  href="/portal/notices"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-                >
-                  Ver todos
-                  <span aria-hidden="true">›</span>
-                </Link>
-              </div>
+              <DataSectionHeader
+                kicker="Mis avisos"
+                title="Avisos activos del portal"
+                description="Comunicaciones relevantes vinculadas a tus contratos y activos, visibles desde Business Central."
+                href="/portal/notices"
+                cta="Ver todos"
+              />
 
               <div className="grid gap-4 xl:grid-cols-3">
                 {dashboardNotices.map((notice) => (
@@ -476,13 +1000,13 @@ export default async function PortalPage() {
             </section>
           ) : null}
 
-          <section className="rounded-[28px] border border-forne-line bg-white p-6 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.28)]">
+          <section className="ffo-portal-card rounded-[32px] p-5 sm:p-6">
             <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-              <div className="rounded-3xl bg-forne-ink p-6 text-white">
+              <div className="ffo-portal-dark rounded-[30px] p-5 text-white sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Dashboard inicial</div>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight">Próximo recibo y situación contractual</h2>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <div className="rounded-[24px] border border-white/10 bg-white/7 p-5 backdrop-blur">
                     <div className="text-sm font-semibold text-white/70">Próximo recibo</div>
                     <div className="mt-3 text-3xl font-semibold">
                       {nextPendingInvoice
@@ -498,7 +1022,7 @@ export default async function PortalPage() {
 
                   <Link
                     href="/portal/contracts"
-                    className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-white/20 hover:bg-white/10"
+                    className="rounded-[24px] border border-white/10 bg-white/7 p-5 backdrop-blur transition hover:border-white/20 hover:bg-white/10"
                   >
                     <div className="text-sm font-semibold text-white/70">Contrato principal</div>
                     <div className="mt-3 text-xl font-semibold">
@@ -535,17 +1059,12 @@ export default async function PortalPage() {
             </div>
           </section>
 
-          <section className="rounded-[28px] border border-forne-line bg-[#F8FAFC] p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.18)]">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">
-                  Ayuda rápida
-                </div>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">
-                  Qué puedes resolver desde aquí
-                </h2>
-              </div>
-            </div>
+          <section className="rounded-[32px] border border-forne-line bg-[linear-gradient(180deg,#f8fbff_0%,#f4f7fb_100%)] p-5 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.18)] sm:p-6">
+            <DataSectionHeader
+              kicker="Ayuda rápida"
+              title="Qué puedes resolver desde aquí"
+              description="Pequeñas pautas para avanzar mejor dentro del portal sin depender de comunicaciones manuales."
+            />
 
             <div className="mt-5 grid gap-4 xl:grid-cols-3">
               <HelpItem
@@ -565,163 +1084,149 @@ export default async function PortalPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <PortalStatCard title="Facturas pendientes" value={String(pendingInvoices)} href="/portal/invoices" />
-        <PortalStatCard title="Incidencias abiertas" value={String(openIncidents)} href="/portal/incidents" />
-        <PortalStatCard title="Peticiones de incidencia" value={String(pendingIncidentRequests)} href="/portal/incident-requests" />
-        <PortalStatCard title="Contratos activos" value={String(activeContracts)} />
-      </div>
-
       <section className="space-y-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Peticiones de incidencia</div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Últimas 4 peticiones</h2>
-            <p className="mt-2 text-sm leading-6 text-forne-muted">
-              Seguimiento rápido de solicitudes enviadas desde el portal y su estado de tramitación.
-            </p>
-          </div>
-          <Link
+        <DataSectionHeader
+          kicker="Indicadores clave"
+          title="Seguimiento rápido del portal"
+          description="Lectura compacta de tu situación antes de entrar en el detalle completo de cada módulo."
+        />
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <PortalStatCard title="Facturas pendientes" value={String(pendingInvoices)} href="/portal/invoices" />
+          <PortalStatCard title="Incidencias abiertas" value={String(openIncidents)} href="/portal/incidents" />
+          <PortalStatCard title="Peticiones de incidencia" value={String(pendingIncidentRequests)} href="/portal/incident-requests" />
+          <PortalStatCard title="Contratos activos" value={String(activeContracts)} />
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        <div className="space-y-4">
+          <DataSectionHeader
+            kicker="Peticiones de incidencia"
+            title="Últimas 4 peticiones"
+            description="Seguimiento rápido de solicitudes enviadas desde el portal y su estado de tramitación."
             href="/portal/incident-requests"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-          >
-            Ver todas
-            <span aria-hidden="true">›</span>
-          </Link>
+            cta="Ver todas"
+          />
+
+          {latestIncidentRequests.length === 0 ? (
+            <div className="ffo-portal-card rounded-[30px] px-5 py-7 text-sm text-forne-muted sm:px-6 sm:py-8">
+              No hay peticiones de incidencia registradas en este momento.
+            </div>
+          ) : (
+            <div className="ffo-portal-card overflow-hidden rounded-[30px]">
+              <div className="border-b border-forne-line/70 px-4 py-3 text-xs leading-5 text-forne-muted sm:hidden">
+                Desliza la tabla para ver el estado y el detalle de cada petición.
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Fecha</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Petición</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-forne-line bg-white">
+                  {latestIncidentRequests.map((request) => (
+                    <tr
+                      key={request.id || request.requestId || String(request.entryNo)}
+                      className="transition hover:bg-[#f8fbff]"
+                    >
+                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
+                        {formatDate(request.createdAt || request.incidentDate)}
+                      </td>
+                      <td className="min-w-[16rem] px-4 py-3 sm:px-5 sm:py-4">
+                        <div className="font-medium text-forne-ink">
+                          {request.title || request.requestId || "Petición de incidencia"}
+                        </div>
+                        <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
+                          {request.description || request.refDescription || request.createdIncidentNo || "Sin detalle adicional"}
+                        </div>
+                        <div className="mt-2 text-xs font-medium text-forne-muted">
+                          {request.contractNo ? `Contrato ${request.contractNo}` : "Sin contrato asociado"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
+                        <span className="inline-flex rounded-full border border-forne-line bg-[#f8fbff] px-3 py-1 text-xs font-semibold text-forne-ink">
+                          {request.status || "Sin estado"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
-        {latestIncidentRequests.length === 0 ? (
-          <div className="rounded-3xl border border-forne-line bg-white px-6 py-8 text-sm text-forne-muted shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-            No hay peticiones de incidencia registradas en este momento.
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-3xl border border-forne-line bg-white shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-            <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-              <thead className="bg-[#fbfcfd] text-xs uppercase tracking-wide text-forne-muted">
-                <tr>
-                  <th className="px-5 py-4 font-semibold">Fecha</th>
-                  <th className="px-5 py-4 font-semibold">Petición</th>
-                  <th className="px-5 py-4 font-semibold">Contrato</th>
-                  <th className="px-5 py-4 font-semibold">Estado</th>
-                  <th className="px-5 py-4 font-semibold">Ver</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-forne-line bg-white">
-                {latestIncidentRequests.map((request) => (
-                  <tr key={request.id || request.requestId || String(request.entryNo)}>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                      {formatDate(request.createdAt || request.incidentDate)}
-                    </td>
-                    <td className="min-w-72 px-5 py-4">
-                      <div className="font-medium text-forne-ink">
-                        {request.title || request.requestId || "Petición de incidencia"}
-                      </div>
-                      <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
-                        {request.description || request.refDescription || request.createdIncidentNo || "Sin detalle adicional"}
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                      {request.contractNo || "-"}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                      {request.status || "Sin estado"}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <Link
-                        href="/portal/incident-requests"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-                      >
-                        Abrir listado
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="space-y-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Facturas pendientes</div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Últimas 4 facturas</h2>
-            <p className="mt-2 text-sm leading-6 text-forne-muted">
-              Relación rápida de las últimas facturas emitidas, estén o no pendientes.
-            </p>
-          </div>
-          <Link
+        <div className="space-y-4">
+          <DataSectionHeader
+            kicker="Facturación"
+            title="Últimas 4 facturas"
+            description="Relación rápida de las últimas facturas emitidas para consulta o seguimiento."
             href="/portal/invoices"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-          >
-            Ver todas
-            <span aria-hidden="true">›</span>
-          </Link>
-        </div>
+            cta="Ver todas"
+          />
 
-        {latestInvoices.length === 0 ? (
-          <div className="rounded-3xl border border-forne-line bg-white px-6 py-8 text-sm text-forne-muted shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-            No hay facturas disponibles en este momento.
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-3xl border border-forne-line bg-white shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-            <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-              <thead className="bg-[#fbfcfd] text-xs uppercase tracking-wide text-forne-muted">
-                <tr>
-                  <th className="px-5 py-4 font-semibold">Factura</th>
-                  <th className="px-5 py-4 font-semibold">Vencimiento</th>
-                  <th className="px-5 py-4 text-right font-semibold">Importe</th>
-                  <th className="px-5 py-4 font-semibold">Estado</th>
-                  <th className="px-5 py-4 font-semibold">Detalle</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-forne-line bg-white">
-                {latestInvoices.map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td className="px-5 py-4">
-                      <div className="font-medium text-forne-ink">{invoice.invoiceNo}</div>
-                      <div className="mt-1 text-xs text-forne-muted">Cliente {invoice.billToCustomerNo}</div>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-forne-muted">
-                      {formatDate(invoice.dueDate)}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-forne-ink">
-                      {formatMoney(invoice.amountIncludingVat, invoice.currencyCode)}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
-                        (invoice.remainingAmount ?? 0) > 0
-                          ? "bg-amber-50 text-amber-800 ring-amber-200"
-                          : "bg-emerald-50 text-emerald-800 ring-emerald-200"
-                      }`}>
-                        {(invoice.remainingAmount ?? 0) > 0 ? "Pendiente" : "Pagada"}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <Link
-                        href={`/portal/invoices/${encodeURIComponent(invoice.id || invoice.invoiceNo)}`}
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
-                      >
-                        + información
-                      </Link>
-                    </td>
+          {latestInvoices.length === 0 ? (
+            <div className="ffo-portal-card rounded-[30px] px-5 py-7 text-sm text-forne-muted sm:px-6 sm:py-8">
+              No hay facturas disponibles en este momento.
+            </div>
+          ) : (
+            <div className="ffo-portal-card overflow-hidden rounded-[30px]">
+              <div className="border-b border-forne-line/70 px-4 py-3 text-xs leading-5 text-forne-muted sm:hidden">
+                Desliza la tabla para ver importes y estado sin perder detalle.
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-forne-line text-left text-sm">
+                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Factura</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Vencimiento</th>
+                    <th className="px-4 py-3 text-right font-semibold sm:px-5 sm:py-4">Importe</th>
+                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Estado</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-forne-line bg-white">
+                  {latestInvoices.map((invoice) => (
+                    <tr key={invoice.id} className="transition hover:bg-[#f8fbff]">
+                      <td className="px-4 py-3 sm:px-5 sm:py-4">
+                        <div className="font-medium text-forne-ink">{invoice.invoiceNo}</div>
+                        <div className="mt-1 text-xs text-forne-muted">Cliente {invoice.billToCustomerNo}</div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
+                        {formatDate(invoice.dueDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-forne-ink sm:px-5 sm:py-4">
+                        {formatMoney(invoice.amountIncludingVat, invoice.currencyCode)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                          (invoice.remainingAmount ?? 0) > 0
+                            ? "bg-amber-50 text-amber-800 ring-amber-200"
+                            : "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                        }`}>
+                          {(invoice.remainingAmount ?? 0) > 0 ? "Pendiente" : "Pagada"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="space-y-4">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Contactos útiles</div>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Teléfonos y emails de interés</h2>
-          <p className="mt-2 text-sm leading-6 text-forne-muted">
-            Accesos rápidos a los canales de contacto más relevantes para tu contrato y tus gestiones.
-          </p>
-        </div>
+        <DataSectionHeader
+          kicker="Contactos útiles"
+          title="Teléfonos y emails de interés"
+          description="Accesos rápidos a los canales de contacto más relevantes para tu contrato y tus gestiones."
+        />
 
         <div className="grid gap-4 xl:grid-cols-3">
           <ContactCard
@@ -752,16 +1257,14 @@ export default async function PortalPage() {
       </section>
 
       <section className="space-y-4">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Noticias y avisos</div>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Información destacada</h2>
-          <p className="mt-2 text-sm leading-6 text-forne-muted">
-            Últimos comunicados y avisos relevantes publicados para el portal.
-          </p>
-        </div>
+        <DataSectionHeader
+          kicker="Noticias y avisos"
+          title="Información destacada"
+          description="Últimos comunicados y avisos relevantes publicados para el portal."
+        />
 
         {newsItems.length === 0 ? (
-          <div className="rounded-3xl border border-forne-line bg-white px-6 py-8 text-sm text-forne-muted shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
+          <div className="ffo-portal-card rounded-[30px] px-6 py-8 text-sm text-forne-muted">
             No hay noticias publicadas en este momento.
           </div>
         ) : (
@@ -769,7 +1272,7 @@ export default async function PortalPage() {
             {newsItems.slice(0, 3).map((item) => (
               <article
                 key={item.id}
-                className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]"
+                className="ffo-portal-card rounded-[30px] p-6"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span

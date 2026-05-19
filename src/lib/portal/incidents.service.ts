@@ -39,3 +39,8 @@ export async function getIncidents(): Promise<IncidentDto[]> {
   );
   return unwrap(payload);
 }
+
+export async function getIncidentById(id: string): Promise<IncidentDto | undefined> {
+  const incidents = await getIncidents();
+  return incidents.find((incident) => incident.id === id || incident.incidentId === id);
+}
