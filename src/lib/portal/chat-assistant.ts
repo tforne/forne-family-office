@@ -35,6 +35,14 @@ export type PortalPageContext = {
     value: string;
     helper?: string;
   }>;
+  visibleSections?: Array<{
+    title: string;
+    summary: string;
+  }>;
+  visibleUpdates?: Array<{
+    date?: string;
+    text: string;
+  }>;
 };
 
 type ChatContext = {
@@ -65,6 +73,10 @@ function conversationReply(summary: string, nextStep: string) {
   return `${summary}\n\nSiguiente paso recomendado: ${nextStep}.`;
 }
 
+function executiveReply(summary: string, nextStep: string, priority?: string) {
+  return `${priority ? `Prioridad ahora: ${priority}.\n\n` : ""}${summary}\n\nSiguiente paso recomendado: ${nextStep}.`;
+}
+
 function cleanDate(value: string | null | undefined) {
   if (!value || value.startsWith("0001-01-01")) return "Sin fecha";
 
@@ -90,6 +102,10 @@ function pagePrimaryLink(page: string): ChatLink {
   if (page.startsWith("/portal/notices")) return { href: "/portal/notices", label: "Ir a avisos" };
   if (page.startsWith("/portal/profile")) return { href: "/portal/profile", label: "Ir a perfil" };
   return { href: "/portal", label: "Ir al resumen" };
+}
+
+function pageSectionLink(page: string, sectionId: string, label: string): ChatLink {
+  return { href: `${page}#${sectionId}`, label };
 }
 
 function pageSuggestions(page: string) {
@@ -343,6 +359,19 @@ function visibleFactsSummary(pageContext: PortalPageContext, limit = 4) {
     .join(" ");
 }
 
+function findVisibleSection(pageContext: PortalPageContext, terms: string[]) {
+  const sections = pageContext.visibleSections || [];
+
+  return sections.find((section) => {
+    const normalizedTitle = normalizeText(section.title);
+    return terms.some((term) => normalizedTitle.includes(term));
+  });
+}
+
+function latestVisibleUpdate(pageContext: PortalPageContext) {
+  return (pageContext.visibleUpdates || [])[0];
+}
+
 export async function buildPortalChatReply(
   page: string,
   rawMessage: string,
@@ -396,13 +425,13 @@ export async function buildPortalChatReply(
         contractFact ? `contrato principal: ${contractFact.value}` : ""
       ].filter(Boolean);
 
-      return {
-        answer: conversationReply(
-          `${
-            pageContext.pageSummary
-              ? `${pageContext.pageSummary} `
-              : "Esta ficha funciona como expediente operativo, contractual y economico del inmueble. "
-          }${
+        return {
+          answer: executiveReply(
+            `${
+              pageContext.pageSummary
+                ? `${pageContext.pageSummary} `
+                : "Esta ficha funciona como expediente operativo, contractual y economico del inmueble. "
+            }${
             focusItems.length > 0
               ? `Ahora mismo lo mas relevante que veo es ${focusItems.join(", ")}.`
               : visibleSummary
@@ -414,11 +443,14 @@ export async function buildPortalChatReply(
             : endFact
               ? "empezar por estado y fin de contrato para tener una lectura ejecutiva rapida"
               : "empezar por el contrato principal y la situacion operativa del inmueble"
-        ),
-        links: [
-          { href: page, label: "Seguir en esta ficha" },
-          { href: "/portal/invoices", label: "Ir a facturas" }
-        ],
+            ,
+            nextBillingFact ? "proxima facturacion" : "estado y contrato"
+          ),
+          links: [
+            pageSectionLink(page, "contract-dossier", "Ver hitos clave"),
+            pageSectionLink(page, "contract-overview", "Volver arriba"),
+            { href: "/portal/invoices", label: "Ir a facturas" }
+          ],
         suggestions: dedupeSuggestions([
           "Cual es el estado del inmueble",
           "Cual es la proxima facturacion",
@@ -431,12 +463,13 @@ export async function buildPortalChatReply(
     if (includesAny(context.normalizedMessage, ["estado del inmueble", "estado", "situacion", "como esta el inmueble"])) {
       if (statusFact) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `En la ficha visible del inmueble figura ${statusFact.value}. ${statusFact.helper || "Es la situacion operativa actual que muestra el portal."}`,
-            contractFact ? `usar como referencia el contrato ${contractFact.value} si quieres seguir profundizando en esta ficha` : "seguir con la ficha contractual si quieres mas detalle"
+            contractFact ? `usar como referencia el contrato ${contractFact.value} si quieres seguir profundizando en esta ficha` : "seguir con la ficha contractual si quieres mas detalle",
+            "estado operativo"
           ),
           links: [
-            { href: page, label: "Seguir en esta ficha" },
+            pageSectionLink(page, "contract-dossier", "Ver resumen contractual"),
             { href: "/portal", label: "Ir al resumen" }
           ],
           suggestions: dedupeSuggestions([
@@ -451,12 +484,13 @@ export async function buildPortalChatReply(
     if (includesAny(context.normalizedMessage, ["contrato principal", "cual es el contrato", "numero de contrato", "contrato"])) {
       if (contractFact) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `La referencia contractual visible en esta ficha es ${contractFact.value}. ${contractFact.helper || "Es el contrato principal vinculado al activo."}`,
-            nextBillingFact ? `revisar despues ${nextBillingFact.label.toLowerCase()} para completar la lectura ejecutiva` : "seguir con el estado y las fechas clave del inmueble"
+            nextBillingFact ? `revisar despues ${nextBillingFact.label.toLowerCase()} para completar la lectura ejecutiva` : "seguir con el estado y las fechas clave del inmueble",
+            "contrato principal"
           ),
           links: [
-            { href: page, label: "Ver esta ficha" }
+            pageSectionLink(page, "contract-dossier", "Ver contrato y fechas")
           ],
           suggestions: dedupeSuggestions([
             "Cual es el estado del inmueble",
@@ -470,12 +504,13 @@ export async function buildPortalChatReply(
     if (includesAny(context.normalizedMessage, ["proxima facturacion", "siguiente facturacion", "cuando facturan", "vencimiento", "proximo recibo"])) {
       if (nextBillingFact) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `En la informacion visible del inmueble aparece ${nextBillingFact.value} como ${nextBillingFact.label.toLowerCase()}. ${nextBillingFact.helper || "Es el siguiente hito economico registrado en el portal."}`,
-            "usar esa fecha como siguiente punto de control economico"
+            "usar esa fecha como siguiente punto de control economico",
+            "siguiente hito economico"
           ),
           links: [
-            { href: page, label: "Ver ficha del inmueble" },
+            pageSectionLink(page, "contract-dossier", "Ver hitos del inmueble"),
             { href: "/portal/invoices", label: "Ir a facturas" }
           ],
           suggestions: dedupeSuggestions([
@@ -490,12 +525,13 @@ export async function buildPortalChatReply(
     if (includesAny(context.normalizedMessage, ["fin de contrato", "cuando termina", "cuando acaba", "vencimiento del contrato"])) {
       if (endFact) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `La fecha visible de fin de contrato es ${endFact.value}. ${endFact.helper || "Es la fecha contractual relevante para seguimiento."}`,
-            nextBillingFact ? "comparar tambien la proxima facturacion si estas revisando calendario economico y contractual" : "usar esta fecha como referencia principal del expediente"
+            nextBillingFact ? "comparar tambien la proxima facturacion si estas revisando calendario economico y contractual" : "usar esta fecha como referencia principal del expediente",
+            "calendario contractual"
           ),
           links: [
-            { href: page, label: "Seguir en esta ficha" }
+            pageSectionLink(page, "contract-dossier", "Ver calendario contractual")
           ],
           suggestions: dedupeSuggestions([
             "Cual es el contrato principal",
@@ -624,6 +660,8 @@ export async function buildPortalChatReply(
     if (currentInvoice) {
       const remaining = currentInvoice.remainingAmount || 0;
       const statusLabel = remaining > 0 ? "Pendiente" : "Pagada";
+      const readingSection = findVisibleSection(pageContext, ["lectura recomendada"]);
+      const timelineSection = findVisibleSection(pageContext, ["fechas", "cronologia"]);
 
       if (
         includesAny(context.normalizedMessage, [
@@ -637,14 +675,16 @@ export async function buildPortalChatReply(
         ])
       ) {
         return {
-          answer: conversationReply(
-            `En esta factura, ${currentInvoice.invoiceNo || currentInvoice.id}, lo mas importante es su estado ${statusLabel.toLowerCase()}, el importe pendiente de ${formatMoney(remaining, currentInvoice.currencyCode)} y el vencimiento ${cleanDate(currentInvoice.dueDate)}.`,
+          answer: executiveReply(
+            `En esta factura, ${currentInvoice.invoiceNo || currentInvoice.id}, lo mas importante es su estado ${statusLabel.toLowerCase()}, el importe pendiente de ${formatMoney(remaining, currentInvoice.currencyCode)} y el vencimiento ${cleanDate(currentInvoice.dueDate)}.${readingSection ? ` ${readingSection.summary}` : ""}${timelineSection ? ` ${timelineSection.summary}` : ""}`,
             remaining > 0
               ? "empezar por confirmar vencimiento e importe pendiente y despues decidir si necesitas PDF o copia"
-              : "empezar por descargar el justificante solo si necesitas comprobante"
+              : "empezar por descargar el justificante solo si necesitas comprobante",
+            remaining > 0 ? "vencimiento e importe pendiente" : "justificante y archivo"
           ),
           links: [
-            { href: page, label: "Ver esta factura" },
+            pageSectionLink(page, "invoice-summary", "Ver importes"),
+            pageSectionLink(page, "invoice-timeline", "Ver fechas"),
             { href: "/portal/invoices", label: "Todas las facturas" }
           ],
           suggestions: dedupeSuggestions([
@@ -655,14 +695,31 @@ export async function buildPortalChatReply(
         };
       }
 
+      if (includesAny(context.normalizedMessage, ["proxima fecha exacta", "fecha exacta", "siguiente fecha"])) {
+        return {
+          answer: executiveReply(
+            `La fecha exacta que veo como referencia en esta factura es ${cleanDate(currentInvoice.dueDate)}.`,
+            remaining > 0 ? "usar ese vencimiento como prioridad de control economico" : "usar esa fecha como referencia documental",
+            "vencimiento"
+          ),
+          links: [pageSectionLink(page, "invoice-timeline", "Ver cronología")],
+          suggestions: dedupeSuggestions([
+            "Que es importante aqui",
+            "Como descargar una factura",
+            "Que significa el estado de una factura"
+          ])
+        };
+      }
+
       if (includesAny(context.normalizedMessage, ["copia", "pdf", "descargar"])) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `En esta factura concreta, ${currentInvoice.invoiceNo || currentInvoice.id}, lo normal es empezar por el PDF oficial si esta disponible. Si no te basta o no aparece, puedes usar la accion de copia desde la propia ficha.`,
-            "quedarte en esta factura y revisar primero sus acciones de descarga o copia"
+            "quedarte en esta factura y revisar primero sus acciones de descarga o copia",
+            "descarga o copia"
           ),
           links: [
-            { href: page, label: "Abrir esta factura" },
+            pageSectionLink(page, "invoice-overview", "Ver acciones"),
             { href: "/portal/invoices", label: "Ver facturas" }
           ],
           suggestions: dedupeSuggestions([
@@ -863,6 +920,9 @@ export async function buildPortalChatReply(
     const currentIncident = await loadCurrentIncident(page);
     if (currentIncident) {
       const isOpen = currentIncident.stateCode === "Active";
+      const commentsSection = findVisibleSection(pageContext, ["comentarios", "seguimiento narrativo"]);
+      const coverageSection = findVisibleSection(pageContext, ["seguro", "cobertura"]);
+      const latestUpdate = latestVisibleUpdate(pageContext);
 
       if (
         includesAny(context.normalizedMessage, [
@@ -876,14 +936,16 @@ export async function buildPortalChatReply(
         ])
       ) {
         return {
-          answer: conversationReply(
-            `En esta incidencia, ${currentIncident.title || currentIncident.incidentId || currentIncident.id}, lo principal es revisar si sigue ${isOpen ? "abierta" : currentIncident.stateCode || "sin estado visible"}, el contrato asociado ${currentIncident.contractNo || "-"} y la fecha de seguimiento ${cleanDate(currentIncident.followupBy || currentIncident.expectedResolutionDate)}.`,
+          answer: executiveReply(
+            `En esta incidencia, ${currentIncident.title || currentIncident.incidentId || currentIncident.id}, lo principal es revisar si sigue ${isOpen ? "abierta" : currentIncident.stateCode || "sin estado visible"}, el contrato asociado ${currentIncident.contractNo || "-"} y la fecha de seguimiento ${cleanDate(currentIncident.followupBy || currentIncident.expectedResolutionDate)}.${commentsSection ? ` ${commentsSection.summary}` : ""}${coverageSection ? ` ${coverageSection.summary}` : ""}`,
             isOpen
               ? "empezar por estado y seguimiento antes de revisar comentarios o abrir otra incidencia"
-              : "empezar por el historial y comprobar si ya no necesita ninguna accion"
+              : "empezar por el historial y comprobar si ya no necesita ninguna accion",
+            isOpen ? "estado y seguimiento" : "historial y cierre"
           ),
           links: [
-            { href: page, label: "Ver esta incidencia" },
+            pageSectionLink(page, "incident-timeline", "Ver cronología"),
+            pageSectionLink(page, "incident-comments", "Ver comentarios"),
             { href: "/portal/incidents", label: "Todas las incidencias" }
           ],
           suggestions: dedupeSuggestions([
@@ -894,14 +956,50 @@ export async function buildPortalChatReply(
         };
       }
 
+      if (includesAny(context.normalizedMessage, ["ultima nota", "ultimo comentario", "ultima actualizacion", "ultimo seguimiento"])) {
+        if (latestUpdate) {
+          return {
+            answer: executiveReply(
+              `${latestUpdate.date ? `La ultima actualizacion visible es del ${latestUpdate.date}. ` : ""}${latestUpdate.text}`,
+              isOpen ? "usar esa ultima nota junto con la fecha de seguimiento para decidir el siguiente paso" : "tomarla como referencia final del expediente",
+              "ultima actualizacion"
+            ),
+            links: [pageSectionLink(page, "incident-comments", "Abrir comentarios")],
+            suggestions: dedupeSuggestions([
+              "Que es importante aqui",
+              "Cual es la proxima fecha exacta",
+              "Cuantas incidencias tengo abiertas"
+            ])
+          };
+        }
+      }
+
+      if (includesAny(context.normalizedMessage, ["proxima fecha exacta", "fecha exacta", "siguiente fecha", "proximo seguimiento"])) {
+        return {
+          answer: executiveReply(
+            `La siguiente fecha visible de seguimiento para esta incidencia es ${cleanDate(currentIncident.followupBy || currentIncident.expectedResolutionDate)}.`,
+            isOpen ? "usar esa fecha como siguiente punto de control operativo" : "tomarla como referencia de cierre o seguimiento final",
+            "proximo control"
+          ),
+          links: [pageSectionLink(page, "incident-timeline", "Abrir cronología")],
+          suggestions: dedupeSuggestions([
+            "Ultimo comentario",
+            "Que es importante aqui",
+            "Quiero abrir una incidencia"
+          ])
+        };
+      }
+
       if (includesAny(context.normalizedMessage, ["estado", "seguimiento", "abierta", "cerrada", "comentario"])) {
         return {
-          answer: conversationReply(
+          answer: executiveReply(
             `Esta incidencia concreta, ${currentIncident.title || currentIncident.incidentId || currentIncident.id}, esta ${isOpen ? "abierta" : currentIncident.stateCode || "sin estado visible"}. Contrato asociado: ${currentIncident.contractNo || "-"}. Seguimiento de referencia: ${cleanDate(currentIncident.followupBy || currentIncident.expectedResolutionDate)}.`,
-            isOpen ? "revisar comentarios y fechas de seguimiento antes de abrir otra incidencia" : "usar la ficha como historial y comprobar si ya no requiere accion"
+            isOpen ? "revisar comentarios y fechas de seguimiento antes de abrir otra incidencia" : "usar la ficha como historial y comprobar si ya no requiere accion",
+            "seguimiento actual"
           ),
           links: [
-            { href: page, label: "Ver esta incidencia" },
+            pageSectionLink(page, "incident-comments", "Ver comentarios"),
+            pageSectionLink(page, "incident-timeline", "Ver seguimiento"),
             { href: "/portal/incidents", label: "Todas las incidencias" }
           ],
           suggestions: dedupeSuggestions([

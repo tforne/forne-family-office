@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandIcon from "@/components/brand/BrandIcon";
+import PortalPageContext from "@/components/portal/PortalPageContext";
 import { getAssets } from "@/lib/portal/assets.service";
 import { getAssetAttributes } from "@/lib/portal/asset-attributes.service";
 import { getContractLines } from "@/lib/portal/contract-lines.service";
@@ -265,10 +266,33 @@ export default async function ContractsPage() {
   const recommendedContractAction = nextPendingInvoice
     ? `Tu siguiente revisión recomendable está en el recibo con vencimiento ${formatDate(nextPendingInvoice.dueDate)}.`
     : "No vemos un vencimiento económico inmediato; esta ficha funciona como expediente operativo y contractual.";
+  const chatPageContext = {
+    pageEyebrow: "Activo inmobiliario",
+    pageTitle: "Ficha del inmueble",
+    pageSummary: introText,
+    visibleFacts: [
+      { label: "Contrato", value: primaryContract?.contractNo || "-", helper: "Referencia principal vinculada al activo." },
+      { label: "Estado", value: statusLabel(primaryAsset?.status || primaryContract?.status), helper: "Situación operativa visible en el portal." },
+      {
+        label: "Próxima facturación",
+        value: formatDate(primaryContract?.nextInvoiceDate || nextPendingInvoice?.dueDate),
+        helper: "Siguiente hito económico registrado."
+      },
+      { label: "Fin de contrato", value: formatDate(primaryContract?.expirationDate), helper: "Fecha contractual relevante para seguimiento." },
+      { label: "Equipamientos", value: String(visibleEquipment.length), helper: "Elementos registrados." }
+    ],
+    visibleSections: [
+      {
+        title: "Lectura recomendada",
+        summary: `${recommendedContractAction} Empieza por situación económica y contractual, y después baja a equipamientos, atributos y detalle técnico.`
+      }
+    ]
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+      <PortalPageContext payload={chatPageContext} />
+      <section id="contract-overview" className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
         <div className="relative z-[1] grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
@@ -316,7 +340,7 @@ export default async function ContractsPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section id="contract-dossier" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DossierCard
           label="Contrato"
           value={primaryContract?.contractNo || "-"}

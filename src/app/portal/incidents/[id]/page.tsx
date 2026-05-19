@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import BrandIcon from "@/components/brand/BrandIcon";
 import IncidentContactForm from "@/components/portal/IncidentContactForm";
 import PortalEmptyState from "@/components/portal/PortalEmptyState";
+import PortalPageContext from "@/components/portal/PortalPageContext";
 import { getIncidentComments } from "@/lib/portal/incident-comments.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
@@ -360,10 +361,45 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
     status === "Abierta"
       ? "Conviene revisar evolución, contacto y próxima fecha de seguimiento."
       : "La incidencia parece cerrada; usa esta ficha como expediente de referencia y trazabilidad.";
+  const latestComment = comments[0];
+  const chatPageContext = {
+    pageTitle: incident.title,
+    pageSummary: "Seguimiento detallado de la incidencia, con contexto del inmueble, contacto y fechas relevantes.",
+    visibleFacts: [
+      { label: "Estado", value: status, helper: "Situación principal visible en el expediente." },
+      { label: "Prioridad", value: incident.priority || "-", helper: "Nivel de atención informado en la incidencia." },
+      { label: "Seguimiento", value: cleanDate(incident.followupBy), helper: "Siguiente fecha interna o de control disponible." },
+      { label: "Contrato", value: incident.contractNo || "-", helper: "Referencia contractual asociada a la gestión." },
+      { label: "Siguiente control", value: nextControlDate, helper: "Fecha de referencia para seguimiento o cierre prevista en el expediente." }
+    ],
+    visibleSections: [
+      {
+        title: "Lectura recomendada",
+        summary: `${recommendedAction} Estado actual, referencias del inmueble y comentarios forman el núcleo de seguimiento más útil.`
+      },
+      ...(hasInsurance
+        ? [
+            {
+              title: "Seguro",
+              summary: `Cobertura o seguro asociado${insurance.companyName ? ` con ${insurance.companyName}` : ""}${insurance.status ? ` en estado ${insurance.status}` : ""}.`
+            }
+          ]
+        : [])
+    ],
+    visibleUpdates: latestComment
+      ? [
+          {
+            date: cleanDate(latestComment.commentDate || latestComment.createdAt),
+            text: latestComment.commentText || "Comentario sin texto."
+          }
+        ]
+      : []
+  };
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <div className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+      <PortalPageContext payload={chatPageContext} />
+      <div id="incident-overview" className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <Link
@@ -403,7 +439,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         </div>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section id="incident-dossier" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Estado"
           value={status}
@@ -428,7 +464,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <section id="incident-timeline" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Expediente</div>
             <div className="mt-2 text-base font-semibold text-forne-ink">Descripción</div>
             <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
@@ -467,7 +503,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </section>
           ) : null}
 
-          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <section id="incident-comments" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cronología</div>
               <div className="mt-2 text-base font-semibold text-forne-ink">Evolución</div>
               <div className="mt-5 grid gap-5 md:grid-cols-3">
@@ -505,7 +541,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
           </section>
 
           {hasInsurance ? (
-            <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+            <section id="incident-insurance" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cobertura</div>
               <div className="mt-2 text-base font-semibold text-forne-ink">Seguro</div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">

@@ -4,6 +4,7 @@ import BrandIcon from "@/components/brand/BrandIcon";
 import InvoiceCopyRequestButton from "@/components/portal/InvoiceCopyRequestButton";
 import PortalEmptyState from "@/components/portal/PortalEmptyState";
 import InvoicePdfButton from "@/components/portal/InvoicePdfButton";
+import PortalPageContext from "@/components/portal/PortalPageContext";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getInvoiceById, getInvoiceLines } from "@/lib/portal/invoices.service";
 
@@ -76,10 +77,35 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
   const contract = contracts.find((item) => item.customerNo === invoice.billToCustomerNo);
 
   const status = statusLabel(invoice.remainingAmount);
+  const chatPageContext = {
+    pageTitle: `Factura ${invoice.invoiceNo}`,
+    pageSummary: "Detalle de importes, vencimiento y cliente asociados a la factura registrada en Business Central.",
+    visibleFacts: [
+      { label: "Estado", value: status, helper: status === "Pendiente" ? "La factura requiere seguimiento económico." : "La factura ya no presenta importe abierto." },
+      { label: "Vencimiento", value: cleanDate(invoice.dueDate), helper: "Fecha de referencia para control y revisión." },
+      { label: "Importe pendiente", value: formatMoney(invoice.remainingAmount, invoice.currencyCode), helper: "Saldo abierto." },
+      { label: "Importe total", value: formatMoney(invoice.amountIncludingVat, invoice.currencyCode), helper: "Importe registrado." },
+      { label: "Contrato asociado", value: contract?.contractNo || "Sin referencia contractual", helper: contract?.description || "No hemos encontrado una referencia contractual adicional para esta factura." }
+    ],
+    visibleSections: [
+      {
+        title: "Lectura recomendada",
+        summary:
+          status === "Pendiente"
+            ? `Empieza por vencimiento e importe pendiente. Conviene revisar el vencimiento del ${cleanDate(invoice.dueDate)} y confirmar el importe todavía abierto.`
+            : "La factura ya figura como liquidada. Puedes usar esta ficha como expediente económico y descargar o solicitar copia cuando lo necesites."
+      },
+      {
+        title: "Cronología del documento",
+        summary: `Fecha registro ${cleanDate(invoice.postingDate)}, fecha documento ${cleanDate(invoice.documentDate)} y vencimiento ${cleanDate(invoice.dueDate)}.`
+      }
+    ]
+  };
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+      <PortalPageContext payload={chatPageContext} />
+      <section id="invoice-overview" className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <Link
@@ -144,7 +170,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section id="invoice-dossier" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DossierCard
           label="Estado"
           value={status}
@@ -169,7 +195,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <section id="invoice-summary" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Resumen económico</div>
@@ -199,7 +225,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             </div>
           </section>
 
-          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <section id="invoice-timeline" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cronología del documento</div>
             <div className="mt-2 text-base font-semibold text-forne-ink">Fechas</div>
             <div className="mt-5 grid gap-5 md:grid-cols-3">

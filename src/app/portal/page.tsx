@@ -1,5 +1,6 @@
 import PortalStatCard from "@/components/portal/PortalStatCard";
 import NoticeReadButton from "@/components/portal/NoticeReadButton";
+import PortalPageContext from "@/components/portal/PortalPageContext";
 import Link from "next/link";
 import BrandIcon from "@/components/brand/BrandIcon";
 import { listNewsItems } from "@/lib/content/news";
@@ -722,9 +723,32 @@ export default async function PortalPage() {
           tone: "default" as const
         }
   ];
+  const chatPageContext = {
+    pageEyebrow: "Portal privado",
+    pageTitle: "Resumen",
+    pageSummary: "Visualiza tu situación actual con la información más importante del contrato y los próximos movimientos.",
+    visibleFacts: [
+      { label: "Contrato principal", value: primaryContract?.contractNo || "Sin referencia", helper: contractLabel },
+      { label: nextMilestoneTitle, value: nextMilestoneLabel, helper: nextMilestoneDescription },
+      { label: "Avisos", value: String(unreadNotices), helper: "Pendientes de revisar." },
+      { label: "Facturación", value: String(pendingInvoices), helper: "Recibos pendientes." },
+      { label: "Incidencias", value: String(openIncidents), helper: "Gestiones abiertas." }
+    ],
+    visibleSections: [
+      {
+        title: "Resumen ejecutivo",
+        summary: `${conciergeHeadline} ${conciergeSummary} ${executiveStatus.helper}`
+      },
+      {
+        title: "Recorrido recomendado",
+        summary: recommendedJourney.map((item) => item.title).join(". ")
+      }
+    ]
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      <PortalPageContext payload={chatPageContext} />
       <div>
         <div className="text-3xl font-semibold tracking-tight text-forne-ink sm:text-4xl">{greeting}</div>
         <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Portal privado</div>
@@ -742,7 +766,7 @@ export default async function PortalPage() {
 
       {!isAdmin ? (
         <div className="space-y-6">
-          <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
+          <section id="dashboard-concierge" className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
             <div className="relative z-[1] flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
@@ -792,7 +816,7 @@ export default async function PortalPage() {
             </div>
 
             <div className="relative z-[1] mt-7 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
-              <div className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
+              <div id="dashboard-summary" className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Resumen ejecutivo</div>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
@@ -819,7 +843,7 @@ export default async function PortalPage() {
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
+              <div id="dashboard-journey" className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Recorrido recomendado</div>
                 <div className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-white/10">
                   {recommendedJourney.map((step) => (

@@ -42,6 +42,22 @@ export async function POST(request: Request) {
                       Boolean(item) && typeof item.label === "string" && typeof item.value === "string"
                   )
                   .slice(0, 10)
+              : undefined,
+            visibleSections: Array.isArray((rawPageContext as { visibleSections?: unknown }).visibleSections)
+              ? (rawPageContext as { visibleSections?: Array<{ title?: unknown; summary?: unknown }> }).visibleSections
+                  ?.filter(
+                    (item): item is { title: string; summary: string } =>
+                      Boolean(item) && typeof item.title === "string" && typeof item.summary === "string"
+                  )
+                  .slice(0, 8)
+              : undefined,
+            visibleUpdates: Array.isArray((rawPageContext as { visibleUpdates?: unknown }).visibleUpdates)
+              ? (rawPageContext as { visibleUpdates?: Array<{ date?: unknown; text?: unknown }> }).visibleUpdates
+                  ?.filter(
+                    (item): item is { date?: string; text: string } =>
+                      Boolean(item) && typeof item.text === "string" && (!item.date || typeof item.date === "string")
+                  )
+                  .slice(0, 5)
               : undefined
           }
         : {};

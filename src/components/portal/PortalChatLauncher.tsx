@@ -40,6 +40,14 @@ type ActivePageContext = {
     value: string;
     helper?: string;
   }>;
+  visibleSections?: Array<{
+    title: string;
+    summary: string;
+  }>;
+  visibleUpdates?: Array<{
+    date?: string;
+    text: string;
+  }>;
 };
 
 const welcomeMessage =
@@ -181,8 +189,82 @@ function collectVisibleFacts(root: Element | null | undefined) {
   return facts;
 }
 
+function collectVisibleSections(root: Element | null | undefined) {
+  if (!root) return [];
+
+  const sectionTitles = Array.from(root.querySelectorAll("h2, h3"));
+  const sections: Array<{ title: string; summary: string }> = [];
+  const seen = new Set<string>();
+
+  for (const titleElement of sectionTitles) {
+    const title = readElementText(titleElement);
+    if (!title || title.length > 60) continue;
+
+    const container = titleElement.closest("section, article, div");
+    if (!container) continue;
+
+    const paragraphs = Array.from(container.querySelectorAll("p, [class*='leading-6'], [class*='leading-7']"))
+      .map((element) => readElementText(element))
+      .filter((text) => text && text !== title && text.length <= 220);
+
+    const summary = paragraphs.find(Boolean);
+    if (!summary) continue;
+
+    const signature = `${title}::${summary}`;
+    if (seen.has(signature)) continue;
+    seen.add(signature);
+
+    sections.push({ title, summary });
+    if (sections.length >= 8) break;
+  }
+
+  return sections;
+}
+
+function looksLikeDate(value: string) {
+  return /\b\d{2}\/\d{2}\/\d{4}\b/.test(value);
+}
+
+function collectVisibleUpdates(root: Element | null | undefined) {
+  if (!root) return [];
+
+  const containers = Array.from(root.querySelectorAll("div"));
+  const updates: Array<{ date?: string; text: string }> = [];
+  const seen = new Set<string>();
+
+  for (const container of containers) {
+    const children = Array.from(container.children);
+    if (children.length < 2) continue;
+
+    const texts = children.map((child) => readElementText(child)).filter(Boolean);
+    const date = texts.find(looksLikeDate);
+    const text = texts.find((value) => value && !looksLikeDate(value) && value.length > 18 && value.length <= 280);
+
+    if (!text) continue;
+    if (!date && !/coment|seguimiento|nota|historial/i.test(container.textContent || "")) continue;
+
+    const signature = `${date || ""}::${text}`;
+    if (seen.has(signature)) continue;
+    seen.add(signature);
+
+    updates.push({ date: date || undefined, text });
+    if (updates.length >= 5) break;
+  }
+
+  return updates;
+}
+
 function readActivePageContext(): ActivePageContext {
   if (typeof document === "undefined") return {};
+
+  const structuredContext = document.getElementById("portal-page-context");
+  if (structuredContext?.textContent) {
+    try {
+      return JSON.parse(structuredContext.textContent) as ActivePageContext;
+    } catch {
+      // Fall back to DOM inference when the structured payload is not valid.
+    }
+  }
 
   const main = document.querySelector("main");
   const heading = document.querySelector("main h1, h1");
@@ -193,7 +275,9 @@ function readActivePageContext(): ActivePageContext {
     pageTitle: heading?.textContent?.trim() || undefined,
     pageSummary: summary?.textContent?.trim() || undefined,
     pageEyebrow: eyebrow?.textContent?.trim() || undefined,
-    visibleFacts: collectVisibleFacts(main)
+    visibleFacts: collectVisibleFacts(main),
+    visibleSections: collectVisibleSections(main),
+    visibleUpdates: collectVisibleUpdates(main)
   };
 }
 
