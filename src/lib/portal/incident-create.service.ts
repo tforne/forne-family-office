@@ -57,6 +57,7 @@ export async function createIncident(input: CreateIncidentInput): Promise<Incide
   if (env.useMockApi) {
     return {
       id: `mock-${Date.now()}`,
+      requestId: `mock-request-${Date.now()}`,
       incidentId: "Pendiente",
       incidentDate,
       title: payload.title,
@@ -87,6 +88,7 @@ export async function createIncident(input: CreateIncidentInput): Promise<Incide
 
   return {
     id: created.id || created.requestId || String(created.entryNo || ""),
+    requestId: created.requestId || created.id || null,
     incidentId: created.incidentId || created.createdIncidentNo || created.requestId || "Pendiente",
     incidentDate: created.incidentDate || incidentDate,
     title: created.title || payload.title,

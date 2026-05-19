@@ -1,5 +1,6 @@
 export interface IncidentDto {
   id: string;
+  requestId?: string | null;
   incidentId: string;
   incidentDate: string | null;
   title: string;

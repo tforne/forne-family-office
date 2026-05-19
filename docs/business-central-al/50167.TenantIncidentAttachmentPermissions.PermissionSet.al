@@ -4,7 +4,7 @@ permissionset 50167 "TENANT INCIDENT ATTACH"
     Caption = 'Tenant Incident Attachment API';
 
     Permissions =
-        tabledata "Document Attachment" = R,
-        table "Document Attachment" = X,
+        tabledata "Tenant Incident Attachment" = RI,
+        table "Tenant Incident Attachment" = X,
         page "Tenant Incident Attachment API" = X;
 }

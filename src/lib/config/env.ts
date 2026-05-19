@@ -50,6 +50,8 @@ export const env = {
   bcApiGroup: readServerEnv("BC_API_GROUP") || "tenantportal",
   bcApiVersion: readServerEnv("BC_API_VERSION") || "v1.0",
   bcCreateIncidentsEndpoint: readServerEnv("BC_CREATE_INCIDENTS_ENDPOINT"),
+  bcIncidentRequestAttachmentsEndpoint:
+    readServerEnv("BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT") || "tenantIncidentRequestAttachments",
   bcIncidentCommentsEndpoint: readServerEnv("BC_INCIDENT_COMMENTS_ENDPOINT") || "tenantIncidentComments",
   bcAssetsEndpoint: readServerEnv("BC_ASSETS_ENDPOINT") || "tenantAssets",
   bcDocumentsEndpoint: readServerEnv("BC_DOCUMENTS_ENDPOINT") || "portalDocuments",

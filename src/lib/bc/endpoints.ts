@@ -9,6 +9,7 @@ export const bcEndpoints = {
   invoiceLines: "tenantInvoiceLines",
   incidents: "tenantIncidents",
   incidentRequests: "tenantIncidentRequests",
+  incidentRequestAttachments: env.bcIncidentRequestAttachmentsEndpoint,
   incidentComments: "tenantIncidentComments",
   documents: env.bcDocumentsEndpoint,
   documentFiles: env.bcDocumentFilesEndpoint,

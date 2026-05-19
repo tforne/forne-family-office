@@ -2,20 +2,184 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getPortalSession } from "@/lib/auth/session";
 import { sendIncidentEmail } from "@/lib/mail/graph";
+import { env } from "@/lib/config/env";
+import { syncIncidentRequestAttachments, type IncidentAttachmentInput } from "@/lib/portal/incident-attachment-sync.service";
 import { createIncident } from "@/lib/portal/incident-create.service";
+
+const MAX_ATTACHMENTS = 5;
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function isFile(value: FormDataEntryValue): value is File {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+function contentTypeIsAllowed(contentType: string) {
+  const normalized = contentType.trim().toLowerCase();
+  return (
+    normalized.startsWith("image/") ||
+    [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/plain"
+    ].includes(normalized)
+  );
+}
+
+async function parseRequestBody(req: NextRequest) {
+  const contentType = req.headers.get("content-type") || "";
+
+  if (contentType.toLowerCase().includes("multipart/form-data")) {
+    const formData = await req.formData();
+    const body = Object.fromEntries(
+      Array.from(formData.entries()).filter(([key, value]) => key !== "attachments" && typeof value === "string")
+    );
+    const attachments = formData
+      .getAll("attachments")
+      .filter(isFile)
+      .filter((file) => file.size > 0);
+
+    return { body, attachments };
+  }
+
+  const body = await req.json().catch(() => ({}));
+  return { body, attachments: [] as File[] };
+}
+
+async function normalizeAttachments(files: File[]): Promise<IncidentAttachmentInput[]> {
+  if (files.length > MAX_ATTACHMENTS) {
+    throw new Error(`Puedes adjuntar como máximo ${MAX_ATTACHMENTS} archivos por petición.`);
+  }
+
+  const normalized: IncidentAttachmentInput[] = [];
+
+  for (const file of files) {
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      throw new Error(`El archivo ${file.name} supera el límite de 10 MB.`);
+    }
+
+    if (!contentTypeIsAllowed(file.type || "")) {
+      throw new Error(`El formato del archivo ${file.name} no está permitido.`);
+    }
+
+    normalized.push({
+      fileName: file.name || "adjunto",
+      contentType: file.type || "application/octet-stream",
+      bytes: new Uint8Array(await file.arrayBuffer())
+    });
+  }
+
+  return normalized;
+}
+
 function userFacingCreateError(error: unknown) {
   const message = error instanceof Error ? error.message : "Error desconocido al registrar la incidencia.";
+  const attachmentsEndpoint = env.bcIncidentRequestAttachmentsEndpoint || "tenantIncidentRequestAttachments";
+  const lowerMessage = message.toLowerCase();
+
+  function extractBusinessCentralDetail() {
+    const propertyMatch = message.match(/Cannot find property '([^']+)'/i);
+    if (propertyMatch) {
+      return `Business Central no reconoce la propiedad ${propertyMatch[1]}.`;
+    }
+
+    const entityMatch = message.match(/Entity does not support insert/i);
+    if (entityMatch) {
+      return "La entidad no admite inserciones mediante POST.";
+    }
+
+    const methodMatch = message.match(/BadRequest_MethodNotAllowed/i);
+    if (methodMatch) {
+      return "El endpoint ha rechazado el método HTTP usado por el portal.";
+    }
+
+    const notFoundMatch = message.match(/404|not found/i);
+    if (notFoundMatch) {
+      return "El endpoint no existe o no está publicado con ese EntitySetName.";
+    }
+
+    const authMatch = message.match(/unauthorized|authorization|invalid token|authentication/i);
+    if (authMatch) {
+      return "Business Central ha rechazado la autenticación o los permisos de la aplicación.";
+    }
+
+    const bcJsonMatch = message.match(/"message"\s*:\s*"([^"]+)"/i);
+    if (bcJsonMatch) {
+      return `Detalle BC: ${bcJsonMatch[1]}`;
+    }
+
+    const bcTextMatch = message.match(/Business Central error \d+ \([^)]+\):\s*([\s\S]+)$/i);
+    if (bcTextMatch) {
+      const normalized = bcTextMatch[1].replace(/\s+/g, " ").trim();
+      if (normalized) {
+        return `Detalle BC: ${normalized.slice(0, 280)}`;
+      }
+    }
+
+    return "";
+  }
+
+  function attachmentErrorWith(detail: string) {
+    const bcDetail = extractBusinessCentralDetail();
+    return `La petición se ha creado, pero Business Central no ha podido guardar los adjuntos en ${attachmentsEndpoint}. ${detail}${bcDetail ? ` ${bcDetail}` : ""}`;
+  }
 
   if (message.includes("BadRequest_MethodNotAllowed") || message.includes("Entity does not support insert")) {
+    if (message.includes(attachmentsEndpoint)) {
+      return attachmentErrorWith(
+        "El endpoint no permite inserción. Revisa que BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT apunte a una API Page con InsertAllowed=true y permisos de inserción."
+      );
+    }
+
     return "Business Central ha rechazado el alta porque el endpoint de incidencias no permite insertar registros. Revisa que BC_CREATE_INCIDENTS_ENDPOINT apunte a una API Page con InsertAllowed=true y permisos de inserción.";
   }
 
+  if (message.includes(attachmentsEndpoint)) {
+    if (lowerMessage.includes("404") || lowerMessage.includes("not found")) {
+      return attachmentErrorWith(
+        "El endpoint no existe o no está publicado. Revisa el EntitySetName real en Business Central y el valor de BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT."
+      );
+    }
+
+    if (lowerMessage.includes("invalid token") || lowerMessage.includes("unauthorized") || lowerMessage.includes("authorization")) {
+      return attachmentErrorWith(
+        "Business Central ha rechazado la autenticación o los permisos. Revisa la aplicación de Entra y los permisos de la API/Page de adjuntos."
+      );
+    }
+
+    if (
+      lowerMessage.includes("contentbase64") ||
+      lowerMessage.includes("requestid") ||
+      lowerMessage.includes("filename") ||
+      lowerMessage.includes("contenttype") ||
+      lowerMessage.includes("cannot find property")
+    ) {
+      return attachmentErrorWith(
+        "Los nombres de campo no coinciden con la API de adjuntos. La API debe aceptar requestId, fileName, contentType y contentBase64, o hay que adaptar el payload del portal."
+      );
+    }
+
+    return attachmentErrorWith(
+      "Revisa que BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT apunte a una API Page writable y que los nombres de campo coincidan con la API de adjuntos."
+    );
+  }
+
   return message;
+}
+
+function isAttachmentValidationError(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+  return (
+    message.includes("como máximo") ||
+    message.includes("límite de 10 MB") ||
+    message.includes("no está permitido")
+  );
 }
 
 export async function POST(req: NextRequest) {
@@ -25,7 +189,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Sesión no autenticada." }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({}));
+  const { body, attachments } = await parseRequestBody(req);
   const requestType = clean(body.requestType);
   const incidentId = clean(body.incidentId);
   const title = clean(body.title);
@@ -185,6 +349,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+      const normalizedAttachments = await normalizeAttachments(attachments);
       const incident = await createIncident({
         title,
         description: message,
@@ -195,6 +360,16 @@ export async function POST(req: NextRequest) {
         refDescription: property,
         contactPhoneNo: contactPhone
       });
+      let warning = "";
+
+      if (normalizedAttachments.length > 0) {
+        try {
+          await syncIncidentRequestAttachments(incident.requestId || incident.id, normalizedAttachments);
+        } catch (attachmentError) {
+          console.error("Incident attachment sync failed:", attachmentError);
+          warning = userFacingCreateError(attachmentError);
+        }
+      }
 
       await sendIncidentEmail({
         subject: `Nueva incidencia creada: ${incident.incidentId || title}`,
@@ -213,6 +388,7 @@ export async function POST(req: NextRequest) {
           `Inmueble: ${incident.refDescription || property || "-"}`,
           `Referencia inmueble: ${incident.fixedRealEstateNo || fixedRealEstateNo || "-"}`,
           `Contrato: ${incident.contractNo || contractNo || "-"}`,
+          `Adjuntos: ${normalizedAttachments.length > 0 ? normalizedAttachments.map((file) => file.fileName).join(", ") : "-"}`,
           "",
           "Descripción",
           incident.description || message
@@ -221,11 +397,15 @@ export async function POST(req: NextRequest) {
 
       revalidatePath("/portal/incidents");
 
-      return NextResponse.json({ ok: true, incident });
+      return NextResponse.json({ ok: true, incident, warning });
     } catch (error) {
       console.error("New incident creation failed:", error);
       const technicalError = error instanceof Error ? error.message : "Error desconocido al registrar la incidencia.";
       const errorMessage = userFacingCreateError(error);
+
+      if (isAttachmentValidationError(error)) {
+        return NextResponse.json({ error: errorMessage }, { status: 400 });
+      }
 
       try {
         await sendIncidentEmail({

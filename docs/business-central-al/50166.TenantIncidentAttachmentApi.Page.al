@@ -6,9 +6,10 @@ page 50166 "Tenant Incident Attachment API"
     APIGroup = 'tenantportal';
     APIVersion = 'v1.0';
     EntityName = 'tenantIncidentAttachment';
-    EntitySetName = 'tenantIncidentAttachments';
-    SourceTable = "Document Attachment";
-    InsertAllowed = false;
+    EntitySetName = 'tenantIncidentRequestAttachments';
+    SourceTable = "Tenant Incident Attachment";
+    DelayedInsert = true;
+    InsertAllowed = true;
     ModifyAllowed = false;
     DeleteAllowed = false;
     ODataKeyFields = SystemId;
@@ -24,55 +25,21 @@ page 50166 "Tenant Incident Attachment API"
                     Caption = 'Id';
                     Editable = false;
                 }
-                field(tableId; Rec."Table ID")
+                field(requestId; Rec."Request Id")
                 {
-                    Caption = 'Table ID';
-                    Editable = false;
-                }
-                field(no; Rec."No.")
-                {
-                    Caption = 'No.';
-                    Editable = false;
-                }
-                field(lineNo; Rec."Line No.")
-                {
-                    Caption = 'Line No.';
-                    Editable = false;
+                    Caption = 'Request Id';
                 }
                 field(fileName; Rec."File Name")
                 {
                     Caption = 'File Name';
-                    Editable = false;
                 }
-                field(fileExtension; Rec."File Extension")
+                field(contentType; Rec."Content Type")
                 {
-                    Caption = 'File Extension';
-                    Editable = false;
+                    Caption = 'Content Type';
                 }
-                field(attachedDate; Rec."Attached Date")
+                field(contentBase64; Rec."Content Base64")
                 {
-                    Caption = 'Attached Date';
-                    Editable = false;
-                }
-                field(userId; Rec."User ID")
-                {
-                    Caption = 'User ID';
-                    Editable = false;
-                }
-                field(documentFlowPurchase; Rec."Document Flow Purchase")
-                {
-                    Caption = 'Document Flow Purchase';
-                    Editable = false;
-                }
-                field(documentFlowSales; Rec."Document Flow Sales")
-                {
-                    Caption = 'Document Flow Sales';
-                    Editable = false;
-                }
-                field(documentReferenceId; Rec."Document Reference ID")
-                {
-                    Caption = 'Document Reference ID';
-                    Editable = false;
+                    Caption = 'Content Base64';
                 }
             }
         }

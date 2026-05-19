@@ -4,9 +4,12 @@ El portal crea incidencias mediante `POST` contra la API custom configurada en:
 
 ```env
 BC_CREATE_INCIDENTS_ENDPOINT=tenantIncidentRequests
+BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT=tenantIncidentRequestAttachments
 ```
 
 Si esta variable no está definida, el portal usa `tenantIncidentRequests`. El endpoint `tenantIncidents` puede servir para listar incidencias, pero Business Central devolverá `405 BadRequest_MethodNotAllowed` si se usa para altas y la API Page tiene `InsertAllowed = false`, si la entidad es de solo lectura, o si la tabla/origen no admite inserción.
+
+Para adjuntos ocurre lo mismo: si `BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT` no está definida, el portal usa por defecto `tenantIncidentRequestAttachments`. La API Page publicada en Business Central debe exponer exactamente ese `EntitySetName` o bien debe ajustarse la variable para apuntar al nombre real.
 
 ## Recomendación
 
@@ -40,6 +43,32 @@ La API de alta debe:
 ```
 
 Los nombres de campo deben coincidir exactamente con los nombres publicados por la API Page de Business Central. Si en AL se usan otros nombres, ajustar el payload en `src/lib/portal/incident-create.service.ts`.
+
+## Adjuntos sincronizados con Business Central
+
+El portal ya puede enviar ficheros adjuntos en el alta de la petición. El flujo previsto es:
+
+1. El portal crea la petición en `tenantIncidentRequests`.
+2. Cuando Business Central devuelve el identificador de la petición, el portal sube cada fichero a `tenantIncidentRequestAttachments`.
+
+Payload propuesto para cada adjunto:
+
+```json
+{
+  "requestId": "6f2f5ef8-5bc1-ef11-b8e8-6045bdaf5c0d",
+  "fileName": "foto-cocina.jpg",
+  "contentType": "image/jpeg",
+  "contentBase64": "<contenido en base64>"
+}
+```
+
+Notas:
+
+- `requestId` debe ser el identificador devuelto por la API de alta de petición.
+- `contentBase64` contiene el binario del archivo codificado en base64.
+- El portal limita el envío a 5 ficheros y 10 MB por archivo.
+- Si los nombres de campo en AL difieren, ajustar `src/lib/portal/incident-attachment-sync.service.ts`.
+- Si Business Central devuelve `BadRequest_MethodNotAllowed` o `Entity does not support insert`, la API Page de adjuntos no está publicada como writable o el endpoint configurado no coincide con el `EntitySetName` real.
 
 ## Objetos AL propuestos
 
@@ -111,5 +140,7 @@ El objeto anterior es una plantilla: deben sustituirse `SourceTable` y campos po
 2. Asignar permisos de inserción al usuario/aplicación Entra usada por el portal.
 3. Confirmar en `$metadata` que aparece `tenantIncidentRequests`.
 4. Configurar `.env.local` con `BC_CREATE_INCIDENTS_ENDPOINT=tenantIncidentRequests`.
-5. Reiniciar el servidor Next.js.
-6. Probar un alta desde el portal.
+5. Publicar una API writable para `tenantIncidentRequestAttachments`.
+6. Configurar `.env.local` con `BC_INCIDENT_REQUEST_ATTACHMENTS_ENDPOINT=tenantIncidentRequestAttachments`.
+7. Reiniciar el servidor Next.js.
+8. Probar un alta desde el portal con adjuntos.

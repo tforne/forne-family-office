@@ -335,10 +335,10 @@ function HeroMetric({
   helper: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
-      <div className="text-xs uppercase tracking-[0.2em] text-white/50">{label}</div>
+    <div className="rounded-[24px] border border-white/14 bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.1)_100%)] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/64">{label}</div>
       <div className="mt-2 text-3xl font-semibold text-white">{value}</div>
-      <div className="mt-1 text-xs text-white/65">{helper}</div>
+      <div className="mt-1 text-xs text-white/78">{helper}</div>
     </div>
   );
 }
@@ -360,20 +360,20 @@ function ConciergeActionCard({
 }) {
   const toneClass =
     tone === "urgent"
-      ? "border-amber-200 bg-[linear-gradient(180deg,rgba(255,251,235,0.96)_0%,rgba(255,247,237,0.98)_100%)]"
+      ? "border-amber-200/90 bg-[linear-gradient(180deg,rgba(255,250,236,0.98)_0%,rgba(255,244,228,0.98)_100%)]"
       : tone === "calm"
-        ? "border-emerald-200 bg-[linear-gradient(180deg,rgba(240,253,244,0.96)_0%,rgba(247,254,250,0.98)_100%)]"
-        : "border-forne-line bg-white/96";
+        ? "border-emerald-200/90 bg-[linear-gradient(180deg,rgba(241,252,247,0.98)_0%,rgba(228,244,238,0.98)_100%)]"
+        : "border-[#c7d9ee] bg-[linear-gradient(180deg,rgba(243,248,254,0.98)_0%,rgba(228,238,249,0.98)_100%)]";
 
   return (
     <Link
       href={href}
-      className={`group rounded-[28px] border p-5 shadow-[0_24px_55px_-40px_rgba(15,47,87,0.24)] transition hover:-translate-y-1 hover:shadow-[0_32px_70px_-42px_rgba(15,47,87,0.32)] ${toneClass}`}
+      className={`group rounded-[28px] border p-5 shadow-[0_24px_55px_-40px_rgba(15,47,87,0.24)] transition hover:-translate-y-1 hover:border-[#8eb8e6] hover:shadow-[0_32px_70px_-42px_rgba(15,47,87,0.32)] ${toneClass}`}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{eyebrow}</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6982a3]">{eyebrow}</div>
       <h3 className="mt-3 text-lg font-semibold tracking-tight text-forne-ink">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
-      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition group-hover:text-[#0078D4]">
+      <p className="mt-2 text-sm leading-6 text-[#5d6f88]">{description}</p>
+      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#123861] transition group-hover:text-[#0078D4]">
         {cta}
         <BrandIcon name="arrow" className="h-4 w-4" />
       </div>
@@ -433,20 +433,24 @@ function MilestoneCard({
 function TimelineStep({
   label,
   title,
-  description
+  description,
+  theme = "dark"
 }: {
   label: string;
   title: string;
   description: string;
+  theme?: "dark" | "light";
 }) {
+  const isLight = theme === "light";
+
   return (
     <div className="relative pl-8">
-      <span className="absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-white/18 bg-white/12">
+      <span className={`absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border ${isLight ? "border-[#c9d9ea] bg-white" : "border-white/18 bg-white/12"}`}>
         <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
       </span>
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/48">{label}</div>
-      <div className="mt-2 text-base font-semibold text-white">{title}</div>
-      <div className="mt-2 text-sm leading-6 text-white/64">{description}</div>
+      <div className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${isLight ? "text-[#6f84a0]" : "text-white/48"}`}>{label}</div>
+      <div className={`mt-2 text-base font-semibold ${isLight ? "text-forne-ink" : "text-white"}`}>{title}</div>
+      <div className={`mt-2 text-sm leading-6 ${isLight ? "text-[#5d6f88]" : "text-white/64"}`}>{description}</div>
     </div>
   );
 }
@@ -816,42 +820,49 @@ export default async function PortalPage() {
             </div>
 
             <div className="relative z-[1] mt-7 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
-              <div id="dashboard-summary" className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Resumen ejecutivo</div>
+              <div
+                id="dashboard-summary"
+                className="rounded-[28px] border border-[#c9d9ea] bg-[linear-gradient(180deg,rgba(248,251,255,0.96)_0%,rgba(231,239,249,0.92)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.34)] backdrop-blur sm:p-5"
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6f84a0]">Resumen ejecutivo</div>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">Contrato principal</div>
-                    <div className="mt-2 text-lg font-semibold text-white">
+                  <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
+                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">Contrato principal</div>
+                    <div className="mt-2 text-lg font-semibold text-forne-ink">
                       {primaryContract?.contractNo || "Sin referencia"}
                     </div>
-                    <div className="mt-2 text-sm leading-6 text-white/62">{contractLabel}</div>
+                    <div className="mt-2 text-sm leading-6 text-[#5d6f88]">{contractLabel}</div>
                   </div>
-                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">{nextMilestoneTitle}</div>
-                    <div className="mt-2 text-lg font-semibold text-white">{nextMilestoneLabel}</div>
-                    <div className="mt-2 text-sm leading-6 text-white/62">{nextMilestoneDescription}</div>
+                  <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
+                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">{nextMilestoneTitle}</div>
+                    <div className="mt-2 text-lg font-semibold text-forne-ink">{nextMilestoneLabel}</div>
+                    <div className="mt-2 text-sm leading-6 text-[#5d6f88]">{nextMilestoneDescription}</div>
                   </div>
-                  <div className="rounded-[22px] border border-white/10 bg-white/7 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-white/50">Apoyo disponible</div>
-                    <div className="mt-2 text-lg font-semibold text-white">
-                      {insurancePhone || primaryContract?.phoneNo || "office@forne.family"}
+                  <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
+                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">Apoyo disponible</div>
+                    <div className="mt-2 text-lg font-semibold text-forne-ink">
+                      office@forne.family
                     </div>
-                    <div className="mt-2 text-sm leading-6 text-white/62">
+                    <div className="mt-2 text-sm leading-6 text-[#5d6f88]">
                       Contacto rápido para seguimiento contractual, incidencias o soporte.
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div id="dashboard-journey" className="rounded-[28px] border border-white/10 bg-white/7 p-4 sm:p-5 backdrop-blur">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">Recorrido recomendado</div>
-                <div className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-white/10">
+              <div
+                id="dashboard-journey"
+                className="rounded-[28px] border border-[#c9d9ea] bg-[linear-gradient(180deg,rgba(247,250,255,0.95)_0%,rgba(232,240,249,0.9)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.34)] backdrop-blur sm:p-5"
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6f84a0]">Recorrido recomendado</div>
+                <div className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-[#d6e1ed]">
                   {recommendedJourney.map((step) => (
                     <TimelineStep
                       key={step.title}
                       label={step.label}
                       title={step.title}
                       description={step.description}
+                      theme="light"
                     />
                   ))}
                 </div>

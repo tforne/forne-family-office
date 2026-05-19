@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
 
@@ -40,8 +40,11 @@ export default function NewIncidentForm({ contracts }: Props) {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedContract = useMemo(
     () => contracts.find((contract) => contract.contractNo === contractNo),
@@ -52,21 +55,26 @@ export default function NewIncidentForm({ contracts }: Props) {
     event.preventDefault();
     setStatus("sending");
     setError("");
+    setWarning("");
+
+    const formData = new FormData();
+    formData.set("requestType", "new");
+    formData.set("title", title);
+    formData.set("message", message);
+    formData.set("caseType", caseType);
+    formData.set("priority", priority);
+    formData.set("contractNo", contractNo);
+    formData.set("fixedRealEstateNo", selectedContract?.propertyNo || "");
+    formData.set("property", selectedContract?.property || selectedContract?.description || "");
+    formData.set("contactPhone", contactPhone);
+
+    for (const file of files) {
+      formData.append("attachments", file);
+    }
 
     const res = await fetch("/api/incidents/contact", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requestType: "new",
-        title,
-        message,
-        caseType,
-        priority,
-        contractNo,
-        fixedRealEstateNo: selectedContract?.propertyNo || "",
-        property: selectedContract?.property || selectedContract?.description || "",
-        contactPhone
-      })
+      body: formData
     });
 
     const payload = await res.json().catch(() => ({}));
@@ -81,8 +89,11 @@ export default function NewIncidentForm({ contracts }: Props) {
     setTitle("");
     setMessage("");
     setContactPhone("");
+    setFiles([]);
     setCaseType("Problem");
     setPriority("Normal");
+    setWarning(typeof payload.warning === "string" ? payload.warning : "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -201,6 +212,33 @@ export default function NewIncidentForm({ contracts }: Props) {
         />
       </label>
 
+      <label className="mt-4 block">
+        <span className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Adjuntos</span>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          onChange={(event) => setFiles(Array.from(event.target.files || []))}
+          className="ffo-portal-input mt-2 block w-full rounded-2xl px-4 py-3 text-sm text-forne-ink outline-none file:mr-4 file:rounded-xl file:border-0 file:bg-[#1b6fd8] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+        />
+        <div className="mt-2 text-xs text-forne-muted">
+          Hasta 5 archivos. Formatos habituales de imagen y documento.
+        </div>
+        {files.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {files.map((file) => (
+              <span
+                key={`${file.name}-${file.size}-${file.lastModified}`}
+                className="inline-flex rounded-full border border-forne-line bg-forne-cloud px-3 py-1 text-xs font-medium text-forne-ink"
+              >
+                {file.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </label>
+
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-xs text-forne-muted">{message.length}/4000 caracteres</div>
         <button
@@ -215,6 +253,12 @@ export default function NewIncidentForm({ contracts }: Props) {
       {status === "sent" ? (
         <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
           Incidencia registrada correctamente en Business Central.
+        </div>
+      ) : null}
+
+      {warning ? (
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {warning}
         </div>
       ) : null}
 
