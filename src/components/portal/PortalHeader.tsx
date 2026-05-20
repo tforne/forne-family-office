@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
+
+const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
+  ssr: false
+});
 
 export default function PortalHeader({
   email,
@@ -44,6 +49,12 @@ export default function PortalHeader({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          <div>
+            <InstallAppButton
+              className="hidden rounded-2xl border border-forne-line bg-white/80 px-4 py-2.5 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.35)] transition hover:-translate-y-0.5 hover:border-forne-ink/15 hover:bg-white lg:inline-flex"
+              iosClassName="hidden rounded-2xl border border-forne-line bg-white/80 px-4 py-2.5 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.35)] transition hover:-translate-y-0.5 hover:border-forne-ink/15 hover:bg-white lg:inline-flex"
+            />
+          </div>
           <div className="hidden rounded-2xl border border-white/70 bg-white/72 px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.3)] backdrop-blur md:block">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">
               Sesión
@@ -68,6 +79,14 @@ export default function PortalHeader({
           </div>
           <div className="mt-1 text-sm font-semibold text-forne-ink">{providerLabel}</div>
           <div className="truncate text-xs text-forne-muted">{userEmail}</div>
+        </div>
+        <div className="mt-3">
+          <div>
+            <InstallAppButton
+              className="w-full rounded-2xl border border-forne-line bg-white/84 px-4 py-3 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.22)]"
+              iosClassName="w-full rounded-2xl border border-forne-line bg-white/84 px-4 py-3 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.22)]"
+            />
+          </div>
         </div>
       </div>
       <ConfirmationDialog

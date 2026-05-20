@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C8796] sm:flex-row sm:items-center sm:justify-between">
-          <div>© {new Date().getFullYear()} Forné Family Office. Todos los derechos reservados.</div>
+          <div suppressHydrationWarning>© {new Date().getFullYear()} Forné Family Office. Todos los derechos reservados.</div>
           <div className="flex gap-5">
             <span>Atención al inquilino</span>
             <Link href="/login" className="transition hover:text-white">

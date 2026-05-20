@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 function LoginContent() {
   const searchParams = useSearchParams();
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const error = searchParams.get("error");
   const message = searchParams.get("message");
   const errorMessage =
@@ -19,7 +20,7 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(27,111,216,0.12),transparent_24%),radial-gradient(circle_at_85%_18%,rgba(217,200,176,0.16),transparent_22%),linear-gradient(180deg,#ffffff_0%,#f8fbfe_38%,#ffffff_100%)] px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mx-auto flex max-w-7xl items-center justify-between py-2">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-sm font-semibold text-white shadow-[0_20px_35px_-22px_rgba(15,47,87,0.65)]">
             FF
@@ -30,13 +31,28 @@ function LoginContent() {
           </div>
         </Link>
 
-        <Link
-          href="/"
-          className="rounded-2xl border border-[#E1DFDD] bg-white px-4 py-2.5 text-sm font-semibold text-[#201F1E] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
-        >
-          Volver al inicio
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => setShowInstallHelp((current) => !current)}
+            className="rounded-2xl border border-[#D7E7F5] bg-white px-4 py-2.5 text-sm font-semibold text-[#0F2F57] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
+          >
+            Como instalar la app
+          </button>
+          <Link
+            href="/"
+            className="rounded-2xl border border-[#E1DFDD] bg-white px-4 py-2.5 text-sm font-semibold text-[#201F1E] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
+          >
+            Volver al inicio
+          </Link>
+        </div>
       </div>
+
+      {showInstallHelp ? (
+        <div className="mx-auto mt-4 max-w-7xl rounded-2xl border border-[#D7E7F5] bg-white/94 px-4 py-3 text-sm leading-6 text-[#605E5C] shadow-[0_18px_40px_-30px_rgba(15,47,87,0.18)]">
+          En Chrome o Edge, usa el icono de instalacion de la barra de direcciones o el menu del navegador y elige <strong>Instalar aplicacion</strong>. En iPhone o iPad, usa compartir y luego <strong>Anadir a pantalla de inicio</strong>.
+        </div>
+      ) : null}
 
       <div className="mx-auto grid max-w-7xl gap-10 py-8 lg:grid-cols-[1fr_420px] lg:py-16">
         <section className="flex flex-col justify-center">
@@ -106,6 +122,14 @@ function LoginContent() {
             >
               Entrar con Microsoft
             </a>
+
+            <button
+              type="button"
+              onClick={() => setShowInstallHelp((current) => !current)}
+              className="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
+            >
+              Como instalar la app
+            </button>
 
             <Link
               href="/"

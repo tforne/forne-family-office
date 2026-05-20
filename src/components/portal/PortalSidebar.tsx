@@ -1,10 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
 import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
+
+const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
+  ssr: false
+});
 
 const items = [
   { href: "/portal", label: "Inicio", icon: "clarity" as const },
@@ -163,6 +168,14 @@ export default function PortalSidebar({
             Ver incidencias
           </Link>
         </div>
+        <div className="mt-2 sm:hidden">
+          <div>
+            <InstallAppButton
+              className="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
+              iosClassName="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
+            />
+          </div>
+        </div>
       </div>
 
       <aside className="ffo-portal-dark hidden w-[320px] flex-col border-r border-white/8 text-white lg:flex">
@@ -183,6 +196,14 @@ export default function PortalSidebar({
             <div className="mt-3 text-xl font-semibold tracking-tight text-white">Control centralizado</div>
             <div className="mt-2 text-sm leading-6 text-white/68">
               Accede a tus documentos, avisos y gestiones con una vista clara y profesional.
+            </div>
+            <div className="mt-5">
+              <div>
+                <InstallAppButton
+                  className="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
+                  iosClassName="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
+                />
+              </div>
             </div>
           </div>
         </div>

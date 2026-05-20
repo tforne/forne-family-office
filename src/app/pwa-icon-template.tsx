@@ -3,10 +3,10 @@ type PwaIconTemplateProps = {
 };
 
 export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
-  const inset = size * 0.1;
-  const innerSize = size - inset * 2;
-  const radius = size * 0.22;
-  const letterSize = Math.round(size * 0.44);
+  const panelInset = size * 0.08;
+  const panelSize = size - panelInset * 2;
+  const radius = size * 0.24;
+  const brandScale = size / 512;
 
   return (
     <div
@@ -16,8 +16,7 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background:
-          "linear-gradient(180deg, #F7FBFF 0%, #EAF2FC 100%)",
+        background: "#F6F2EA",
         position: "relative"
       }}
     >
@@ -25,43 +24,116 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
         style={{
           position: "absolute",
           top: size * 0.12,
-          right: size * 0.1,
-          width: size * 0.28,
-          height: size * 0.28,
+          left: size * 0.08,
+          width: size * 0.34,
+          height: size * 0.34,
           borderRadius: 9999,
-          background: "rgba(27, 111, 216, 0.14)",
-          filter: "blur(10px)"
+          background: "rgba(132, 151, 173, 0.12)",
+          filter: "blur(14px)"
         }}
       />
       <div
         style={{
           position: "absolute",
-          bottom: size * 0.08,
-          left: size * 0.08,
-          width: size * 0.32,
-          height: size * 0.32,
+          bottom: size * 0.1,
+          right: size * 0.08,
+          width: size * 0.3,
+          height: size * 0.3,
           borderRadius: 9999,
-          background: "rgba(217, 200, 176, 0.22)",
-          filter: "blur(12px)"
+          background: "rgba(201, 190, 173, 0.18)",
+          filter: "blur(16px)"
         }}
       />
       <div
         style={{
-          width: innerSize,
-          height: innerSize,
+          width: panelSize,
+          height: panelSize,
           borderRadius: radius,
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           justifyContent: "center",
-          color: "#FFFFFF",
-          fontSize: letterSize,
-          fontWeight: 700,
-          letterSpacing: "-0.04em",
-          background: "linear-gradient(135deg, #0F2F57 0%, #1B6FD8 100%)",
-          boxShadow: "0 18px 40px rgba(15, 47, 87, 0.28)"
+          background: "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(246,242,234,0.98) 100%)",
+          boxShadow: "0 24px 50px rgba(34, 42, 52, 0.16)",
+          border: `${Math.max(1, Math.round(size * 0.004))}px solid rgba(183, 174, 161, 0.35)`,
+          overflow: "hidden",
+          position: "relative"
         }}
       >
-        F
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            gap: size * 0.006,
+            marginTop: -size * 0.015
+          }}
+        >
+          <span
+            style={{
+              color: "#8A9CB0",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: 250 * brandScale,
+              fontStyle: "italic",
+              lineHeight: 0.78,
+              fontWeight: 400,
+              letterSpacing: "-0.06em",
+              marginRight: size * 0.01
+            }}
+          >
+            f
+          </span>
+          <span
+            style={{
+              color: "#151313",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: 124 * brandScale,
+              lineHeight: 0.85,
+              fontWeight: 400,
+              letterSpacing: "0.01em"
+            }}
+          >
+            orn
+          </span>
+          <span
+            style={{
+              color: "#151313",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: 136 * brandScale,
+              lineHeight: 0.8,
+              fontWeight: 400,
+              letterSpacing: "0.01em",
+              position: "relative",
+              marginLeft: size * 0.002
+            }}
+          >
+            è
+          </span>
+        </div>
+
+        <div
+          style={{
+            width: 70 * brandScale,
+            height: Math.max(1, Math.round(size * 0.004)),
+            background: "#B9C2CD",
+            borderRadius: 9999,
+            marginTop: 26 * brandScale,
+            alignSelf: "center"
+          }}
+        />
+
+        <div
+          style={{
+            marginTop: 18 * brandScale,
+            color: "#8A9CB0",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: 18 * brandScale,
+            letterSpacing: "0.45em",
+            textIndent: "0.45em",
+            lineHeight: 1
+          }}
+        >
+          1933
+        </div>
       </div>
     </div>
   );

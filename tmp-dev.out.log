@@ -1,0 +1,19 @@
+
+> forne-phase3-lite@2.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 4s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.2s (625 modules)
+ GET / 200 in 6751ms
+ GET / 200 in 1066ms
+ ○ Compiling /manifest.webmanifest ...
+ ✓ Compiled /contacto in 3.1s (384 modules)
+ ✓ Compiled in 1129ms (278 modules)
+ GET /manifest.webmanifest 200 in 5145ms
+ ✓ Compiled in 7.1s (684 modules)

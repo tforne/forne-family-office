@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import type { Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
+import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 import { env } from "@/lib/config/env";
 
 const bodyFont = Manrope({
@@ -78,7 +79,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="scroll-smooth">
-      <body className={`${bodyFont.variable} ${displayFont.variable}`}>{children}</body>
+      <body className={`${bodyFont.variable} ${displayFont.variable}`}>
+        <ServiceWorkerRegistration />
+        {children}
+      </body>
     </html>
   );
 }

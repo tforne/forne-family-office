@@ -41,24 +41,22 @@ export default function ContactSection() {
 
           <div className="mt-10 space-y-5">
             {contactItems.map((item) => {
-              const content = (
-                <div className="flex items-center gap-4">
+              return (
+                <div key={item.label} className="flex items-center gap-4">
                   <div className="flex h-11 w-11 items-center justify-center rounded bg-[#EFF6FC] text-[#0078D4]">
                     ●
                   </div>
                   <div>
                     <p className="text-xs text-[#A19F9D]">{item.label}</p>
-                    <p className="text-sm font-semibold text-[#201F1E]">{item.value}</p>
+                    {item.href ? (
+                      <a href={item.href} className="text-sm font-semibold text-[#201F1E] transition hover:opacity-80">
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-semibold text-[#201F1E]">{item.value}</p>
+                    )}
                   </div>
                 </div>
-              );
-
-              return item.href ? (
-                <a key={item.label} href={item.href} className="block transition hover:opacity-80">
-                  {content}
-                </a>
-              ) : (
-                <div key={item.label}>{content}</div>
               );
             })}
           </div>

@@ -1,6 +1,22 @@
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
+  const screenshots = [
+    {
+      src: "/screenshot-desktop",
+      sizes: "1440x1024",
+      type: "image/png",
+      form_factor: "wide",
+      label: "Panel principal y acceso al portal privado de Forné Family Office"
+    },
+    {
+      src: "/screenshot-mobile",
+      sizes: "1080x1920",
+      type: "image/png",
+      label: "Vista móvil del portal y seguimiento de gestiones"
+    }
+  ] as unknown as MetadataRoute.Manifest["screenshots"];
+
   return {
     name: "Forné Family Office",
     short_name: "Forné",
@@ -27,6 +43,7 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
         purpose: "maskable"
       }
-    ]
+    ],
+    screenshots
   };
 }

@@ -1,7 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
+
+const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
+  ssr: false
+});
 
 const navItems = [
   { href: "/#quienes-somos", label: "Quiénes somos" },
@@ -51,6 +56,12 @@ export default function Header() {
           >
             {isMenuOpen ? "×" : "☰"}
           </button>
+          <div>
+            <InstallAppButton
+              className="hidden rounded-[14px] border border-[#D7E7F5] bg-white/92 px-4 py-2.5 text-sm font-semibold text-[#0F2F57] shadow-[0_16px_36px_-30px_rgba(15,47,87,0.18)] transition hover:border-[#1B6FD8] hover:text-[#1B6FD8] lg:inline-flex"
+              iosClassName="hidden rounded-[14px] border border-[#D7E7F5] bg-white/92 px-4 py-2.5 text-sm font-semibold text-[#0F2F57] shadow-[0_16px_36px_-30px_rgba(15,47,87,0.18)] transition hover:border-[#1B6FD8] hover:text-[#1B6FD8] lg:inline-flex"
+            />
+          </div>
           <Link href="/login" className="hidden text-sm font-semibold text-[#1B6FD8] transition hover:text-[#0F2F57] lg:inline-flex">
             Acceso clientes
           </Link>
@@ -80,6 +91,12 @@ export default function Header() {
             >
               Acceso clientes
             </Link>
+            <div>
+              <InstallAppButton
+                className="rounded-[16px] border border-[#D7E7F5] bg-white px-4 py-3 text-sm font-semibold text-[#0F2F57] transition hover:bg-[#EFF6FC]"
+                iosClassName="rounded-[16px] border border-[#D7E7F5] bg-white px-4 py-3 text-sm font-semibold text-[#0F2F57] transition hover:bg-[#EFF6FC]"
+              />
+            </div>
           </nav>
         </div>
       ) : null}
