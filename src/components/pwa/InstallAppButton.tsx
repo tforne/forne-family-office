@@ -38,8 +38,8 @@ function isSafariBrowser() {
 export default function InstallAppButton({
   className,
   iosClassName,
-  label = "Instalar app",
-  iosLabel = "Cómo instalar"
+  label = "Añadir acceso rapido",
+  iosLabel = "Como anadir al inicio"
 }: {
   className: string;
   iosClassName?: string;
@@ -103,6 +103,10 @@ export default function InstallAppButton({
   }
 
   if (isStandalone) {
+    return null;
+  }
+
+  if (!installEvent && !showIosHint) {
     return null;
   }
 

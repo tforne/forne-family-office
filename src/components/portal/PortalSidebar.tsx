@@ -169,11 +169,17 @@ export default function PortalSidebar({
           </Link>
         </div>
         <div className="mt-2 sm:hidden">
-          <div>
+          <div className="rounded-2xl border border-forne-line bg-white/92 p-4 shadow-sm">
+            <div className="text-sm font-semibold text-forne-ink">Acceso rápido</div>
+            <div className="mt-1 text-xs leading-5 text-forne-muted">
+              Guarda el portal como app si tu navegador lo permite.
+            </div>
+            <div className="mt-3">
             <InstallAppButton
               className="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
               iosClassName="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
             />
+            </div>
           </div>
         </div>
       </div>
@@ -198,7 +204,10 @@ export default function PortalSidebar({
               Accede a tus documentos, avisos y gestiones con una vista clara y profesional.
             </div>
             <div className="mt-5">
-              <div>
+              <div className="text-xs leading-5 text-white/58">
+                Guarda este acceso como app para entrar más rápido desde tu dispositivo.
+              </div>
+              <div className="mt-3">
                 <InstallAppButton
                   className="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
                   iosClassName="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"

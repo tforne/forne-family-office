@@ -1,12 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+
+const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
+  ssr: false
+});
 
 function LoginContent() {
   const searchParams = useSearchParams();
-  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const error = searchParams.get("error");
   const message = searchParams.get("message");
   const errorMessage =
@@ -32,13 +36,6 @@ function LoginContent() {
         </Link>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => setShowInstallHelp((current) => !current)}
-            className="rounded-2xl border border-[#D7E7F5] bg-white px-4 py-2.5 text-sm font-semibold text-[#0F2F57] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
-          >
-            Como instalar la app
-          </button>
           <Link
             href="/"
             className="rounded-2xl border border-[#E1DFDD] bg-white px-4 py-2.5 text-sm font-semibold text-[#201F1E] shadow-sm transition hover:border-[#0078D4] hover:text-[#0078D4]"
@@ -47,12 +44,6 @@ function LoginContent() {
           </Link>
         </div>
       </div>
-
-      {showInstallHelp ? (
-        <div className="mx-auto mt-4 max-w-7xl rounded-2xl border border-[#D7E7F5] bg-white/94 px-4 py-3 text-sm leading-6 text-[#605E5C] shadow-[0_18px_40px_-30px_rgba(15,47,87,0.18)]">
-          En Chrome o Edge, usa el icono de instalacion de la barra de direcciones o el menu del navegador y elige <strong>Instalar aplicacion</strong>. En iPhone o iPad, usa compartir y luego <strong>Anadir a pantalla de inicio</strong>.
-        </div>
-      ) : null}
 
       <div className="mx-auto grid max-w-7xl gap-10 py-8 lg:grid-cols-[1fr_420px] lg:py-16">
         <section className="flex flex-col justify-center">
@@ -123,14 +114,6 @@ function LoginContent() {
               Entrar con Microsoft
             </a>
 
-            <button
-              type="button"
-              onClick={() => setShowInstallHelp((current) => !current)}
-              className="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
-            >
-              Como instalar la app
-            </button>
-
             <Link
               href="/"
               className="flex w-full items-center justify-center rounded-2xl border border-[#E1DFDD] bg-white px-4 py-3.5 text-sm font-semibold text-[#201F1E] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
@@ -143,6 +126,19 @@ function LoginContent() {
             <div className="text-sm font-semibold text-[#201F1E]">Acceso seguro</div>
             <div className="mt-2 text-sm leading-6 text-[#605E5C]">
               La autenticación se realiza con Microsoft Entra para ofrecer un acceso controlado y coherente con tu cuenta autorizada.
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-[#D7E7F5] bg-white/96 px-4 py-4 shadow-[0_18px_40px_-32px_rgba(15,47,87,0.16)]">
+            <div className="text-sm font-semibold text-[#201F1E]">Acceso rápido desde el móvil</div>
+            <div className="mt-2 text-sm leading-6 text-[#605E5C]">
+              Si tu navegador lo permite, puedes guardar este acceso como app para entrar más rápido al portal. En iPhone o iPad verás la guía para añadirlo a pantalla de inicio.
+            </div>
+            <div className="mt-4">
+              <InstallAppButton
+                className="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
+                iosClassName="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
+              />
             </div>
           </div>
         </section>
