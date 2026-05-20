@@ -28,7 +28,7 @@ export default function PortalHeader({
 
   return (
     <header className="ffo-portal-header px-4 py-4 sm:px-5 lg:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+      <div className="mx-auto flex max-w-7xl items-start justify-between gap-4 sm:items-center">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">
             Portal privado
@@ -43,7 +43,7 @@ export default function PortalHeader({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <div className="hidden rounded-2xl border border-white/70 bg-white/72 px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.3)] backdrop-blur md:block">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">
               Sesión
@@ -59,6 +59,15 @@ export default function PortalHeader({
           >
             Salir
           </button>
+        </div>
+      </div>
+      <div className="mx-auto mt-3 max-w-7xl md:hidden">
+        <div className="rounded-2xl border border-white/70 bg-white/72 px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.3)] backdrop-blur">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">
+            Sesión
+          </div>
+          <div className="mt-1 text-sm font-semibold text-forne-ink">{providerLabel}</div>
+          <div className="truncate text-xs text-forne-muted">{userEmail}</div>
         </div>
       </div>
       <ConfirmationDialog

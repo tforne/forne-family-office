@@ -20,7 +20,7 @@ export default function PortalTableCard({
             <div className="mt-2 text-lg font-semibold tracking-tight text-forne-ink">{title}</div>
             {subtitle ? <div className="mt-1 text-sm leading-6 text-forne-muted">{subtitle}</div> : null}
             <div className="mt-2 max-w-xs text-xs leading-5 text-forne-muted sm:hidden">
-              Desliza horizontalmente si necesitas ver todas las columnas.
+              En móvil verás primero una vista resumida. Si aparece una tabla, puedes deslizar horizontalmente para ver todas las columnas.
             </div>
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}

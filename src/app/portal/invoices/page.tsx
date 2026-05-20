@@ -127,7 +127,78 @@ export default async function InvoicesPage() {
             />
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="grid gap-3 p-3 sm:p-4 md:hidden">
+              {invoices.map((invoice) => {
+                const status = invoiceStatus(invoice);
+                const contract = pickInvoiceContract(invoice, contracts);
+
+                return (
+                  <article
+                    key={invoice.id}
+                    className="rounded-[24px] border border-forne-line bg-white p-4 shadow-[0_18px_36px_-32px_rgba(15,47,87,0.24)]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-forne-ink">{invoice.invoiceNo}</div>
+                        <div className="mt-1 text-xs leading-5 text-forne-muted">
+                          {invoice.billToCustomerName || invoice.sellToCustomerName || `Cliente ${invoice.billToCustomerNo}`}
+                        </div>
+                      </div>
+                      <span className={`inline-flex shrink-0 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${statusClass(status)}`}>
+                        {status}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Fecha</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">
+                          {cleanDate(invoice.postingDate || invoice.documentDate)}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Vencimiento</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">{cleanDate(invoice.dueDate)}</div>
+                      </div>
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Importe</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">
+                          {formatMoney(invoice.amountIncludingVat, invoice.currencyCode)}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Pendiente</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">
+                          {formatMoney(invoice.remainingAmount, invoice.currencyCode)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-xs text-forne-muted">
+                      {contract?.contractNo ? `Contrato ${contract.contractNo}` : "Sin contrato asociado"}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <InvoiceCopyRequestButton
+                        compact
+                        invoiceId={invoice.id}
+                        invoiceNo={invoice.invoiceNo}
+                        customerNo={invoice.billToCustomerNo}
+                        contractNo={contract?.contractNo}
+                      />
+                      <Link
+                        href={`/portal/invoices/${encodeURIComponent(invoice.id || invoice.invoiceNo)}`}
+                        className="inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud"
+                      >
+                        + información
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full divide-y divide-forne-line text-left text-sm">
               <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                 <tr>
@@ -200,7 +271,8 @@ export default async function InvoicesPage() {
                 })}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </PortalTableCard>
 

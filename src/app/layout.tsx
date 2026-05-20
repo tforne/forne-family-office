@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import { env } from "@/lib/config/env";
 
@@ -35,6 +36,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/"
   },
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "Forné Family Office | Alquiler de pisos y locales",
     description:
@@ -50,10 +52,23 @@ export const metadata: Metadata = {
     description:
       "Gestion profesional de alquileres con portal privado, facturas, incidencias y seguimiento claro."
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Forné Family Office"
+  },
+  formatDetection: {
+    telephone: false
+  },
   robots: {
     index: true,
     follow: true
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0F2F57",
+  colorScheme: "light"
 };
 
 export default function RootLayout({

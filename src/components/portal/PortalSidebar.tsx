@@ -101,7 +101,7 @@ export default function PortalSidebar({
 
   return (
     <>
-      <div className="border-b border-forne-line/70 bg-white/78 px-5 py-4 backdrop-blur lg:hidden">
+      <div className="border-b border-forne-line/70 bg-white/78 px-4 py-4 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <Link href="/portal" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-sm font-semibold text-white shadow-[0_20px_35px_-22px_rgba(15,47,87,0.7)]">
@@ -126,7 +126,7 @@ export default function PortalSidebar({
             Version {version}
           </div>
         ) : null}
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 overflow-x-auto pb-1">
           <div className="flex min-w-max gap-2">
             {visibleItems.map((item) => {
               const active = pathname === item.href;
@@ -134,7 +134,7 @@ export default function PortalSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                  className={`rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition ${
                     active
                       ? "bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-white shadow-[0_16px_30px_-22px_rgba(15,47,87,0.68)]"
                       : "border border-forne-line bg-white/90 text-forne-muted"
@@ -148,6 +148,20 @@ export default function PortalSidebar({
               );
             })}
           </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:hidden">
+          <Link
+            href="/portal/invoices"
+            className="rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
+          >
+            Ver facturas
+          </Link>
+          <Link
+            href="/portal/incidents"
+            className="rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
+          >
+            Ver incidencias
+          </Link>
         </div>
       </div>
 

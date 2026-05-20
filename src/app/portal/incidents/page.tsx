@@ -127,7 +127,63 @@ export default async function IncidentsPage() {
             />
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="grid gap-3 p-3 sm:p-4 md:hidden">
+              {incidents.map((incident) => {
+                const status = statusLabel(incident);
+
+                return (
+                  <article
+                    key={incident.id}
+                    className="rounded-[24px] border border-forne-line bg-white p-4 shadow-[0_18px_36px_-32px_rgba(15,47,87,0.24)]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-forne-ink">{incident.title}</div>
+                        <div className="mt-1 line-clamp-2 text-xs leading-5 text-forne-muted">
+                          {incident.description || incident.incidentId}
+                        </div>
+                      </div>
+                      <span className={`inline-flex shrink-0 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${statusClass(status)}`}>
+                        {status}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Fecha</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">{cleanDate(incident.incidentDate)}</div>
+                      </div>
+                      <div className="rounded-2xl bg-[#f8fbff] px-3 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Prioridad</div>
+                        <div className="mt-1 text-sm font-medium text-forne-ink">{incident.priority || "-"}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl bg-[#f8fbff] px-3 py-3">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">Inmueble</div>
+                      <div className="mt-1 text-sm font-medium text-forne-ink">{incident.refDescription || "Sin referencia"}</div>
+                      {incident.fixedRealEstateNo ? (
+                        <div className="mt-1 text-xs text-forne-muted">{incident.fixedRealEstateNo}</div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <div className="text-xs text-forne-muted">
+                        {incident.contractNo ? `Contrato ${incident.contractNo}` : "Sin contrato asociado"}
+                      </div>
+                      <Link
+                        href={`/portal/incidents/${encodeURIComponent(incident.id || incident.incidentId)}`}
+                        className="inline-flex rounded-xl border border-forne-line bg-white px-3 py-2 text-xs font-semibold text-forne-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-forne-cloud"
+                      >
+                        + información
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full divide-y divide-forne-line text-left text-sm">
               <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
                 <tr>
@@ -194,7 +250,8 @@ export default async function IncidentsPage() {
                 })}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </PortalTableCard>
     </div>

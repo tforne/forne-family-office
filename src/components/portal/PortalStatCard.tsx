@@ -34,7 +34,7 @@ export default function PortalStatCard({
     </>
   );
 
-  const className = "ffo-portal-card block rounded-[28px] p-6 transition duration-200 hover:-translate-y-1 hover:border-[#1b6fd8]/14 hover:shadow-[0_34px_80px_-46px_rgba(15,47,87,0.34)]";
+  const className = "ffo-portal-card block rounded-[28px] p-5 transition duration-200 hover:-translate-y-1 hover:border-[#1b6fd8]/14 hover:shadow-[0_34px_80px_-46px_rgba(15,47,87,0.34)] sm:p-6";
 
   if (href) {
     return (
@@ -45,7 +45,7 @@ export default function PortalStatCard({
   }
 
   return (
-    <div className="ffo-portal-card rounded-[28px] p-6">
+    <div className="ffo-portal-card rounded-[28px] p-5 sm:p-6">
       {content}
     </div>
   );
