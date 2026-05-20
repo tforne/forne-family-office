@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ffo-static-v1";
+const CACHE_VERSION = "ffo-static-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-assets`;
 const PAGE_CACHE = `${CACHE_VERSION}-pages`;
 const OFFLINE_URL = "/offline";
@@ -43,12 +43,9 @@ function isStaticAsset(url, request) {
   return (
     url.origin === self.location.origin &&
     (
-      url.pathname.startsWith("/_next/static/") ||
       url.pathname === "/manifest.webmanifest" ||
       url.pathname === "/apple-icon" ||
       url.pathname.startsWith("/icon-") ||
-      request.destination === "style" ||
-      request.destination === "script" ||
       request.destination === "font" ||
       request.destination === "image"
     )

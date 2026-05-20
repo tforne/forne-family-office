@@ -11,7 +11,7 @@ export default function GlobalError({
     <html>
       <body>
         <div className="flex min-h-screen items-center justify-center bg-forne-cream px-6">
-          <div className="w-full max-w-md rounded-3xl border border-forne-stone bg-white p-8 shadow-sm text-center">
+          <div className="w-full max-w-md rounded-3xl border border-forne-stone bg-white p-8 text-center shadow-sm">
             <h1 className="text-2xl font-semibold text-forne-forest">Algo salió mal</h1>
             <p className="mt-2 text-sm text-forne-slate">
               Ha ocurrido un error inesperado. Por favor, intenta de nuevo.

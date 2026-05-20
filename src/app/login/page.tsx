@@ -1,18 +1,16 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import InstallAppButtonMount from "@/components/pwa/InstallAppButtonMount";
 
-const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
-  ssr: false
-});
+type LoginPageProps = {
+  searchParams?: {
+    error?: string;
+    message?: string;
+  };
+};
 
-function LoginContent() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  const message = searchParams.get("message");
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const error = searchParams?.error || null;
+  const message = searchParams?.message || null;
   const errorMessage =
     error === "PORTAL_DISABLED"
       ? "El portal privado no está disponible en este momento."
@@ -135,7 +133,7 @@ function LoginContent() {
               Si tu navegador lo permite, puedes guardar este acceso como app para entrar más rápido al portal. En iPhone o iPad verás la guía para añadirlo a pantalla de inicio.
             </div>
             <div className="mt-4">
-              <InstallAppButton
+              <InstallAppButtonMount
                 className="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
                 iosClassName="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
               />
@@ -144,21 +142,5 @@ function LoginContent() {
         </section>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#ffffff_0%,#f8fbfe_38%,#ffffff_100%)] px-6">
-          <div className="rounded-3xl border border-[#E1DFDD] bg-white px-6 py-5 text-sm font-medium text-[#605E5C] shadow-sm">
-            Cargando acceso privado...
-          </div>
-        </div>
-      }
-    >
-      <LoginContent />
-    </Suspense>
   );
 }

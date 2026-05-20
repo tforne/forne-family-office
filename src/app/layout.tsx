@@ -80,6 +80,29 @@ export default function RootLayout({
   return (
     <html lang="es" className="scroll-smooth">
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>
+        {process.env.NODE_ENV !== "production" ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function () {
+                  if (!('serviceWorker' in navigator) || !window.caches) return;
+                  navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                    registrations.forEach(function (registration) {
+                      registration.unregister().catch(function () {});
+                    });
+                  });
+                  caches.keys().then(function (keys) {
+                    keys
+                      .filter(function (key) { return key.indexOf('ffo-static') === 0; })
+                      .forEach(function (key) {
+                        caches.delete(key).catch(function () {});
+                      });
+                  });
+                })();
+              `
+            }}
+          />
+        ) : null}
         <ServiceWorkerRegistration />
         {children}
       </body>

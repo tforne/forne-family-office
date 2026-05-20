@@ -1,2 +1,0 @@
- ⚠ Port 3000 is in use, trying 3001 instead.
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\Tomas Forne Martinez\forne-family-office\.next\cache\webpack\client-development\16.pack.gz_' -> 'C:\Users\Tomas Forne Martinez\forne-family-office\.next\cache\webpack\client-development\16.pack.gz'
