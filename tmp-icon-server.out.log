@@ -1,0 +1,14 @@
+
+> forne-phase3-lite@2.0.0 dev
+> next dev --port 3003
+
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3003
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3s
+ ○ Compiling /icon-512 ...
+ ✓ Compiled /icon-512 in 4.3s (144 modules)
+ GET /icon-512 200 in 6211ms
+[?25h

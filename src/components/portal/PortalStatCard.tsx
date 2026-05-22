@@ -15,13 +15,13 @@ export default function PortalStatCard({
   const content = (
     <>
       <div className="flex items-start justify-between gap-4">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">{title}</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7f8896]">{title}</div>
         {href ? (
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(184,155,109,0.18)] bg-[linear-gradient(180deg,rgba(250,246,239,0.98)_0%,rgba(244,236,225,0.92)_100%)] text-[#b89b6d] shadow-[inset_0_1px_0_rgba(255,255,255,0.62)]">
             <BrandIcon name="arrow" className="h-4 w-4" />
           </span>
         ) : (
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-forne-line bg-white/70 text-forne-muted">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(15,35,58,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,248,250,0.92)_100%)] text-[#7f8896] shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
             <BrandIcon name="clarity" className="h-4 w-4" />
           </span>
         )}
@@ -30,11 +30,11 @@ export default function PortalStatCard({
       {description ? (
         <p className="mt-3 max-w-xs text-sm leading-6 text-forne-muted">{description}</p>
       ) : null}
-      <div className="mt-5 h-px w-14 bg-gradient-to-r from-[#1b6fd8]/45 to-transparent" />
+      <div className="mt-5 h-px w-14 bg-gradient-to-r from-[rgba(184,155,109,0.55)] to-transparent" />
     </>
   );
 
-  const className = "ffo-portal-card block rounded-[28px] p-5 transition duration-200 hover:-translate-y-1 hover:border-[#1b6fd8]/14 hover:shadow-[0_34px_80px_-46px_rgba(15,47,87,0.34)] sm:p-6";
+  const className = "ffo-portal-card block rounded-[28px] p-5 transition duration-200 hover:-translate-y-1 hover:border-[rgba(184,155,109,0.2)] hover:shadow-[0_34px_80px_-46px_rgba(34,42,56,0.26)] sm:p-6";
 
   if (href) {
     return (

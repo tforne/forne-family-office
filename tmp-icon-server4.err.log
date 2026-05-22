@@ -1,0 +1,92 @@
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at async DevServer.runEdgeFunction (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:1250:13)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:248:37)
+    at async DevServer.handleRequestImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\base-server.js:817:17)
+    at async C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:173:21)
+    at async handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:350:24)
+    at async requestHandlerImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:374:13)
+    at async Server.requestListener (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  [cause]: Error: Expected <div> to have explicit "display: flex" or "display: none" if it has more than one child node.
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16218:13)
+      at qt.next (<anonymous>)
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:20)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16181:13)
+      at async wl (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:17130:12)
+      at async render (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:18780:15)
+      at async Object.start (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:19011:25)
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at async DevServer.runEdgeFunction (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:1250:13)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:248:37)
+    at async DevServer.handleRequestImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\base-server.js:817:17)
+    at async C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:173:21)
+    at async handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:350:24)
+    at async requestHandlerImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:374:13)
+    at async Server.requestListener (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  [cause]: Error: Expected <div> to have explicit "display: flex" or "display: none" if it has more than one child node.
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16218:13)
+      at qt.next (<anonymous>)
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:20)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16181:13)
+      at async wl (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:17130:12)
+      at async render (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:18780:15)
+      at async Object.start (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:19011:25)
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at async DevServer.runEdgeFunction (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:1250:13)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:248:37)
+    at async DevServer.handleRequestImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\base-server.js:817:17)
+    at async C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:173:21)
+    at async handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:350:24)
+    at async requestHandlerImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:374:13)
+    at async Server.requestListener (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  [cause]: Error: Expected <div> to have explicit "display: flex" or "display: none" if it has more than one child node.
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16218:13)
+      at qt.next (<anonymous>)
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:20)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16181:13)
+      at async wl (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:17130:12)
+      at async render (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:18780:15)
+      at async Object.start (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:19011:25)
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at async DevServer.runEdgeFunction (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:1250:13)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\next-server.js:248:37)
+    at async DevServer.handleRequestImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\base-server.js:817:17)
+    at async C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:173:21)
+    at async handleRequest (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:350:24)
+    at async requestHandlerImpl (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\router-server.js:374:13)
+    at async Server.requestListener (C:\Users\Tomas Forne Martinez\forne-family-office\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  [cause]: Error: Expected <div> to have explicit "display: flex" or "display: none" if it has more than one child node.
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16218:13)
+      at qt.next (<anonymous>)
+      at qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:20)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16222:12)
+      at async qt (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:16181:13)
+      at async wl (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:17130:12)
+      at async render (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:18780:15)
+      at async Object.start (webpack-internal:///(rsc)/./node_modules/next/dist/compiled/@vercel/og/index.edge.js:19011:25)
+}

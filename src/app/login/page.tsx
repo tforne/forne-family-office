@@ -1,5 +1,5 @@
 import Link from "next/link";
-import InstallAppButtonMount from "@/components/pwa/InstallAppButtonMount";
+import InstallAppPromptCard from "@/components/pwa/InstallAppPromptCard";
 
 type LoginPageProps = {
   searchParams?: {
@@ -127,18 +127,15 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-[#D7E7F5] bg-white/96 px-4 py-4 shadow-[0_18px_40px_-32px_rgba(15,47,87,0.16)]">
-            <div className="text-sm font-semibold text-[#201F1E]">Acceso rápido desde el móvil</div>
-            <div className="mt-2 text-sm leading-6 text-[#605E5C]">
-              Si tu navegador lo permite, puedes guardar este acceso como app para entrar más rápido al portal. En iPhone o iPad verás la guía para añadirlo a pantalla de inicio.
-            </div>
-            <div className="mt-4">
-              <InstallAppButtonMount
-                className="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
-                iosClassName="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
-              />
-            </div>
-          </div>
+          <InstallAppPromptCard
+            surface="login"
+            minVisits={1}
+            className="mt-4 rounded-2xl border border-[#D7E7F5] bg-white/96 px-4 py-4 shadow-[0_18px_40px_-32px_rgba(15,47,87,0.16)]"
+            titleClassName="text-sm font-semibold text-[#201F1E]"
+            bodyClassName="mt-2 text-sm leading-6 text-[#605E5C]"
+            buttonClassName="flex w-full items-center justify-center rounded-2xl border border-[#D7E7F5] bg-white px-4 py-3.5 text-sm font-semibold text-[#0F2F57] transition hover:-translate-y-0.5 hover:border-[#0078D4] hover:text-[#0078D4]"
+            dismissClassName="mt-3 text-sm font-medium text-[#5D6776] transition hover:text-[#0078D4]"
+          />
         </section>
       </div>
     </div>

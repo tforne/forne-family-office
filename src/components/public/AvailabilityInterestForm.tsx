@@ -36,60 +36,75 @@ export default function AvailabilityInterestForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-8 space-y-5">
-      <div className="rounded-[20px] border border-[#D7E7F5] bg-white/80 px-4 py-3 text-sm leading-6 text-[#605E5C]">
-        Cuéntanos qué tipo de inmueble te interesa y nuestro equipo revisará la disponibilidad para responderte de forma personalizada.
-      </div>
+      <div className="rounded-[26px] border border-[rgba(22,32,44,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(248,249,251,0.88)_100%)] p-6 shadow-[0_18px_40px_-34px_rgba(10,25,44,0.16)] lg:p-7">
+        <div className="grid gap-6 lg:grid-cols-[0.4fr_0.6fr] lg:items-start">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#B89B6D]">
+              Solicitud inicial
+            </div>
+            <p className="mt-3 text-sm leading-7 text-[#5A6675]">
+              Cuéntanos el tipo de inmueble, la zona o el timing que estás valorando. Revisaremos
+              la disponibilidad con una lectura selectiva y te responderemos de forma
+              personalizada.
+            </p>
+          </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
-          Nombre
-          <input
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Tu nombre"
-            className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-            required
-            maxLength={120}
-            autoComplete="name"
-          />
-        </label>
-        <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
-          Correo electrónico
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Tu correo electrónico"
-            className="w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-            required
-            maxLength={180}
-            autoComplete="email"
-          />
-        </label>
-      </div>
-      <label className="grid gap-2 text-sm font-medium text-[#201F1E]">
-        Qué estás buscando
-        <textarea
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder="Ejemplo: Busco un piso de 2 habitaciones en Barcelona o alrededores, disponible en los próximos meses."
-          className="min-h-28 w-full rounded border border-[#E1DFDD] bg-[#F3F2F1] px-4 py-3 text-sm font-normal leading-6 text-[#201F1E] outline-none transition focus:border-[#0078D4] focus:ring-2 focus:ring-[#0078D4]/15"
-          required
-          maxLength={1000}
-        />
-      </label>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs leading-5 text-[#605E5C]">
-          Te responderemos desde Forné Family Office a la dirección indicada.
+          <div className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="grid gap-2 text-sm font-medium text-[#1C2735]">
+                Nombre
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Tu nombre"
+                  className="ffo-portal-input w-full rounded-[16px] border px-4 py-3.5 text-sm font-normal text-[#1C2735] outline-none"
+                  required
+                  maxLength={120}
+                  autoComplete="name"
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-[#1C2735]">
+                Correo electrónico
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Tu correo electrónico"
+                  className="ffo-portal-input w-full rounded-[16px] border px-4 py-3.5 text-sm font-normal text-[#1C2735] outline-none"
+                  required
+                  maxLength={180}
+                  autoComplete="email"
+                />
+              </label>
+            </div>
+            <label className="grid gap-2 text-sm font-medium text-[#1C2735]">
+              Qué estás buscando
+              <textarea
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                placeholder="Ejemplo: Busco un piso de 2 habitaciones en Barcelona o alrededores, disponible en los próximos meses."
+                className="ffo-portal-input min-h-32 w-full rounded-[18px] border px-4 py-3.5 text-sm font-normal leading-6 text-[#1C2735] outline-none"
+                required
+                maxLength={1000}
+              />
+            </label>
+          </div>
         </div>
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          className="inline-flex items-center justify-center rounded bg-[#0078D4] px-8 py-3 text-sm font-semibold text-white shadow-[0_18px_38px_-20px_rgba(0,120,212,0.85)] transition hover:bg-[#106EBE] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {status === "sending" ? "Enviando solicitud..." : "Quiero recibir información"}
-        </button>
+
+        <div className="mt-6 flex flex-col gap-4 border-t border-[rgba(22,32,44,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-md text-xs leading-5 text-[#5A6675]">
+            Te responderemos desde Forné Family Office con la información disponible más relevante
+            para tu búsqueda, sin comunicaciones genéricas.
+          </div>
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="ffo-button-primary inline-flex items-center justify-center rounded-[16px] px-8 py-3 text-sm font-semibold text-white transition hover:brightness-[1.03] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {status === "sending" ? "Enviando solicitud..." : "Enviar solicitud"}
+          </button>
+        </div>
       </div>
 
       {status === "sent" ? (

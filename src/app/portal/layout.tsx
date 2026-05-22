@@ -37,8 +37,8 @@ export default async function PortalLayout({ children }: { children: React.React
         <PortalSidebar showAdmin={showAdmin} version={appVersion} />
         <div id="portal-main-shell" className="flex min-h-screen flex-1 flex-col transition-[margin] duration-300 ease-out">
           <PortalHeader email={session.email} provider={session.provider} />
-          <main className="flex-1 px-3 pb-24 pt-3 sm:px-5 sm:pb-28 sm:pt-5 lg:px-8 lg:pb-8 xl:px-10 xl:pt-8">
-            <div id="portal-main-content" className="mx-auto max-w-7xl rounded-[28px] border border-white/50 bg-white/28 p-2.5 shadow-[0_24px_70px_-50px_rgba(15,47,87,0.28)] backdrop-blur-[2px] transition-[max-width] duration-300 ease-out sm:rounded-[32px] sm:p-4 lg:p-5">
+          <main className="flex-1 px-3 pb-24 pt-4 sm:px-5 sm:pb-28 sm:pt-6 lg:px-8 lg:pb-8 xl:px-10 xl:pt-8">
+            <div id="portal-main-content" className="ffo-portal-surface mx-auto max-w-7xl rounded-[30px] p-2.5 transition-[max-width] duration-300 ease-out sm:rounded-[34px] sm:p-4 lg:p-5">
               {children}
             </div>
           </main>

@@ -6,6 +6,7 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
   const panelInset = size * 0.08;
   const panelSize = size - panelInset * 2;
   const radius = size * 0.24;
+  const badgeSize = size * 0.42;
   const brandScale = size / 512;
 
   return (
@@ -51,6 +52,7 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
           borderRadius: radius,
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(246,242,234,0.98) 100%)",
           boxShadow: "0 24px 50px rgba(34, 42, 52, 0.16)",
@@ -61,62 +63,100 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
       >
         <div
           style={{
+            width: badgeSize,
+            height: badgeSize,
+            borderRadius: size * 0.11,
             display: "flex",
-            alignItems: "flex-end",
+            alignItems: "center",
             justifyContent: "center",
-            gap: size * 0.006,
-            marginTop: -size * 0.015
+            background: "linear-gradient(135deg, #0F2F57 0%, #1B6FD8 100%)",
+            boxShadow: "0 30px 42px rgba(15, 47, 87, 0.22)"
           }}
         >
-          <span
+          <div
             style={{
-              color: "#8A9CB0",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: 250 * brandScale,
-              fontStyle: "italic",
-              lineHeight: 0.78,
-              fontWeight: 400,
-              letterSpacing: "-0.06em",
-              marginRight: size * 0.01
-            }}
-          >
-            f
-          </span>
-          <span
-            style={{
-              color: "#151313",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: 124 * brandScale,
-              lineHeight: 0.85,
-              fontWeight: 400,
-              letterSpacing: "0.01em"
-            }}
-          >
-            orn
-          </span>
-          <span
-            style={{
-              color: "#151313",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: 136 * brandScale,
-              lineHeight: 0.8,
-              fontWeight: 400,
-              letterSpacing: "0.01em",
               position: "relative",
-              marginLeft: size * 0.002
+              display: "flex",
+              width: 170 * brandScale,
+              height: 196 * brandScale,
+              marginTop: -size * 0.012,
+              marginLeft: size * 0.008
             }}
           >
-            è
-          </span>
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: 52 * brandScale,
+                height: 196 * brandScale,
+                borderRadius: 9999,
+                background: "#FFFFFF"
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: 30 * brandScale,
+                top: 0,
+                width: 118 * brandScale,
+                height: 28 * brandScale,
+                borderRadius: 9999,
+                background: "#FFFFFF",
+                transform: "skewX(-14deg)",
+                transformOrigin: "left center"
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: 26 * brandScale,
+                top: 74 * brandScale,
+                width: 98 * brandScale,
+                height: 28 * brandScale,
+                borderRadius: 9999,
+                background: "#FFFFFF",
+                transform: "skewX(-14deg)",
+                transformOrigin: "left center"
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: -8 * brandScale,
+                top: 170 * brandScale,
+                width: 72 * brandScale,
+                height: 18 * brandScale,
+                borderRadius: 9999,
+                background: "rgba(255,255,255,0.92)",
+                transform: "rotate(-12deg)"
+              }}
+            />
+          </div>
         </div>
 
         <div
           style={{
-            width: 70 * brandScale,
+            marginTop: 34 * brandScale,
+            color: "#151313",
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: 50 * brandScale,
+            fontStyle: "italic",
+            lineHeight: 0.92,
+            fontWeight: 400,
+            letterSpacing: "0.015em"
+          }}
+        >
+          Forné
+        </div>
+
+        <div
+          style={{
+            width: 74 * brandScale,
             height: Math.max(1, Math.round(size * 0.004)),
             background: "#B9C2CD",
             borderRadius: 9999,
-            marginTop: 26 * brandScale,
+            marginTop: 18 * brandScale,
             alignSelf: "center"
           }}
         />
@@ -125,14 +165,15 @@ export default function PwaIconTemplate({ size }: PwaIconTemplateProps) {
           style={{
             marginTop: 18 * brandScale,
             color: "#8A9CB0",
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: 18 * brandScale,
-            letterSpacing: "0.45em",
-            textIndent: "0.45em",
+            fontFamily: "Arial, sans-serif",
+            fontSize: 16 * brandScale,
+            fontWeight: 700,
+            letterSpacing: "0.34em",
+            textIndent: "0.34em",
             lineHeight: 1
           }}
         >
-          1933
+          FFO
         </div>
       </div>
     </div>

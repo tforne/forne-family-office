@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
+import AvailabilitySection from "@/components/public/AvailabilitySection";
 import AboutSection from "@/components/public/AboutSection";
 import ClientAreaSection from "@/components/public/ClientAreaSection";
 import ContactSection from "@/components/public/ContactSection";
 import Footer from "@/components/public/Footer";
-import FaqSection from "@/components/public/FaqSection";
 import GuidesSection from "@/components/public/GuidesSection";
 import Header from "@/components/public/Header";
 import Hero from "@/components/public/Hero";
-import NewsSection from "@/components/public/NewsSection";
 import ServicesSection from "@/components/public/ServicesSection";
 import TrustSection from "@/components/public/TrustSection";
 import { env } from "@/lib/config/env";
 
 export const metadata: Metadata = {
-  title: "Alquiler de pisos y locales",
+  title: "Forné Family Office | Gestión inmobiliaria con criterio",
   description:
-    "Forné Family Office gestiona alquiler de pisos y locales con atención al inquilino, incidencias, facturas y seguimiento profesional.",
+    "Forné Family Office presenta una gestión inmobiliaria con criterio, gobernanza, atención directa y portal privado para clientes e inquilinos.",
   alternates: {
     canonical: "/"
   }
@@ -140,7 +139,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-transparent">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
@@ -163,9 +162,8 @@ export default function HomePage() {
       <ServicesSection />
       <GuidesSection />
       <TrustSection />
-      <NewsSection />
+      <AvailabilitySection />
       <ClientAreaSection />
-      <FaqSection />
       <ContactSection />
       <Footer />
     </main>

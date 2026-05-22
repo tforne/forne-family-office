@@ -1,15 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
 import ConfirmationDialog from "@/components/portal/ConfirmationDialog";
-
-const InstallAppButton = dynamic(() => import("@/components/pwa/InstallAppButtonMount"), {
-  ssr: false
-});
+import InstallAppPromptCard from "@/components/pwa/InstallAppPromptCard";
 
 const items = [
   { href: "/portal", label: "Inicio", icon: "clarity" as const },
@@ -62,21 +58,21 @@ export default function PortalSidebar({
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`group block rounded-[22px] px-4 py-3.5 text-sm font-medium transition duration-200 ${
+              className={`group block rounded-[24px] px-4 py-3.5 text-[15px] font-medium tracking-[-0.01em] transition duration-200 ${
                 active
-                  ? "border border-white/12 bg-white/14 text-white shadow-[0_26px_42px_-28px_rgba(5,12,24,0.7)]"
+                  ? "border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.09)_100%)] text-white shadow-[0_28px_48px_-28px_rgba(5,12,24,0.72)]"
                   : "border border-transparent text-white/72 hover:border-white/10 hover:bg-white/8 hover:text-white"
               }`}
             >
               <span className="inline-flex items-center gap-3">
                 <span
-                  className={`inline-flex h-9 w-9 items-center justify-center rounded-2xl border transition ${
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border transition ${
                     active
                       ? "border-white/12 bg-white/12 text-white"
                       : "border-white/10 bg-white/5 text-white/72 group-hover:border-white/12 group-hover:bg-white/10 group-hover:text-white"
                   }`}
                 >
-                  <BrandIcon name={item.icon} className="h-4 w-4" />
+                  <BrandIcon name={item.icon} className="h-5 w-5" />
                 </span>
                 <span className="flex-1">{item.label}</span>
                 <span
@@ -113,8 +109,8 @@ export default function PortalSidebar({
               FF
             </div>
             <div>
-              <div className="text-sm font-semibold tracking-wide text-forne-ink">Forné Portal</div>
-              <div className="text-xs text-forne-muted">Espacio privado de cliente</div>
+              <div className="text-[0.95rem] font-semibold tracking-[0.08em] text-forne-ink">Forné Portal</div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-[#7f8896]">Espacio privado</div>
             </div>
           </Link>
           <button
@@ -127,7 +123,7 @@ export default function PortalSidebar({
           </button>
         </div>
         {version ? (
-          <div className="mt-3 text-[11px] font-medium text-forne-muted">
+          <div className="mt-3 text-[11px] font-medium tracking-[0.08em] text-[#7f8896]">
             Version {version}
           </div>
         ) : null}
@@ -139,14 +135,14 @@ export default function PortalSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition ${
+                  className={`rounded-2xl px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.08em] transition ${
                     active
                       ? "bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-white shadow-[0_16px_30px_-22px_rgba(15,47,87,0.68)]"
                       : "border border-forne-line bg-white/90 text-forne-muted"
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
-                    <BrandIcon name={item.icon} className="h-3.5 w-3.5" />
+                    <BrandIcon name={item.icon} className="h-4 w-4" />
                     <span>{item.label}</span>
                   </span>
                 </Link>
@@ -169,50 +165,47 @@ export default function PortalSidebar({
           </Link>
         </div>
         <div className="mt-2 sm:hidden">
-          <div className="rounded-2xl border border-forne-line bg-white/92 p-4 shadow-sm">
-            <div className="text-sm font-semibold text-forne-ink">Acceso rápido</div>
-            <div className="mt-1 text-xs leading-5 text-forne-muted">
-              Guarda el portal como app si tu navegador lo permite.
-            </div>
-            <div className="mt-3">
-            <InstallAppButton
-              className="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
-              iosClassName="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
-            />
-            </div>
-          </div>
+          <InstallAppPromptCard
+            surface="portal"
+            minVisits={2}
+            className="rounded-2xl border border-forne-line bg-white/92 p-4 shadow-sm"
+            titleClassName="text-sm font-semibold text-forne-ink"
+            bodyClassName="mt-1 text-xs leading-5 text-forne-muted"
+            buttonClassName="w-full rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
+            dismissClassName="mt-3 text-xs font-medium text-forne-muted transition hover:text-forne-ink"
+          />
         </div>
       </div>
 
-      <aside className="ffo-portal-dark hidden w-[320px] flex-col border-r border-white/8 text-white lg:flex">
+      <aside className="ffo-portal-dark hidden w-[328px] flex-col border-r border-white/8 text-white lg:flex">
         <div className="border-b border-white/8 p-7">
           <Link href="/portal" className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-[20px] border border-white/12 bg-white/10 text-sm font-semibold text-white shadow-[0_22px_42px_-24px_rgba(6,17,33,0.7)]">
               FF
             </div>
             <div>
-              <div className="text-sm font-semibold tracking-[0.12em] text-white">Forné Portal</div>
-              <div className="text-xs text-white/58">Espacio privado de cliente</div>
+              <div className="text-[0.95rem] font-semibold tracking-[0.12em] text-white">Forné Portal</div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-white/54">Entorno privado</div>
             </div>
           </Link>
         </div>
         <div className="px-6 pt-6">
-          <div className="rounded-[28px] border border-white/10 bg-white/8 px-5 py-5 shadow-[0_28px_45px_-30px_rgba(6,17,33,0.58)] backdrop-blur">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/52">Workspace</div>
-            <div className="mt-3 text-xl font-semibold tracking-tight text-white">Control centralizado</div>
-            <div className="mt-2 text-sm leading-6 text-white/68">
-              Accede a tus documentos, avisos y gestiones con una vista clara y profesional.
+          <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.1)_0%,rgba(255,255,255,0.05)_100%)] px-5 py-5 shadow-[0_30px_48px_-30px_rgba(6,17,33,0.56)] backdrop-blur">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">Workspace</div>
+            <div className="mt-3 text-[1.35rem] font-semibold tracking-[-0.03em] text-white">Control centralizado</div>
+            <div className="mt-2 text-[13px] leading-6 text-white/66">
+              Documentos, avisos y gestiones reunidos en una experiencia más clara y más serena.
             </div>
             <div className="mt-5">
-              <div className="text-xs leading-5 text-white/58">
-                Guarda este acceso como app para entrar más rápido desde tu dispositivo.
-              </div>
-              <div className="mt-3">
-                <InstallAppButton
-                  className="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
-                  iosClassName="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
-                />
-              </div>
+              <InstallAppPromptCard
+                surface="portal"
+                minVisits={2}
+                className="rounded-[22px] border border-white/10 bg-white/5 p-4"
+                titleClassName="text-sm font-semibold text-white"
+                bodyClassName="mt-2 text-xs leading-5 text-white/62"
+                buttonClassName="w-full rounded-[20px] border border-white/10 bg-white/12 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/16"
+                dismissClassName="mt-3 text-xs font-medium text-white/58 transition hover:text-white"
+              />
             </div>
           </div>
         </div>
@@ -221,7 +214,7 @@ export default function PortalSidebar({
         </nav>
         {version ? (
           <div className="border-t border-white/8 px-6 py-5">
-            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 text-xs text-white/62 backdrop-blur">
+            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 text-[11px] uppercase tracking-[0.18em] text-white/58 backdrop-blur">
               Version {version}
             </div>
           </div>

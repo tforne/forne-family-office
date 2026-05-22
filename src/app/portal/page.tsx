@@ -123,12 +123,12 @@ function formatDateTime(value: string | null | undefined) {
 function noticePriorityClass(priority: string | null | undefined) {
   const normalized = priority?.toLowerCase() || "";
   if (["high", "alta", "urgent", "urgente"].includes(normalized)) {
-    return "bg-red-50 text-red-700 ring-red-200";
+    return "bg-[rgba(122,44,44,0.08)] text-[#7a2c2c] ring-[rgba(122,44,44,0.16)]";
   }
   if (["normal", "medium", "media"].includes(normalized)) {
-    return "bg-amber-50 text-amber-800 ring-amber-200";
+    return "bg-[rgba(184,155,109,0.12)] text-[#8d6e3e] ring-[rgba(184,155,109,0.2)]";
   }
-  return "bg-slate-100 text-slate-700 ring-slate-200";
+  return "bg-[rgba(16,35,58,0.06)] text-[#5f6b79] ring-[rgba(16,35,58,0.12)]";
 }
 
 function NoticeCard({ notice }: { notice: TenantMyNoticeDto }) {
@@ -137,17 +137,17 @@ function NoticeCard({ notice }: { notice: TenantMyNoticeDto }) {
 
   return (
     <article className={`ffo-portal-card rounded-[30px] p-6 ${
-      requiresConfirmation ? "border-amber-300 ring-1 ring-amber-200" : "border-forne-line"
+      requiresConfirmation ? "border-[rgba(184,155,109,0.28)] ring-1 ring-[rgba(184,155,109,0.16)]" : "border-forne-line"
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
           {notice.isUnread ? (
-            <span className="rounded-full bg-forne-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="rounded-full bg-[#10233A] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_-18px_rgba(16,35,58,0.7)]">
               Nuevo
             </span>
           ) : null}
           {requiresConfirmation ? (
-            <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800 ring-1 ring-amber-200">
+            <span className="rounded-full bg-[rgba(184,155,109,0.12)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8d6e3e] ring-1 ring-[rgba(184,155,109,0.2)]">
               Confirmación requerida
             </span>
           ) : null}
@@ -157,12 +157,12 @@ function NoticeCard({ notice }: { notice: TenantMyNoticeDto }) {
             </span>
           ) : null}
           {notice.noticeType ? (
-            <span className="rounded-full bg-forne-cloud px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted ring-1 ring-forne-line">
+            <span className="rounded-full bg-[rgba(248,246,241,0.95)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6f7987] ring-1 ring-[rgba(15,35,58,0.08)]">
               {notice.noticeType}
             </span>
           ) : null}
         </div>
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8]">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(184,155,109,0.18)] bg-[linear-gradient(180deg,rgba(250,246,239,0.98)_0%,rgba(244,236,225,0.92)_100%)] text-[#b89b6d] shadow-[inset_0_1px_0_rgba(255,255,255,0.62)]">
           <BrandIcon name="attention" className="h-4.5 w-4.5" />
         </span>
       </div>
@@ -188,7 +188,7 @@ function NoticeCard({ notice }: { notice: TenantMyNoticeDto }) {
       </div>
 
       {notice.requiresReadConfirmation ? (
-        <div className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+        <div className="mt-4 rounded-2xl bg-[linear-gradient(180deg,rgba(252,248,241,0.96)_0%,rgba(247,239,226,0.9)_100%)] px-4 py-3 text-sm text-[#6d5731] ring-1 ring-[rgba(184,155,109,0.18)]">
           Requiere confirmación de lectura.
         </div>
       ) : null}
@@ -218,7 +218,7 @@ function LinkValue({
   }
 
   return (
-    <a href={href} className="mt-2 inline-flex text-sm font-medium leading-6 text-[#0078D4] transition hover:text-[#106EBE]">
+    <a href={href} className="mt-2 inline-flex text-sm font-medium leading-6 text-[#10233A] transition hover:text-[#8d6e3e]">
       {value}
     </a>
   );
@@ -238,12 +238,12 @@ function ContactCard({
   helper?: string;
 }) {
   return (
-    <article className="rounded-3xl border border-forne-line bg-white p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.28)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+    <article className="rounded-3xl border border-[rgba(15,35,58,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(249,247,243,0.92)_100%)] p-6 shadow-[0_24px_55px_-38px_rgba(15,23,42,0.22)] sm:p-7">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8896]">{label}</div>
       <h3 className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{title}</h3>
       {helper ? <p className="mt-2 text-sm leading-6 text-forne-muted">{helper}</p> : null}
 
-      <div className="mt-5 space-y-4">
+      <div className="mt-6 space-y-4">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Email</div>
           <LinkValue
@@ -273,8 +273,8 @@ function SummaryDetail({
   helper?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-forne-line bg-white/70 p-5">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
+    <div className="rounded-2xl border border-[rgba(15,35,58,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(247,248,250,0.84)_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-6">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8896]">{label}</div>
       <div className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{value}</div>
       {helper ? <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div> : null}
     </div>
@@ -295,17 +295,17 @@ function QuickActionCard({
   return (
     <Link
       href={href}
-      className="ffo-portal-card group rounded-[30px] p-6 transition hover:-translate-y-1 hover:border-[#0078D4]/30 hover:shadow-[0_32px_70px_-40px_rgba(15,23,42,0.3)]"
+      className="ffo-portal-card group rounded-[30px] p-6 transition hover:-translate-y-1 hover:border-[#9fbfe4] hover:shadow-[0_32px_70px_-42px_rgba(15,23,42,0.24)]"
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">Autoservicio</div>
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1b6fd8]/12 bg-[#1b6fd8]/8 text-[#1b6fd8] transition group-hover:translate-x-0.5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7b8797]">Acceso directo</div>
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(184,155,109,0.18)] bg-[#f6efe5] text-[#b89b6d] transition group-hover:translate-x-0.5">
           <BrandIcon name="arrow" className="h-4 w-4" />
         </span>
       </div>
       <h3 className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-forne-muted">{description}</p>
-      <div className="mt-4 text-sm font-semibold text-[#0078D4]">{helper}</div>
+      <div className="mt-5 text-sm font-semibold text-[#10233A]">{helper}</div>
     </Link>
   );
 }
@@ -370,8 +370,8 @@ function ConciergeActionCard({
       href={href}
       className={`group rounded-[28px] border p-5 shadow-[0_24px_55px_-40px_rgba(15,47,87,0.24)] transition hover:-translate-y-1 hover:border-[#8eb8e6] hover:shadow-[0_32px_70px_-42px_rgba(15,47,87,0.32)] ${toneClass}`}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6982a3]">{eyebrow}</div>
-      <h3 className="mt-3 text-lg font-semibold tracking-tight text-forne-ink">{title}</h3>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#7f8896]">{eyebrow}</div>
+      <h3 className="mt-3 text-[1.2rem] font-semibold tracking-[-0.03em] text-forne-ink">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#5d6f88]">{description}</p>
       <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#123861] transition group-hover:text-[#0078D4]">
         {cta}
@@ -395,14 +395,14 @@ function ActivityItem({
   cta?: string;
 }) {
   return (
-    <article className="rounded-[24px] border border-forne-line bg-white/92 p-5 shadow-[0_18px_38px_-34px_rgba(15,47,87,0.22)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{eyebrow}</div>
-      <h3 className="mt-3 text-base font-semibold text-forne-ink">{title}</h3>
+    <article className="rounded-[26px] border border-forne-line bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,253,0.94)_100%)] p-5 shadow-[0_20px_42px_-36px_rgba(15,47,87,0.18)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7b8797]">{eyebrow}</div>
+      <h3 className="mt-3 text-[1.02rem] font-semibold tracking-[-0.02em] text-forne-ink">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
       {href && cta ? (
         <Link
           href={href}
-          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#10233A]"
         >
           {cta}
           <BrandIcon name="arrow" className="h-4 w-4" />
@@ -422,9 +422,9 @@ function MilestoneCard({
   helper: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-forne-line bg-white/94 p-5 shadow-[0_18px_40px_-34px_rgba(15,47,87,0.22)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">{label}</div>
-      <div className="mt-3 text-xl font-semibold tracking-tight text-forne-ink">{value}</div>
+    <div className="rounded-[24px] border border-forne-line bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,250,253,0.94)_100%)] p-5 shadow-[0_18px_40px_-34px_rgba(15,47,87,0.18)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7b8797]">{label}</div>
+      <div className="mt-3 text-[1.55rem] font-semibold tracking-[-0.03em] text-forne-ink">{value}</div>
       <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div>
     </div>
   );
@@ -448,7 +448,7 @@ function TimelineStep({
       <span className={`absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border ${isLight ? "border-[#c9d9ea] bg-white" : "border-white/18 bg-white/12"}`}>
         <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
       </span>
-      <div className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${isLight ? "text-[#6f84a0]" : "text-white/48"}`}>{label}</div>
+      <div className={`text-[11px] font-semibold uppercase tracking-[0.28em] ${isLight ? "text-[#7f8896]" : "text-white/48"}`}>{label}</div>
       <div className={`mt-2 text-base font-semibold ${isLight ? "text-forne-ink" : "text-white"}`}>{title}</div>
       <div className={`mt-2 text-sm leading-6 ${isLight ? "text-[#5d6f88]" : "text-white/64"}`}>{description}</div>
     </div>
@@ -471,14 +471,14 @@ function DataSectionHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">{kicker}</div>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-forne-muted">{description}</p>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#8a97a8]">{kicker}</div>
+        <h2 className="mt-2 text-[1.9rem] font-semibold tracking-[-0.035em] text-forne-ink">{title}</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-forne-muted">{description}</p>
       </div>
       {href && cta ? (
         <Link
           href={href}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#10233A]"
         >
           {cta}
           <span aria-hidden="true">›</span>
@@ -753,11 +753,11 @@ export default async function PortalPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <PortalPageContext payload={chatPageContext} />
-      <div>
-        <div className="text-3xl font-semibold tracking-tight text-forne-ink sm:text-4xl">{greeting}</div>
-        <div className="text-xs font-semibold uppercase tracking-[0.28em] text-forne-muted">Portal privado</div>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-forne-ink">Resumen</h1>
-        <p className="mt-2 text-sm leading-6 text-forne-muted">
+      <div className="rounded-[28px] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(248,250,253,0.68)_100%)] px-5 py-5 shadow-[0_22px_55px_-42px_rgba(15,47,87,0.14)] backdrop-blur sm:px-6 sm:py-6">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.34em] text-[#8a97a8]">Acceso privado</div>
+        <div className="mt-3 text-[2.15rem] font-semibold tracking-[-0.04em] text-forne-ink sm:text-[2.55rem]">{greeting}</div>
+        <h1 className="mt-3 text-[2.15rem] font-semibold tracking-[-0.04em] text-forne-ink">Resumen ejecutivo</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-forne-muted">
           Visualiza tu situación actual con la información más importante del contrato y los próximos movimientos.
         </p>
       </div>
@@ -773,14 +773,14 @@ export default async function PortalPage() {
           <section id="dashboard-concierge" className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
             <div className="relative z-[1] flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/62">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
-                  Dashboard concierge
+                  Resumen concierge
                 </div>
-                <div className={`mt-4 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ring-1 ${executiveStatus.chipClass}`}>
+                <div className={`mt-4 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ring-1 shadow-[0_10px_24px_-18px_rgba(0,0,0,0.35)] ${executiveStatus.chipClass}`}>
                   {executiveStatus.label}
                 </div>
-                <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight sm:text-[2.35rem]">
+                <h2 className="mt-4 max-w-3xl text-[2.15rem] font-semibold tracking-[-0.04em] sm:text-[2.45rem]">
                   {conciergeHeadline}
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">{conciergeSummary}</p>
@@ -822,24 +822,24 @@ export default async function PortalPage() {
             <div className="relative z-[1] mt-7 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]">
               <div
                 id="dashboard-summary"
-                className="rounded-[28px] border border-[#c9d9ea] bg-[linear-gradient(180deg,rgba(248,251,255,0.96)_0%,rgba(231,239,249,0.92)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.34)] backdrop-blur sm:p-5"
+                className="rounded-[28px] border border-[rgba(184,155,109,0.18)] bg-[linear-gradient(180deg,rgba(252,249,244,0.96)_0%,rgba(242,246,250,0.92)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.3)] backdrop-blur sm:p-5"
               >
-                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6f84a0]">Resumen ejecutivo</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8a97a8]">Resumen ejecutivo</div>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
-                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">Contrato principal</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-[#6f84a0]">Contrato principal</div>
                     <div className="mt-2 text-lg font-semibold text-forne-ink">
                       {primaryContract?.contractNo || "Sin referencia"}
                     </div>
                     <div className="mt-2 text-sm leading-6 text-[#5d6f88]">{contractLabel}</div>
                   </div>
                   <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
-                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">{nextMilestoneTitle}</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-[#6f84a0]">{nextMilestoneTitle}</div>
                     <div className="mt-2 text-lg font-semibold text-forne-ink">{nextMilestoneLabel}</div>
                     <div className="mt-2 text-sm leading-6 text-[#5d6f88]">{nextMilestoneDescription}</div>
                   </div>
                   <div className="rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(245,249,253,0.96)_100%)] p-4 shadow-[0_18px_36px_-30px_rgba(15,47,87,0.2)]">
-                    <div className="text-xs uppercase tracking-[0.18em] text-[#6f84a0]">Apoyo disponible</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-[#6f84a0]">Apoyo disponible</div>
                     <div className="mt-2 text-lg font-semibold text-forne-ink">
                       office@forne.family
                     </div>
@@ -852,9 +852,9 @@ export default async function PortalPage() {
 
               <div
                 id="dashboard-journey"
-                className="rounded-[28px] border border-[#c9d9ea] bg-[linear-gradient(180deg,rgba(247,250,255,0.95)_0%,rgba(232,240,249,0.9)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.34)] backdrop-blur sm:p-5"
+                className="rounded-[28px] border border-white/60 bg-[linear-gradient(180deg,rgba(249,251,254,0.96)_0%,rgba(237,242,248,0.92)_100%)] p-4 shadow-[0_24px_60px_-42px_rgba(8,23,44,0.26)] backdrop-blur sm:p-5"
               >
-                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#6f84a0]">Recorrido recomendado</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8a97a8]">Recorrido recomendado</div>
                 <div className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-[#d6e1ed]">
                   {recommendedJourney.map((step) => (
                     <TimelineStep
@@ -915,7 +915,7 @@ export default async function PortalPage() {
             <div className="ffo-portal-card rounded-[32px] p-5 sm:p-6">
               <DataSectionHeader
                 kicker="Actividad reciente"
-                title="Qué está pasando en tu portal"
+                title="Qué está pasando ahora"
                 description="Una lectura rápida de los movimientos y focos actuales para no tener que revisar cada sección por separado."
               />
 
@@ -968,17 +968,17 @@ export default async function PortalPage() {
 
               <section className="ffo-portal-dark rounded-[32px] border border-white/8 p-5 text-white sm:p-6">
                 <div className="relative z-[1]">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/62">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/62">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
                     Acompañamiento
                   </div>
-                  <h2 className="mt-4 text-2xl font-semibold tracking-tight">Tu punto de contacto preferente</h2>
+                  <h2 className="mt-4 text-[1.9rem] font-semibold tracking-[-0.035em]">Tu punto de contacto preferente</h2>
                   <p className="mt-3 text-sm leading-7 text-white/68">
                     Cuando necesites escalar una consulta o confirmar contexto contractual, aquí tienes una referencia clara y privada.
                   </p>
 
                   <div className="mt-5 rounded-[24px] border border-white/10 bg-white/7 p-5 backdrop-blur">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/50">Responsable / referencia</div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">Responsable / referencia</div>
                     <div className="mt-2 text-xl font-semibold text-white">{advisorName}</div>
                     <div className="mt-2 text-sm leading-6 text-white/66">{contractLabel}</div>
                   </div>
@@ -1038,8 +1038,8 @@ export default async function PortalPage() {
           <section className="ffo-portal-card rounded-[32px] p-5 sm:p-6">
             <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
               <div className="ffo-portal-dark rounded-[30px] p-5 text-white sm:p-6">
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">Dashboard inicial</div>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight">Próximo recibo y situación contractual</h2>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/55">Visión contractual</div>
+                <h2 className="mt-3 text-[1.95rem] font-semibold tracking-[-0.035em]">Próximo recibo y situación contractual</h2>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   <div className="rounded-[24px] border border-white/10 bg-white/7 p-5 backdrop-blur">
                     <div className="text-sm font-semibold text-white/70">Próximo recibo</div>
@@ -1122,7 +1122,7 @@ export default async function PortalPage() {
       <section className="space-y-4">
         <DataSectionHeader
           kicker="Indicadores clave"
-          title="Seguimiento rápido del portal"
+              title="Seguimiento rápido"
           description="Lectura compacta de tu situación antes de entrar en el detalle completo de cada módulo."
         />
 
@@ -1154,36 +1154,36 @@ export default async function PortalPage() {
                 Desliza la tabla para ver el estado y el detalle de cada petición.
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
+                <table className="min-w-full divide-y divide-[rgba(15,35,58,0.08)] text-left text-sm">
+                <thead className="bg-[linear-gradient(180deg,rgba(251,249,245,0.96)_0%,rgba(244,239,231,0.9)_100%)] text-[11px] uppercase tracking-[0.18em] text-[#7f8896]">
                   <tr>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Fecha</th>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Petición</th>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Estado</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Fecha</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Petición</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Estado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-forne-line bg-white">
+                <tbody className="divide-y divide-[rgba(15,35,58,0.08)] bg-[rgba(255,255,255,0.96)]">
                   {latestIncidentRequests.map((request) => (
                     <tr
                       key={request.id || request.requestId || String(request.entryNo)}
-                      className="transition hover:bg-[#f8fbff]"
+                      className="transition hover:bg-[rgba(249,246,240,0.78)]"
                     >
-                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
+                      <td className="whitespace-nowrap px-4 py-4 align-top text-[13px] text-forne-muted sm:px-6 sm:py-5">
                         {formatDate(request.createdAt || request.incidentDate)}
                       </td>
-                      <td className="min-w-[16rem] px-4 py-3 sm:px-5 sm:py-4">
-                        <div className="font-medium text-forne-ink">
+                      <td className="min-w-[16rem] px-4 py-4 align-top sm:px-6 sm:py-5">
+                        <div className="font-medium leading-6 text-forne-ink">
                           {request.title || request.requestId || "Petición de incidencia"}
                         </div>
                         <div className="mt-1 line-clamp-2 max-w-xl text-sm leading-6 text-forne-muted">
                           {request.description || request.refDescription || request.createdIncidentNo || "Sin detalle adicional"}
                         </div>
-                        <div className="mt-2 text-xs font-medium text-forne-muted">
+                        <div className="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7f8896]">
                           {request.contractNo ? `Contrato ${request.contractNo}` : "Sin contrato asociado"}
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
-                        <span className="inline-flex rounded-full border border-forne-line bg-[#f8fbff] px-3 py-1 text-xs font-semibold text-forne-ink">
+                      <td className="whitespace-nowrap px-4 py-4 align-top text-forne-muted sm:px-6 sm:py-5">
+                        <span className="inline-flex min-w-[7.5rem] justify-center rounded-full border border-[rgba(15,35,58,0.08)] bg-[rgba(248,246,241,0.9)] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#10233A]">
                           {request.status || "Sin estado"}
                         </span>
                       </td>
@@ -1215,33 +1215,33 @@ export default async function PortalPage() {
                 Desliza la tabla para ver importes y estado sin perder detalle.
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-forne-line text-left text-sm">
-                <thead className="bg-[linear-gradient(180deg,#fbfcff_0%,#f5f9fe_100%)] text-xs uppercase tracking-[0.16em] text-forne-muted">
+                <table className="min-w-full divide-y divide-[rgba(15,35,58,0.08)] text-left text-sm">
+                <thead className="bg-[linear-gradient(180deg,rgba(251,249,245,0.96)_0%,rgba(244,239,231,0.9)_100%)] text-[11px] uppercase tracking-[0.18em] text-[#7f8896]">
                   <tr>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Factura</th>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Vencimiento</th>
-                    <th className="px-4 py-3 text-right font-semibold sm:px-5 sm:py-4">Importe</th>
-                    <th className="px-4 py-3 font-semibold sm:px-5 sm:py-4">Estado</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Factura</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Vencimiento</th>
+                    <th className="px-4 py-3.5 text-right font-semibold sm:px-6 sm:py-4.5">Importe</th>
+                    <th className="px-4 py-3.5 font-semibold sm:px-6 sm:py-4.5">Estado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-forne-line bg-white">
+                <tbody className="divide-y divide-[rgba(15,35,58,0.08)] bg-[rgba(255,255,255,0.96)]">
                   {latestInvoices.map((invoice) => (
-                    <tr key={invoice.id} className="transition hover:bg-[#f8fbff]">
-                      <td className="px-4 py-3 sm:px-5 sm:py-4">
-                        <div className="font-medium text-forne-ink">{invoice.invoiceNo}</div>
-                        <div className="mt-1 text-xs text-forne-muted">Cliente {invoice.billToCustomerNo}</div>
+                    <tr key={invoice.id} className="transition hover:bg-[rgba(249,246,240,0.78)]">
+                      <td className="px-4 py-4 align-top sm:px-6 sm:py-5">
+                        <div className="font-medium leading-6 text-forne-ink">{invoice.invoiceNo}</div>
+                        <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7f8896]">Cliente {invoice.billToCustomerNo}</div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-forne-muted sm:px-5 sm:py-4">
+                      <td className="whitespace-nowrap px-4 py-4 align-top text-[13px] text-forne-muted sm:px-6 sm:py-5">
                         {formatDate(invoice.dueDate)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-forne-ink sm:px-5 sm:py-4">
+                      <td className="whitespace-nowrap px-4 py-4 align-top text-right font-medium text-forne-ink sm:px-6 sm:py-5">
                         {formatMoney(invoice.amountIncludingVat, invoice.currencyCode)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 sm:px-5 sm:py-4">
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
+                      <td className="whitespace-nowrap px-4 py-4 align-top sm:px-6 sm:py-5">
+                        <span className={`inline-flex min-w-[7rem] justify-center rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ${
                           (invoice.remainingAmount ?? 0) > 0
-                            ? "bg-amber-50 text-amber-800 ring-amber-200"
-                            : "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                            ? "bg-[rgba(184,155,109,0.12)] text-[#8d6e3e] ring-[rgba(184,155,109,0.2)]"
+                            : "bg-[rgba(61,92,68,0.1)] text-[#3d5c44] ring-[rgba(61,92,68,0.16)]"
                         }`}>
                           {(invoice.remainingAmount ?? 0) > 0 ? "Pendiente" : "Pagada"}
                         </span>
@@ -1334,7 +1334,7 @@ export default async function PortalPage() {
                     href={item.link}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#0078D4]"
+                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-forne-ink transition hover:text-[#8d6e3e]"
                   >
                     Más información
                     <span aria-hidden="true">›</span>

@@ -16,16 +16,16 @@ export default function Footer() {
                   Forné Family Office
                 </div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-[#9AA7B8]">
-                  Alquileres · Atención · Portal privado
+                  Criterio inmobiliario · Acceso privado
                 </div>
               </div>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-[#AAB4C2]">
-              Gestión de alquiler de pisos y locales con atención directa, información clara y un
-              portal privado para clientes e inquilinos.
+              Gestión residencial y comercial con atención directa, criterio operativo y un acceso
+              privado claro para clientes e inquilinos.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              {["Barcelona y entorno", "Portal privado", "Atención al inquilino"].map((item) => (
+              {["Barcelona y entorno", "Acceso privado", "Atención directa"].map((item) => (
                 <span
                   key={item}
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-[#DDE8F6]"
@@ -46,21 +46,20 @@ export default function Footer() {
             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8A8886]">Navegación</div>
             <div className="mt-4 grid gap-3 text-sm text-[#BFC8D4]">
               <Link href="/" className="transition hover:text-white">Inicio</Link>
-              <Link href="/alquileres" className="transition hover:text-white">Alquiler de pisos y locales</Link>
+              <Link href="/alquileres" className="transition hover:text-white">Activos y disponibilidad</Link>
               <Link href="/#quienes-somos" className="transition hover:text-white">Quiénes somos</Link>
-              <Link href="/#noticias" className="transition hover:text-white">Noticias</Link>
               <Link href="/#servicios" className="transition hover:text-white">Servicios</Link>
               <Link href="/contacto" className="transition hover:text-white">Contacto</Link>
             </div>
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8A8886]">Portal privado</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8A8886]">Acceso privado</div>
             <div className="mt-4 grid gap-3 text-sm text-[#BFC8D4]">
               <Link href="/login" className="transition hover:text-white">Acceso clientes</Link>
               <span>Facturas</span>
               <span>Incidencias</span>
-              <span>Comunicación</span>
+              <span>Comunicaciones</span>
             </div>
           </div>
 
@@ -71,14 +70,14 @@ export default function Footer() {
                 office@forne.family
               </a>
               <span>Barcelona, España</span>
-              <span>Alquiler residencial y comercial</span>
+              <span>Gestión residencial y comercial</span>
               <span>Lun-Vie, 9:00-18:00</span>
             </div>
             <Link
               href="/login"
               className="ffo-button-primary mt-5 inline-flex rounded-[14px] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-[1.03]"
             >
-              Acceso clientes
+              Entrar al área privada
             </Link>
           </div>
         </div>
@@ -86,9 +85,9 @@ export default function Footer() {
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-[#7C8796] sm:flex-row sm:items-center sm:justify-between">
           <div suppressHydrationWarning>© {new Date().getFullYear()} Forné Family Office. Todos los derechos reservados.</div>
           <div className="flex gap-5">
-            <span>Atención al inquilino</span>
+            <span>Atención directa</span>
             <Link href="/login" className="transition hover:text-white">
-              Portal privado
+              Acceso privado
             </Link>
           </div>
         </div>

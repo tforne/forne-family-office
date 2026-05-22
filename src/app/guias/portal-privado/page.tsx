@@ -6,7 +6,7 @@ import Header from "@/components/public/Header";
 export const metadata: Metadata = {
   title: "Como funciona el portal privado",
   description:
-    "Guia sobre como funciona el portal privado para consultar facturas, avisos, incidencias y perfil del cliente.",
+    "Guia sobre como funciona el portal privado para consultar facturas, avisos, incidencias, perfil del cliente y acceso rapido como app.",
   alternates: {
     canonical: "/guias/portal-privado"
   }
@@ -37,6 +37,16 @@ const sections = [
       "Revisa primero el panel de inicio para detectar pendientes.",
       "Consulta avisos antes de abrir una incidencia si la gestion puede estar ya comunicada.",
       "Usa el portal para mantener el contexto junto a cada contrato o activo."
+    ]
+  },
+  {
+    title: "Acceso rapido como app",
+    items: [
+      "La opcion para guardar el portal como app ya no aparece en la portada publica, para no distraer cuando todavia no hace falta.",
+      "Ahora se muestra en el acceso al portal y dentro de la zona privada, que es donde realmente ayuda a entrar mas rapido.",
+      "Si el navegador permite instalarla, veras la accion para anadir acceso rapido.",
+      "En iPhone o iPad se muestra la ayuda para anadir el portal a la pantalla de inicio.",
+      "Si ya estas usando el portal como app, la sugerencia deja de mostrarse."
     ]
   }
 ];

@@ -30,44 +30,44 @@ export default function PortalHeader({
     <header className="ffo-portal-header px-4 py-4 sm:px-5 lg:px-8">
       <div className="mx-auto flex max-w-7xl items-start justify-between gap-4 sm:items-center">
         <div className="min-w-0">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-forne-muted">
-            Portal privado
+          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7f8896]">
+            Acceso privado
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <div className="text-xl font-semibold tracking-tight text-forne-ink sm:text-2xl">
+            <div className="text-[1.35rem] font-semibold tracking-[-0.03em] text-forne-ink sm:text-[1.6rem]">
               Área de cliente
             </div>
-            <span className="hidden h-1.5 w-1.5 rounded-full bg-[#1b6fd8]/60 sm:inline-flex" />
-            <div className="hidden text-sm text-forne-muted sm:block">
-              Consultas, avisos y gestiones en un mismo espacio.
+            <span className="hidden h-1.5 w-1.5 rounded-full bg-[#b89b6d]/70 sm:inline-flex" />
+            <div className="hidden text-[13px] text-[#6f7987] sm:block">
+              Consultas, documentación y seguimiento en un mismo entorno.
             </div>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden rounded-2xl border border-white/70 bg-white/72 px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.3)] backdrop-blur md:block">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">
+          <div className="hidden rounded-[20px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.88)_0%,rgba(247,250,253,0.82)_100%)] px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.22)] backdrop-blur md:block">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8896]">
               Sesión
             </div>
             <div className="mt-1 text-sm font-semibold text-forne-ink">{providerLabel}</div>
-            <div className="truncate text-xs text-forne-muted">{userEmail}</div>
+            <div className="truncate text-[12px] text-[#6f7987]">{userEmail}</div>
           </div>
           <button
             type="button"
             onClick={() => setIsLogoutDialogOpen(true)}
             disabled={isLoggingOut}
-            className="rounded-2xl border border-forne-line bg-white/80 px-4 py-2.5 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.35)] transition hover:-translate-y-0.5 hover:border-forne-ink/15 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-[18px] border border-forne-line bg-white/86 px-4 py-2.5 text-sm font-semibold text-forne-ink shadow-[0_16px_36px_-30px_rgba(15,47,87,0.22)] transition hover:-translate-y-0.5 hover:border-forne-ink/15 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             Salir
           </button>
         </div>
       </div>
       <div className="mx-auto mt-3 max-w-7xl md:hidden">
-        <div className="rounded-2xl border border-white/70 bg-white/72 px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.3)] backdrop-blur">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forne-muted">
+        <div className="rounded-[20px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.88)_0%,rgba(247,250,253,0.82)_100%)] px-4 py-3 shadow-[0_18px_45px_-34px_rgba(15,47,87,0.22)] backdrop-blur">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8896]">
             Sesión
           </div>
           <div className="mt-1 text-sm font-semibold text-forne-ink">{providerLabel}</div>
-          <div className="truncate text-xs text-forne-muted">{userEmail}</div>
+          <div className="truncate text-[12px] text-[#6f7987]">{userEmail}</div>
         </div>
       </div>
       <ConfirmationDialog
