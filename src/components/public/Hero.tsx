@@ -7,14 +7,29 @@ const HERO_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-calle-gRs5ApjQ7HD5b5Mu9TdWPe.webp";
 
 const confidenceSignals = [
-  "Gobernanza clara en residencial y comercial",
-  "Interlocución directa con criterio y discreción"
+  "Gestión de alquileres residenciales y comerciales",
+  "Barcelona, Montornès del Vallès y entorno"
 ];
 
 const trustMetrics = [
-  { value: "35+", label: "años de continuidad y criterio de gestión" },
-  { value: "Orden", label: "trazabilidad, seguimiento y responsabilidad" },
-  { value: "1 entorno", label: "acceso privado para visibilidad y control" }
+  {
+    value: "35+",
+    label: "años de continuidad y criterio de gestión",
+    eyebrow: "Continuidad",
+    icon: "trust" as const
+  },
+  {
+    value: "Orden",
+    label: "trazabilidad, seguimiento y responsabilidad",
+    eyebrow: "Método",
+    icon: "operations" as const
+  },
+  {
+    value: "1 entorno",
+    label: "acceso privado para visibilidad y control",
+    eyebrow: "Visibilidad",
+    icon: "clarity" as const
+  }
 ];
 
 const governancePoints = [
@@ -46,10 +61,10 @@ export default async function Hero() {
           </h1>
 
           <p className="mt-6 max-w-[34rem] text-lg leading-8 text-[#516070]">
-            Forné Family Office acompaña activos residenciales y comerciales con una gestión
-            sobria, bien gobernada y orientada a la continuidad. Lo esencial no son las
-            funcionalidades, sino el criterio con el que se decide, se responde y se cuida cada
-            relación.
+            Forné Family Office acompaña alquileres residenciales y comerciales en Barcelona,
+            Montornès del Vallès y entorno con una gestión sobria, bien gobernada y orientada a la
+            continuidad. Lo esencial no son las funcionalidades, sino el criterio con el que se
+            decide, se responde y se cuida cada relación.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -79,18 +94,43 @@ export default async function Hero() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-4 border-t border-[rgba(22,32,44,0.08)] pt-8 sm:grid-cols-3">
-            {trustMetrics.map((item, index) => (
-              <div
-                key={item.label}
-                className={`rounded-[22px] bg-transparent p-4 ${index > 0 ? "ffo-stat-divider sm:pl-6" : ""}`}
-              >
-                <div className="text-2xl font-semibold tracking-[-0.03em] text-[#10233A]">
-                  {item.value}
+          <div className="mt-11 rounded-[30px] border border-[rgba(22,32,44,0.08)] bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(247,249,251,0.92)_52%,rgba(245,239,230,0.78)_100%)] p-4 shadow-[0_24px_54px_-42px_rgba(8,20,37,0.24)] sm:p-5 lg:relative lg:z-10 lg:mr-[-5.5rem] lg:mt-14 xl:mr-[-7rem]">
+            <div className="mb-4 flex items-center justify-between gap-3 px-2 sm:px-3 lg:mb-5">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#B89B6D]">
+                  Señales de confianza
                 </div>
-                <p className="mt-1 text-sm leading-6 text-[#5A6675]">{item.label}</p>
+                <p className="mt-1 text-sm leading-6 text-[#5A6675]">
+                  Una lectura rápida de cómo se estructura la relación.
+                </p>
               </div>
-            ))}
+              <div className="hidden h-px flex-1 bg-[linear-gradient(90deg,rgba(184,155,109,0.26),rgba(95,120,147,0.08),transparent)] sm:block" />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:gap-4">
+              {trustMetrics.map((item) => (
+                <article
+                  key={item.label}
+                  className="group relative overflow-hidden rounded-[24px] border border-[rgba(22,32,44,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(248,250,252,0.86)_100%)] p-5 shadow-[0_18px_40px_-34px_rgba(10,25,44,0.22)] transition duration-300 hover:-translate-y-0.5 hover:border-[rgba(184,155,109,0.22)] hover:shadow-[0_24px_52px_-34px_rgba(10,25,44,0.26)] lg:min-h-[172px] lg:p-6"
+                >
+                  <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(184,155,109,0.5),rgba(95,120,147,0.22),transparent)]" />
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B89B6D]">
+                        {item.eyebrow}
+                      </div>
+                      <div className="mt-3 text-[1.95rem] font-semibold leading-none tracking-[-0.04em] text-[#10233A]">
+                        {item.value}
+                      </div>
+                    </div>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-[15px] border border-[rgba(184,155,109,0.16)] bg-[#F4EEE4]/80 text-[#B89B6D] transition duration-300 group-hover:bg-[#EEE2CB]">
+                      <BrandIcon name={item.icon} className="h-[18px] w-[18px]" />
+                    </div>
+                  </div>
+                  <p className="mt-4 max-w-[18ch] text-sm leading-6 text-[#556272]">{item.label}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -13,11 +13,34 @@ import TrustSection from "@/components/public/TrustSection";
 import { env } from "@/lib/config/env";
 
 export const metadata: Metadata = {
-  title: "Forné Family Office | Gestión inmobiliaria con criterio",
+  title: "Gestión de alquileres en Barcelona y Montornès | Forné Family Office",
   description:
-    "Forné Family Office presenta una gestión inmobiliaria con criterio, gobernanza, atención directa y portal privado para clientes e inquilinos.",
+    "Gestión de alquileres residenciales y comerciales en Barcelona y Montornès del Vallès, con atención directa, portal privado e información clara para propietarios e inquilinos.",
+  keywords: [
+    "gestion de alquileres barcelona",
+    "gestion de alquileres montornes del valles",
+    "alquiler de pisos barcelona",
+    "alquiler de locales barcelona",
+    "portal del inquilino",
+    "gestion inmobiliaria residencial y comercial"
+  ],
   alternates: {
     canonical: "/"
+  },
+  openGraph: {
+    title: "Gestión de alquileres en Barcelona y Montornès | Forné Family Office",
+    description:
+      "Gestión de alquileres residenciales y comerciales con atención directa, visibilidad operativa y portal privado para clientes e inquilinos.",
+    url: "/",
+    siteName: "Forné Family Office",
+    locale: "es_ES",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gestión de alquileres en Barcelona y Montornès | Forné Family Office",
+    description:
+      "Gestión inmobiliaria residencial y comercial con portal privado, seguimiento claro y atención directa."
   }
 };
 
@@ -65,13 +88,11 @@ export default function HomePage() {
 
   const localBusinessSchema = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "RealEstateAgent",
     name: "Forné Family Office",
     url: env.appBaseUrl,
     email: "office@forne.family",
-    image: [
-      `${env.appBaseUrl}/icon.png`
-    ],
+    image: [`${env.appBaseUrl}/icon.png`],
     areaServed: ["Barcelona", "Montornès del Vallès", "Granollers"],
     address: {
       "@type": "PostalAddress",
@@ -79,6 +100,11 @@ export default function HomePage() {
       addressRegion: "Barcelona",
       addressCountry: "ES"
     },
+    serviceType: [
+      "Gestión de alquiler residencial",
+      "Gestión de alquiler comercial",
+      "Portal privado para clientes e inquilinos"
+    ],
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
@@ -96,7 +122,7 @@ export default function HomePage() {
       "facturacion de alquileres"
     ],
     description:
-      "Gestión profesional de alquiler de pisos y locales con atención personalizada y portal privado para clientes e inquilinos."
+      "Gestión profesional de alquiler de pisos y locales en Barcelona y Montornès del Vallès, con atención personalizada y portal privado para clientes e inquilinos."
   };
 
   const websiteSchema = {
@@ -108,6 +134,21 @@ export default function HomePage() {
     about: {
       "@type": "Thing",
       name: "Gestion de alquileres residenciales y comerciales"
+    }
+  };
+
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Gestión de alquileres en Barcelona y Montornès | Forné Family Office",
+    url: env.appBaseUrl,
+    inLanguage: "es-ES",
+    description:
+      "Página principal de Forné Family Office sobre gestión de alquileres residenciales y comerciales en Barcelona y Montornès del Vallès.",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Forné Family Office",
+      url: env.appBaseUrl
     }
   };
 
@@ -138,6 +179,29 @@ export default function HomePage() {
     sameAs: []
   };
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Gestión de alquileres residenciales y comerciales",
+    provider: {
+      "@type": "RealEstateAgent",
+      name: "Forné Family Office",
+      url: env.appBaseUrl
+    },
+    areaServed: ["Barcelona", "Montornès del Vallès", "Granollers"],
+    serviceType: [
+      "Gestión de alquiler de pisos",
+      "Gestión de alquiler de locales",
+      "Portal privado para inquilinos"
+    ],
+    audience: {
+      "@type": "Audience",
+      audienceType: ["Propietarios", "Inquilinos", "Clientes"]
+    },
+    description:
+      "Servicio de gestión de alquileres con seguimiento de incidencias, facturas, avisos y acceso privado para clientes e inquilinos."
+  };
+
   return (
     <main className="min-h-screen bg-transparent">
       <script
@@ -150,7 +214,15 @@ export default function HomePage() {
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
       />
       <script
         type="application/ld+json"

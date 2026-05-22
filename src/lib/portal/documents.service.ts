@@ -37,6 +37,60 @@ function canDownloadDocument(document: DocumentDto) {
   return document.hasAttachment && document.downloadAllowed !== false;
 }
 
+function normalizeDocumentKeyPart(value: string | null | undefined) {
+  return value?.trim().toLowerCase() || "";
+}
+
+function getDocumentDeduplicationKey(document: DocumentDto) {
+  const sourceNo = normalizeDocumentKeyPart(document.sourceNo);
+  const documentNo = normalizeDocumentKeyPart(document.no);
+
+  if (sourceNo && documentNo) return `source-no:${sourceNo}::doc-no:${documentNo}`;
+  if (documentNo) return `doc-no:${documentNo}`;
+
+  const attachmentFileName = normalizeDocumentKeyPart(document.attachmentFileName);
+  const description = normalizeDocumentKeyPart(document.description);
+  const issueDate = normalizeDocumentKeyPart(document.issueDate);
+
+  if (sourceNo && (attachmentFileName || description)) {
+    return `source-file:${sourceNo}::file:${attachmentFileName}::desc:${description}::issue:${issueDate}`;
+  }
+
+  return normalizeDocumentKeyPart(document.id) || `fallback:${attachmentFileName}::desc:${description}::issue:${issueDate}`;
+}
+
+function documentCompletenessScore(document: DocumentDto) {
+  let score = 0;
+
+  if (canDownloadDocument(document)) score += 8;
+  if (document.fileUrl?.trim()) score += 4;
+  if (document.hasAttachment) score += 2;
+  if (document.hasLinks) score += 1;
+  if (document.attachmentFileName?.trim()) score += 1;
+  if (document.description?.trim()) score += 1;
+  if (document.category?.trim() || document.documentTypeCode?.trim()) score += 1;
+  if (document.issueDate?.trim()) score += 1;
+  if (document.expirationDate?.trim()) score += 1;
+  if (document.notes?.trim()) score += 1;
+
+  return score;
+}
+
+function deduplicateDocuments(documents: DocumentDto[]) {
+  const byKey = new Map<string, DocumentDto>();
+
+  for (const document of documents) {
+    const key = getDocumentDeduplicationKey(document);
+    const existing = byKey.get(key);
+
+    if (!existing || documentCompletenessScore(document) > documentCompletenessScore(existing)) {
+      byKey.set(key, document);
+    }
+  }
+
+  return Array.from(byKey.values());
+}
+
 export async function getDocuments(): Promise<DocumentDto[]> {
   if (env.useMockApi) return mockDocuments;
   const user = await resolvePortalUserContext();
@@ -59,16 +113,14 @@ export async function getDocuments(): Promise<DocumentDto[]> {
     )
   );
   const payload = await bcGetForCompany<{ value?: DocumentDto[] }>(company, bcEndpoints.documents);
-  return sortDocumentsByIssueDateDesc(Array.from(
-    new Map(
-      unwrap(payload)
-        .filter((document) => {
-          const sourceNo = document.sourceNo?.trim();
-          return Boolean(sourceNo && sourceNos.includes(sourceNo));
-        })
-        .map((document) => [document.id || document.no, document])
-    ).values()
-  ));
+  return sortDocumentsByIssueDateDesc(
+    deduplicateDocuments(
+      unwrap(payload).filter((document) => {
+        const sourceNo = document.sourceNo?.trim();
+        return Boolean(sourceNo && sourceNos.includes(sourceNo));
+      })
+    )
+  );
 }
 
 export async function getDocumentById(id: string): Promise<DocumentDto | undefined> {
