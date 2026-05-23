@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import type { Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
-import { headers } from "next/headers";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 import { env } from "@/lib/config/env";
 
@@ -65,10 +64,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = headers().get("x-ffo-locale") || "es";
-
   return (
-    <html lang={locale} className="scroll-smooth">
+    <html lang="es" className="scroll-smooth">
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>
         {process.env.NODE_ENV !== "production" ? (
           <script
