@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { unstable_noStore as noStore } from "next/cache";
 import BrandIcon from "@/components/brand/BrandIcon";
 import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
@@ -29,7 +28,6 @@ const trustMetrics = [
 ];
 
 export default async function Hero({ locale }: { locale: PublicLocale }) {
-  noStore();
   const localized = getPublicCopy(locale);
 
   return (

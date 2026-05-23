@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { unstable_noStore as noStore } from "next/cache";
 import BrandIcon from "@/components/brand/BrandIcon";
 import AboutSection from "@/components/public/AboutSection";
 import AvailabilitySection from "@/components/public/AvailabilitySection";
@@ -127,7 +126,6 @@ export default async function PublicRouteRenderer({
   locale: PublicLocale;
   routeKey: PublicRouteKey;
 }) {
-  noStore();
   const localized = getPublicCopy(locale);
 
   if (routeKey === "home") {

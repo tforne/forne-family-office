@@ -1,10 +1,8 @@
-import { unstable_noStore as noStore } from "next/cache";
 import AvailabilityInterestForm from "@/components/public/AvailabilityInterestForm";
 import { listPublicFeaturedAssets } from "@/lib/public/featured-assets.service";
 import { getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 export default async function AvailabilitySection({ locale }: { locale: PublicLocale }) {
-  noStore();
   const localized = getPublicCopy(locale);
   const featuredAssets = (await listPublicFeaturedAssets()).filter(
     (asset) => asset.title.trim() && asset.location.trim() && asset.note.trim()
