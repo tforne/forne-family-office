@@ -1,35 +1,13 @@
 import Image from "next/image";
 import BrandIcon from "@/components/brand/BrandIcon";
+import { getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 const TEAM_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-reunion-bZEqzwTwSLMFKRFnp7K8Db.webp";
 
-const points = [
-  "Relación cercana sin perder rigor institucional",
-  "Visibilidad centralizada para decisiones mejor informadas",
-  "Seguimiento trazable en facturas, avisos e incidencias",
-  "Preservación de la confianza en cada interacción operativa"
-];
+export default function AboutSection({ locale }: { locale: PublicLocale }) {
+  const localized = getPublicCopy(locale);
 
-const principles = [
-  {
-    title: "Criterio",
-    description:
-      "Gestionamos el día a día con una lógica de continuidad, criterio y discreción."
-  },
-  {
-    title: "Gobernanza",
-    description:
-      "Cada proceso se apoya en orden, trazabilidad y una interlocución clara para clientes e inquilinos."
-  },
-  {
-    title: "Presencia",
-    description:
-      "La experiencia debe transmitir solidez antes de explicar funcionalidades. Eso también es servicio."
-  }
-];
-
-export default function AboutSection() {
   return (
     <section id="quienes-somos" className="bg-transparent pb-10 pt-1 lg:pb-14 lg:pt-2">
       <div className="ffo-shell grid gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
@@ -40,7 +18,7 @@ export default function AboutSection() {
               <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(10,24,41,0.04)_0%,rgba(10,24,41,0.2)_100%)]" />
               <Image
                 src={TEAM_IMAGE}
-                alt="Equipo de Forné Family Office"
+                alt={localized.home.about.imageAlt}
                 width={1200}
                 height={1400}
                 quality={92}
@@ -51,11 +29,11 @@ export default function AboutSection() {
           </div>
           <div className="absolute -bottom-5 right-0 rounded-[22px] border border-[rgba(184,155,109,0.24)] bg-[rgba(255,255,255,0.94)] p-5 shadow-[0_26px_46px_-28px_rgba(10,25,44,0.34)]">
             <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#B89B6D]">
-              Continuidad
+              {localized.home.about.continuityLabel}
             </div>
             <div className="mt-2 text-3xl font-semibold text-[#10233A]">35+</div>
             <p className="mt-1 max-w-[170px] text-xs leading-5 text-[#5A6675]">
-              años construyendo confianza en gestión inmobiliaria familiar.
+              {localized.home.about.continuityText}
             </p>
           </div>
         </div>
@@ -63,26 +41,23 @@ export default function AboutSection() {
         <div>
           <div className="mb-4 flex items-center gap-3">
             <span className="ffo-accent-line" />
-            <span className="ffo-kicker">Quiénes somos</span>
+            <span className="ffo-kicker">{localized.home.about.kicker}</span>
           </div>
 
           <h2 className="max-w-[16ch] text-4xl font-semibold leading-tight tracking-[-0.03em] text-[#10233A] sm:text-[2.8rem] lg:max-w-[17ch]">
-            Una firma familiar donde la confianza se sostiene con orden, claridad y continuidad.
+            {localized.home.about.title}
           </h2>
 
           <p className="mt-5 text-base leading-8 text-[#5A6675]">
-            Forné Family Office nace de una forma de trabajar donde los activos no se tratan como
-            una cartera anónima. La gestión residencial y comercial exige criterio, consistencia y
-            una relación que inspire tranquilidad a largo plazo.
+            {localized.home.about.body1}
           </p>
 
           <p className="mt-5 text-base leading-8 text-[#5A6675]">
-            La experiencia pública debía reflejar ese mismo estándar: menos ruido, más sobriedad y
-            una imagen capaz de transmitir confianza antes de entrar en detalle.
+            {localized.home.about.body2}
           </p>
 
           <div className="mt-8 grid gap-3">
-            {points.map((item) => (
+            {localized.home.about.points.map((item) => (
               <div key={item} className="flex items-start gap-3">
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#F4EEE4] text-[#B89B6D]">
                   <BrandIcon name="trust" className="h-3.5 w-3.5" />
@@ -93,7 +68,7 @@ export default function AboutSection() {
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {principles.map((item) => (
+            {localized.home.about.principles.map((item) => (
               <article
                 key={item.title}
                 className="rounded-[24px] border border-[rgba(22,32,44,0.08)] bg-white/88 p-5 shadow-[0_16px_36px_-30px_rgba(10,25,44,0.18)]"

@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { env } from "@/lib/config/env";
+import {
+  defaultPublicLocale,
+  getLocalizedPath,
+  isPublicLocale,
+  publicLocales,
+  type PublicRouteKey
+} from "@/lib/i18n/public";
 
 function decodeBase64Url(value: string) {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -31,7 +38,8 @@ function hasValidPortalSession(request: NextRequest) {
 }
 
 export function middleware(request: NextRequest) {
-  const isPortalRoute = request.nextUrl.pathname.startsWith("/portal");
+  const pathname = request.nextUrl.pathname;
+  const isPortalRoute = pathname.startsWith("/portal");
   const hasSession = hasValidPortalSession(request);
 
   if (isPortalRoute && !hasSession) {
@@ -43,9 +51,46 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  return NextResponse.next();
+  const legacyPublicRoutes: Record<string, PublicRouteKey> = {
+    "/": "home",
+    "/alquileres": "rentals",
+    "/contacto": "contact",
+    "/guias": "guides",
+    "/guias/portal-privado": "guidesPortal",
+    "/guias/incidencias-alquiler": "guidesIncidents",
+    "/guias/facturas-y-vencimientos": "guidesInvoices",
+    "/noticias": "news"
+  };
+
+  if (legacyPublicRoutes[pathname]) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = getLocalizedPath(defaultPublicLocale, legacyPublicRoutes[pathname]);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, { status: 308 });
+  }
+
+  const firstSegment = pathname.split("/").filter(Boolean)[0] || defaultPublicLocale;
+  const locale = isPublicLocale(firstSegment) ? firstSegment : defaultPublicLocale;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-ffo-locale", locale);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders
+    }
+  });
 }
 
 export const config = {
-  matcher: ["/portal/:path*"],
+  matcher: [
+    "/",
+    "/alquileres",
+    "/contacto",
+    "/guias/:path*",
+    "/noticias",
+    `/:locale(${publicLocales.join("|")})/:path*`,
+    "/portal/:path*",
+    "/login",
+    "/offline"
+  ],
 };

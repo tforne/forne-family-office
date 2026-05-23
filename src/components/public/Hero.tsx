@@ -2,14 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { unstable_noStore as noStore } from "next/cache";
 import BrandIcon from "@/components/brand/BrandIcon";
+import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 const HERO_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663597210431/hiBkoZ96kcMnMZzSuRj7QD/montornes-calle-gRs5ApjQ7HD5b5Mu9TdWPe.webp";
-
-const confidenceSignals = [
-  "Gestión de alquileres residenciales y comerciales",
-  "Barcelona, Montornès del Vallès y entorno"
-];
 
 const trustMetrics = [
   {
@@ -32,14 +28,9 @@ const trustMetrics = [
   }
 ];
 
-const governancePoints = [
-  "Atención personal sin fricción innecesaria",
-  "Información centralizada para decidir con calma",
-  "Seguimiento consistente en incidencias, avisos y facturación"
-];
-
-export default async function Hero() {
+export default async function Hero({ locale }: { locale: PublicLocale }) {
   noStore();
+  const localized = getPublicCopy(locale);
 
   return (
     <section className="relative overflow-hidden bg-transparent">
@@ -51,24 +42,21 @@ export default async function Hero() {
         <div className="ffo-fade-up">
           <div className="mb-5 flex items-center gap-3">
             <span className="ffo-accent-line" />
-            <span className="ffo-kicker">Firma familiar</span>
+            <span className="ffo-kicker">{localized.home.hero.kicker}</span>
           </div>
 
           <h1 className="max-w-[13.6ch] text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-[#10233A] sm:text-6xl lg:max-w-[14ch] xl:max-w-[14.5ch] xl:text-[4rem]">
-            Una gestión inmobiliaria
-            <span className="block text-[#B89B6D]">con criterio, discreción</span>
-            <span className="block">y visión estratégica.</span>
+            {localized.home.hero.title1}
+            <span className="block text-[#B89B6D]">{localized.home.hero.title2}</span>
+            <span className="block">{localized.home.hero.title3}</span>
           </h1>
 
           <p className="mt-6 max-w-[34rem] text-lg leading-8 text-[#516070]">
-            Forné Family Office acompaña alquileres residenciales y comerciales en Barcelona,
-            Montornès del Vallès y entorno con una gestión sobria, bien gobernada y orientada a la
-            continuidad. Lo esencial no son las funcionalidades, sino el criterio con el que se
-            decide, se responde y se cuida cada relación.
+            {localized.home.hero.body}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            {confidenceSignals.map((item) => (
+            {localized.home.hero.signals.map((item) => (
               <div
                 key={item}
                 className="inline-flex items-center gap-2 rounded-full border border-[rgba(22,32,44,0.08)] bg-white/92 px-4 py-2 text-sm text-[#172332]"
@@ -81,16 +69,16 @@ export default async function Hero() {
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/#disponibilidad"
+              href={getLocalizedPath(locale, "home", "#disponibilidad")}
               className="ffo-button-primary inline-flex items-center justify-center rounded-[16px] px-7 py-3.5 text-sm font-semibold text-white transition hover:brightness-[1.03]"
             >
-              Iniciar conversación
+              {localized.home.hero.primaryCta}
             </Link>
             <Link
-              href="/alquileres"
+              href={getLocalizedPath(locale, "rentals")}
               className="ffo-button-secondary inline-flex items-center justify-center rounded-[16px] px-7 py-3.5 text-sm font-medium text-[#10233A] transition hover:border-[#B89B6D] hover:bg-white"
             >
-              Ver el enfoque
+              {localized.home.hero.secondaryCta}
             </Link>
           </div>
 
@@ -98,10 +86,10 @@ export default async function Hero() {
             <div className="mb-4 flex items-center justify-between gap-3 px-2 sm:px-3 lg:mb-5">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#B89B6D]">
-                  Señales de confianza
+                  {localized.home.hero.trustKicker}
                 </div>
                 <p className="mt-1 text-sm leading-6 text-[#5A6675]">
-                  Una lectura rápida de cómo se estructura la relación.
+                  {localized.home.hero.trustBody}
                 </p>
               </div>
               <div className="hidden h-px flex-1 bg-[linear-gradient(90deg,rgba(184,155,109,0.26),rgba(95,120,147,0.08),transparent)] sm:block" />
@@ -141,7 +129,7 @@ export default async function Hero() {
               <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(9,20,34,0.08)_0%,rgba(9,20,34,0.32)_100%)]" />
               <Image
                 src={HERO_IMAGE}
-                alt="Activo inmobiliario gestionado por Forné Family Office"
+                alt={localized.home.hero.imageAlt}
                 width={1200}
                 height={1400}
                 priority
@@ -153,10 +141,10 @@ export default async function Hero() {
 
             <div className="absolute left-7 top-7 rounded-[18px] border border-white/12 bg-[rgba(10,24,41,0.66)] px-4 py-3 text-white backdrop-blur-md">
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#D5C0A0]">
-                Presencia institucional
+                {localized.home.hero.institutional}
               </div>
               <div className="mt-2 text-sm font-medium text-white/92">
-                Presencia cuidada
+                {localized.home.hero.institutionalValue}
               </div>
             </div>
 
@@ -166,11 +154,11 @@ export default async function Hero() {
                   <BrandIcon name="portal" className="h-4 w-4" />
                 </div>
                 <span className="text-sm font-semibold text-[#10233A]">
-                  Claridad visible, experiencia discreta
+                  {localized.home.hero.portalCallout}
                 </span>
               </div>
               <div className="grid gap-2">
-                {governancePoints.map((item) => (
+                {localized.home.hero.governancePoints.map((item) => (
                   <div key={item} className="flex items-start gap-2 text-sm leading-6 text-[#556272]">
                     <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#B89B6D]" />
                     <span>{item}</span>

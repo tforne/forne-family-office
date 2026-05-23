@@ -2,21 +2,28 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import LanguageSwitcher from "@/components/public/LanguageSwitcher";
+import { getLocalizedPath, getPublicCopy, type PublicLocale, type PublicRouteKey } from "@/lib/i18n/public";
 
-const navItems = [
-  { href: "/#quienes-somos", label: "Quiénes somos" },
-  { href: "/#servicios", label: "Servicios" },
-  { href: "/#portal", label: "Portal" },
-  { href: "/contacto", label: "Contacto" }
-];
+type HeaderProps = {
+  locale: PublicLocale;
+  routeKey: PublicRouteKey;
+};
 
-export default function Header() {
+export default function Header({ locale, routeKey }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const localized = getPublicCopy(locale);
+  const navItems = [
+    { href: getLocalizedPath(locale, "home", "#quienes-somos"), label: localized.header.about },
+    { href: getLocalizedPath(locale, "home", "#servicios"), label: localized.header.services },
+    { href: getLocalizedPath(locale, "home", "#portal"), label: localized.header.portal },
+    { href: getLocalizedPath(locale, "contact"), label: localized.header.contact }
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(22,32,44,0.06)] bg-[rgba(249,250,251,0.88)] backdrop-blur-xl">
       <div className="ffo-shell flex items-center justify-between py-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href={getLocalizedPath(locale, "home")} className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-[#10233A] text-sm font-semibold text-white shadow-[0_14px_28px_-20px_rgba(10,25,44,0.32)]">
             F
           </div>
@@ -25,7 +32,7 @@ export default function Header() {
               Forné Family Office
             </div>
             <div className="mt-1 text-[11px] uppercase tracking-[0.22em] text-[#8B7C66]">
-              Criterio inmobiliario · Acceso privado
+              {localized.site.brandLine}
             </div>
           </div>
         </Link>
@@ -41,6 +48,9 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
+          <div className="hidden lg:block">
+            <LanguageSwitcher locale={locale} routeKey={routeKey} />
+          </div>
           <button
             type="button"
             aria-expanded={isMenuOpen}
@@ -51,10 +61,10 @@ export default function Header() {
             {isMenuOpen ? "×" : "☰"}
           </button>
           <Link href="/login" className="hidden text-sm font-medium text-[#10233A] transition hover:text-[#B89B6D] lg:inline-flex">
-            Acceso clientes
+            {localized.site.clientAccess}
           </Link>
-          <Link href="/#disponibilidad" className="ffo-button-primary rounded-[14px] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-[1.03]">
-            Iniciar conversación
+          <Link href={getLocalizedPath(locale, "home", "#disponibilidad")} className="ffo-button-primary rounded-[14px] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-[1.03]">
+            {localized.site.startConversation}
           </Link>
         </div>
       </div>
@@ -62,6 +72,9 @@ export default function Header() {
       {isMenuOpen ? (
         <div id="public-mobile-menu" className="border-t border-[rgba(24,32,43,0.08)] bg-[rgba(255,255,255,0.96)] lg:hidden">
           <nav className="ffo-shell grid gap-2 py-4">
+            <div className="mb-2">
+              <LanguageSwitcher locale={locale} routeKey={routeKey} />
+            </div>
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -77,7 +90,7 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
               className="ffo-button-secondary rounded-[16px] px-4 py-3 text-sm font-semibold text-[#10233A] transition hover:bg-[#F6F1E8]"
             >
-              Acceso clientes
+              {localized.site.clientAccess}
             </Link>
           </nav>
         </div>

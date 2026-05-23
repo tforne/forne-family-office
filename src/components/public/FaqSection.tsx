@@ -1,44 +1,24 @@
 import Link from "next/link";
+import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
-const faqs = [
-  {
-    question: "¿Qué puedo hacer desde el portal privado?",
-    answer:
-      "Consultar facturas, revisar avisos, seguir incidencias y acceder a información centralizada vinculada a tu alquiler."
-  },
-  {
-    question: "¿Trabajáis solo alquiler residencial?",
-    answer:
-      "No. La gestión contempla tanto viviendas como locales, con el mismo enfoque de orden operativo y atención directa."
-  },
-  {
-    question: "¿Cómo se solicita información sobre disponibilidad?",
-    answer:
-      "Desde la portada puedes dejar tus datos e interés. El equipo revisa la necesidad y responde con una orientación más ajustada."
-  },
-  {
-    question: "¿Qué diferencia a esta gestión de una atención más tradicional?",
-    answer:
-      "La combinación de trato cercano con un entorno digital donde la información no se pierde y cada gestión conserva contexto."
-  }
-];
+export default function FaqSection({ locale }: { locale: PublicLocale }) {
+  const localized = getPublicCopy(locale);
 
-export default function FaqSection() {
   return (
     <section className="bg-transparent pb-12 pt-0 lg:pb-16">
       <div className="ffo-shell">
         <div className="mb-8 max-w-3xl">
           <div className="mb-4 flex items-center gap-3">
             <span className="ffo-accent-line" />
-            <span className="ffo-kicker">Preguntas frecuentes</span>
+            <span className="ffo-kicker">{localized.home.faq.kicker}</span>
           </div>
           <h2 className="text-4xl font-semibold leading-tight text-[#0F2F57] sm:text-[2.9rem]">
-            Respuestas claras para una experiencia más confiable.
+            {localized.home.faq.title}
           </h2>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          {faqs.map((item) => (
+          {localized.home.faq.items.map((item) => (
             <article
               key={item.question}
               className="ffo-elevate rounded-[24px] border border-[rgba(24,32,43,0.08)] bg-white/90 p-6"
@@ -51,10 +31,10 @@ export default function FaqSection() {
 
         <div className="mt-8">
           <Link
-            href="/guias"
+            href={getLocalizedPath(locale, "guides")}
             className="inline-flex items-center rounded-[14px] border border-[rgba(27,111,216,0.22)] bg-white/80 px-5 py-3 text-sm font-semibold text-[#1B6FD8] transition hover:bg-[#EDF5FF]"
           >
-            Ver guias detalladas
+            {localized.home.faq.cta}
           </Link>
         </div>
       </div>

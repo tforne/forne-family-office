@@ -1,4 +1,5 @@
-import { listNewsItems } from "@/lib/content/news";
+import { listNewsItemsForLocale } from "@/lib/content/news";
+import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 function parseSpanishDate(value: string) {
   const parsed = Date.parse(value);
@@ -9,16 +10,26 @@ function parseSpanishDate(value: string) {
   const normalized = value
     .toLowerCase()
     .replace("enero", "january")
+    .replace("gener", "january")
     .replace("febrero", "february")
+    .replace("febrer", "february")
     .replace("marzo", "march")
+    .replace("marc", "march")
     .replace("abril", "april")
     .replace("mayo", "may")
+    .replace("maig", "may")
     .replace("junio", "june")
+    .replace("juny", "june")
     .replace("julio", "july")
+    .replace("juliol", "july")
     .replace("agosto", "august")
+    .replace("agost", "august")
     .replace("septiembre", "september")
+    .replace("setembre", "september")
     .replace("octubre", "october")
+    .replace("novembre", "november")
     .replace("noviembre", "november")
+    .replace("desembre", "december")
     .replace("diciembre", "december");
 
   const translated = Date.parse(normalized);
@@ -31,8 +42,9 @@ function pickFeaturedNewsItems<T extends { date: string }>(items: T[], count: nu
     .slice(0, count);
 }
 
-export default async function NewsSection() {
-  const newsItems = await listNewsItems();
+export default async function NewsSection({ locale }: { locale: PublicLocale }) {
+  const localized = getPublicCopy(locale);
+  const newsItems = await listNewsItemsForLocale(locale);
   const featuredNewsItems = pickFeaturedNewsItems(newsItems, 3);
 
   return (
@@ -41,14 +53,13 @@ export default async function NewsSection() {
         <div className="max-w-4xl">
           <div className="mb-4 flex items-center gap-3">
             <span className="ffo-accent-line" />
-            <span className="ffo-kicker">Noticias y avisos</span>
+            <span className="ffo-kicker">{localized.routes.news.heroKicker}</span>
           </div>
           <h2 className="max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.02em] text-[#003A6C] sm:text-[2.65rem]">
-            Mantente informado sobre tu inmueble.
+            {localized.routes.news.title}
           </h2>
           <p className="mt-5 max-w-3xl text-base leading-8 text-[#605E5C]">
-            Publicamos aquí los comunicados, avisos de mantenimiento y novedades del portal para
-            que siempre estés al día.
+            {localized.routes.news.body}
           </p>
         </div>
 
@@ -93,10 +104,10 @@ export default async function NewsSection() {
 
         <div className="mt-10 flex justify-center">
           <a
-            href="/noticias"
+            href={getLocalizedPath(locale, "news")}
             className="inline-flex items-center justify-center rounded border border-[#0078D4] px-6 py-3 text-sm font-semibold text-[#0078D4] transition hover:bg-[#EFF6FC]"
           >
-            Ver todas las noticias y avisos
+            {localized.routes.news.title}
           </a>
         </div>
       </div>

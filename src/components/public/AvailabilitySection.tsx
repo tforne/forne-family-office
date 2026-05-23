@@ -1,15 +1,11 @@
 import { unstable_noStore as noStore } from "next/cache";
 import AvailabilityInterestForm from "@/components/public/AvailabilityInterestForm";
 import { listPublicFeaturedAssets } from "@/lib/public/featured-assets.service";
+import { getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
-const trustMetrics = [
-  { value: "35+", label: "años de continuidad y criterio de gestión" },
-  { value: "Selección", label: "menos volumen, más contexto útil para decidir" },
-  { value: "Directo", label: "interlocución clara desde el primer contacto" }
-];
-
-export default async function AvailabilitySection() {
+export default async function AvailabilitySection({ locale }: { locale: PublicLocale }) {
   noStore();
+  const localized = getPublicCopy(locale);
   const featuredAssets = (await listPublicFeaturedAssets()).filter(
     (asset) => asset.title.trim() && asset.location.trim() && asset.note.trim()
   );
@@ -23,20 +19,18 @@ export default async function AvailabilitySection() {
             <div className="max-w-2xl">
               <div className="flex items-center gap-3">
                 <span className="ffo-accent-line" />
-                <span className="ffo-kicker">Disponibilidad y primera conversación</span>
+                <span className="ffo-kicker">{localized.home.availability.kicker}</span>
               </div>
               <h2 className="mt-4 max-w-[14ch] text-3xl font-semibold tracking-[-0.03em] text-[#10233A] sm:text-4xl">
-                Disponibilidad tratada con criterio, no con ruido comercial.
+                {localized.home.availability.title}
               </h2>
               <p className="mt-3 text-base leading-7 text-[#5A6675]">
-                Si buscas piso o local, preferimos abrir la conversación con referencias claras,
-                contexto suficiente y una respuesta ajustada. La lógica no es exponer volumen, sino
-                filtrar mejor lo que realmente puede encajar.
+                {localized.home.availability.body}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              {trustMetrics.map((item) => (
+              {localized.home.availability.metrics.map((item) => (
                 <article
                   key={`availability-${item.label}`}
                   className="rounded-[22px] border border-[rgba(22,32,44,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(248,249,251,0.84)_100%)] p-4 shadow-[0_18px_40px_-32px_rgba(10,25,44,0.18)]"
@@ -70,13 +64,12 @@ export default async function AvailabilitySection() {
               ))
             ) : (
               <article className="rounded-[24px] border border-dashed border-[rgba(184,155,109,0.42)] bg-white/78 p-6 text-sm leading-7 text-[#5A6675] xl:col-span-2">
-                En este momento no hay inmuebles con estado <strong>En alquiler</strong> para
-                mostrar en portada.
+                {localized.home.availability.empty}
               </article>
             )}
           </div>
 
-          <AvailabilityInterestForm />
+          <AvailabilityInterestForm locale={locale} />
         </div>
       </div>
     </section>

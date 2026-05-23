@@ -5,6 +5,7 @@ import PortalTableCard from "@/components/portal/PortalTableCard";
 import DocumentCopyRequestButton from "@/components/portal/DocumentCopyRequestButton";
 import { getDocuments } from "@/lib/portal/documents.service";
 import type { DocumentDto } from "@/lib/dto/document.dto";
+import { getDocumentReviewLabel, isDocumentReviewed } from "@/lib/portal/document-review";
 
 function formatDate(value: string | null | undefined) {
   if (!value || value.startsWith("0001-01-01")) return "Sin fecha";
@@ -46,16 +47,6 @@ function publicationClass(label: string) {
   return "bg-slate-100 text-slate-700 ring-slate-200";
 }
 
-function reviewLabel(document: DocumentDto) {
-  if (document.missingMandatoryData) return "Incompleto";
-
-  const normalized = document.reviewStatus?.trim().toLowerCase() || "";
-  if (normalized === "reviewed") return "Revisado";
-  if (normalized === "pending") return "Pendiente";
-
-  return document.reviewStatus || "Sin revisión";
-}
-
 function reviewClass(label: string) {
   if (label === "Revisado") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
   if (label === "Pendiente" || label === "Incompleto") return "bg-amber-50 text-amber-800 ring-amber-200";
@@ -69,7 +60,7 @@ function documentTitle(document: DocumentDto) {
 export default async function DocumentsPage() {
   const documents = await getDocuments();
   const withDownload = documents.filter(canDownload).length;
-  const pendingReview = documents.filter((document) => reviewLabel(document) !== "Revisado").length;
+  const pendingReview = documents.filter((document) => !isDocumentReviewed(document)).length;
   const expiredDocuments = documents.filter(isExpired).length;
 
   return (
@@ -147,7 +138,7 @@ export default async function DocumentsPage() {
               <tbody className="divide-y divide-forne-line bg-white">
                 {documents.map((document) => {
                   const publication = publicationLabel(document);
-                  const review = reviewLabel(document);
+                  const review = getDocumentReviewLabel(document);
 
                   return (
                     <tr key={document.id || document.no} className="align-top transition hover:bg-[#f8fbff]">

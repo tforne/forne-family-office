@@ -1,6 +1,7 @@
 import "server-only";
 
 import { isCurrentPortalAdmin } from "@/lib/portal/admin-auth";
+import { isDocumentReviewed } from "@/lib/portal/document-review";
 import { getDocuments } from "@/lib/portal/documents.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidentById, getIncidents } from "@/lib/portal/incidents.service";
@@ -1068,10 +1069,7 @@ export async function buildPortalChatReply(
   if (includesAny(context.normalizedMessage, ["documento", "documentos", "archivo", "archivos", "adjunto", "adjuntos", "descarga", "descargar"])) {
     const documents = await getDocuments();
     const downloadableDocuments = documents.filter((document) => document.hasAttachment && document.downloadAllowed !== false);
-    const pendingReview = documents.filter((document) => {
-      const normalized = document.reviewStatus?.trim().toLowerCase() || "";
-      return document.missingMandatoryData || normalized !== "reviewed";
-    }).length;
+    const pendingReview = documents.filter((document) => !isDocumentReviewed(document)).length;
 
     if (includesAny(context.normalizedMessage, ["copia", "solicitar", "pedir"])) {
       return {

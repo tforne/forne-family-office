@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendIncidentEmail } from "@/lib/mail/graph";
+import { defaultPublicLocale, getPublicCopy, isPublicLocale } from "@/lib/i18n/public";
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -14,21 +15,24 @@ export async function POST(req: NextRequest) {
   const name = clean(body.name);
   const email = clean(body.email);
   const message = clean(body.message);
+  const localeValue = clean(body.locale);
+  const locale = isPublicLocale(localeValue) ? localeValue : defaultPublicLocale;
+  const localized = getPublicCopy(locale);
 
   if (!name) {
-    return NextResponse.json({ error: "Indica tu nombre." }, { status: 400 });
+    return NextResponse.json({ error: localized.forms.errors.name }, { status: 400 });
   }
 
   if (!email || !isValidEmail(email)) {
-    return NextResponse.json({ error: "Indica un correo electrónico válido." }, { status: 400 });
+    return NextResponse.json({ error: localized.forms.errors.email }, { status: 400 });
   }
 
   if (message.length < 10) {
-    return NextResponse.json({ error: "Cuéntanos con algo más de detalle qué activo te interesa." }, { status: 400 });
+    return NextResponse.json({ error: localized.forms.errors.availabilityDetail }, { status: 400 });
   }
 
   if (message.length > 1000) {
-    return NextResponse.json({ error: "El mensaje no puede superar los 1000 caracteres." }, { status: 400 });
+    return NextResponse.json({ error: localized.forms.errors.availabilityTooLong }, { status: 400 });
   }
 
   try {
@@ -49,7 +53,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Availability interest email failed:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "No se pudo enviar la solicitud." },
+      { error: error instanceof Error ? error.message : localized.forms.errors.availabilitySendError },
       { status: 500 }
     );
   }
