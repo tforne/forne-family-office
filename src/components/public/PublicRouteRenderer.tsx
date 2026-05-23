@@ -11,7 +11,7 @@ import Hero from "@/components/public/Hero";
 import NewsSection from "@/components/public/NewsSection";
 import ServicesSection from "@/components/public/ServicesSection";
 import TrustSection from "@/components/public/TrustSection";
-import { listNewsItemsForLocale } from "@/lib/content/news";
+import { listBundledNewsItemsForLocale } from "@/lib/content/news";
 import { env } from "@/lib/config/env";
 import {
   getLocalizedPath,
@@ -315,7 +315,7 @@ export default async function PublicRouteRenderer({
   }
 
   const page = localized.routes.news;
-  const newsItems = await listNewsItemsForLocale(locale);
+  const newsItems = await listBundledNewsItemsForLocale(locale);
 
   return (
     <div className="min-h-screen bg-transparent">

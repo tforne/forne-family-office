@@ -2,6 +2,7 @@ import "server-only";
 import { readContentFile, writeContentFile } from "@/lib/content/storage";
 import { getLocalizedNewsContent } from "@/lib/i18n/news";
 import type { PublicLocale } from "@/lib/i18n/public";
+import bundledNews from "@/data/news.json";
 
 export type NewsItem = {
   id: string;
@@ -33,9 +34,21 @@ export async function listNewsItems() {
   return parsed.map(normalizeItem);
 }
 
+export async function listBundledNewsItems() {
+  return (bundledNews as Partial<NewsItem>[]).map(normalizeItem);
+}
+
 export async function listNewsItemsForLocale(locale: PublicLocale) {
   const items = await listNewsItems();
+  return localizeNewsItems(items, locale);
+}
 
+export async function listBundledNewsItemsForLocale(locale: PublicLocale) {
+  const items = await listBundledNewsItems();
+  return localizeNewsItems(items, locale);
+}
+
+function localizeNewsItems(items: NewsItem[], locale: PublicLocale) {
   return items.map((item) => {
     const localized = getLocalizedNewsContent(item.id, locale);
     if (!localized) {

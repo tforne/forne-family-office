@@ -1,5 +1,6 @@
 import "server-only";
 import { readContentFile, writeContentFile } from "@/lib/content/storage";
+import bundledFeaturedAssets from "@/data/featured-assets.json";
 
 export type FeaturedAsset = {
   id: string;
@@ -25,6 +26,10 @@ export async function listFeaturedAssets() {
   const raw = await readContentFile("featured-assets.json");
   const parsed = JSON.parse(raw) as Partial<FeaturedAsset>[];
   return parsed.map(normalizeItem);
+}
+
+export async function listBundledFeaturedAssets() {
+  return (bundledFeaturedAssets as Partial<FeaturedAsset>[]).map(normalizeItem);
 }
 
 export async function saveFeaturedAssets(items: FeaturedAsset[]) {

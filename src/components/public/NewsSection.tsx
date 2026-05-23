@@ -1,4 +1,4 @@
-import { listNewsItemsForLocale } from "@/lib/content/news";
+import { listBundledNewsItemsForLocale } from "@/lib/content/news";
 import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 function parseSpanishDate(value: string) {
@@ -44,7 +44,7 @@ function pickFeaturedNewsItems<T extends { date: string }>(items: T[], count: nu
 
 export default async function NewsSection({ locale }: { locale: PublicLocale }) {
   const localized = getPublicCopy(locale);
-  const newsItems = await listNewsItemsForLocale(locale);
+  const newsItems = await listBundledNewsItemsForLocale(locale);
   const featuredNewsItems = pickFeaturedNewsItems(newsItems, 3);
 
   return (

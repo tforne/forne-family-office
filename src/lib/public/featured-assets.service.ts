@@ -1,4 +1,4 @@
-import { listFeaturedAssets } from "@/lib/content/featured-assets";
+import { listBundledFeaturedAssets } from "@/lib/content/featured-assets";
 
 export type PublicFeaturedAsset = {
   id: string;
@@ -25,12 +25,12 @@ function isRenderableAsset(asset: PublicFeaturedAsset) {
 }
 
 export async function listPublicFeaturedAssets(): Promise<PublicFeaturedAsset[]> {
-  const assets = await listFeaturedAssets();
+  const assets = await listBundledFeaturedAssets();
   return assets.filter(isRenderableAsset).slice(0, 3);
 }
 
 export async function getPublicFeaturedAssetsDiagnostics(): Promise<PublicFeaturedAssetsDiagnostics> {
-  const assets = await listFeaturedAssets();
+  const assets = await listBundledFeaturedAssets();
   const renderableAssets = assets.filter(isRenderableAsset);
 
   return {
