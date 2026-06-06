@@ -11,7 +11,7 @@ import Hero from "@/components/public/Hero";
 import NewsSection from "@/components/public/NewsSection";
 import ServicesSection from "@/components/public/ServicesSection";
 import TrustSection from "@/components/public/TrustSection";
-import { listBundledNewsItemsForLocale } from "@/lib/content/news";
+import { listBundledNewsItemsForLocale } from "@/lib/public/bundled-news";
 import { env } from "@/lib/config/env";
 import {
   getLocalizedPath,

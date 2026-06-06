@@ -1,4 +1,4 @@
-import { listBundledFeaturedAssets } from "@/lib/content/featured-assets";
+import { listBundledFeaturedAssets } from "@/lib/public/bundled-featured-assets";
 
 export type PublicFeaturedAsset = {
   id: string;

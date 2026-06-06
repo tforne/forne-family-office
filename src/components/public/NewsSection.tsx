@@ -1,4 +1,4 @@
-import { listBundledNewsItemsForLocale } from "@/lib/content/news";
+import { listBundledNewsItemsForLocale } from "@/lib/public/bundled-news";
 import { getLocalizedPath, getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 function parseSpanishDate(value: string) {
