@@ -1,8 +1,15 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import BrandIcon from "@/components/brand/BrandIcon";
+import {
+  portalIncidentReviewDraftKey,
+  portalIncidentReviewDraftQueryKey,
+  portalIncidentReviewDraftQueryValue,
+  type PortalIncidentReviewDraft
+} from "@/lib/portal/incident-review-draft";
 
 type ContractOption = {
   contractNo: string;
@@ -34,6 +41,7 @@ const practicalTips = [
 ];
 
 export default function NewIncidentForm({ contracts }: Props) {
+  const searchParams = useSearchParams();
   const [contractNo, setContractNo] = useState(contracts[0]?.contractNo || "");
   const [caseType, setCaseType] = useState("Problem");
   const [priority, setPriority] = useState("Normal");
@@ -44,12 +52,53 @@ export default function NewIncidentForm({ contracts }: Props) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
+  const [reviewDraft, setReviewDraft] = useState<PortalIncidentReviewDraft | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const lastAppliedDraftRef = useRef<string | null>(null);
 
   const selectedContract = useMemo(
     () => contracts.find((contract) => contract.contractNo === contractNo),
     [contractNo, contracts]
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (searchParams.get(portalIncidentReviewDraftQueryKey) !== portalIncidentReviewDraftQueryValue) return;
+
+    const storedDraft = window.sessionStorage.getItem(portalIncidentReviewDraftKey);
+    if (!storedDraft || storedDraft === lastAppliedDraftRef.current) return;
+
+    try {
+      const parsedDraft = JSON.parse(storedDraft) as PortalIncidentReviewDraft;
+      setTitle(parsedDraft.title || "");
+      setMessage(parsedDraft.description || "");
+      setPriority(parsedDraft.priority || "Normal");
+      setCaseType(parsedDraft.caseType || "Problem");
+      setReviewDraft(parsedDraft);
+      setStatus("idle");
+      setError("");
+      setWarning("");
+      lastAppliedDraftRef.current = storedDraft;
+    } catch {
+      window.sessionStorage.removeItem(portalIncidentReviewDraftKey);
+    }
+  }, [searchParams]);
+
+  const clearReviewDraft = (options?: { resetFields?: boolean }) => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(portalIncidentReviewDraftKey);
+    }
+
+    setReviewDraft(null);
+    lastAppliedDraftRef.current = null;
+
+    if (options?.resetFields) {
+      setTitle("");
+      setMessage("");
+      setCaseType("Problem");
+      setPriority("Normal");
+    }
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -92,6 +141,7 @@ export default function NewIncidentForm({ contracts }: Props) {
     setFiles([]);
     setCaseType("Problem");
     setPriority("Normal");
+    clearReviewDraft();
     setWarning(typeof payload.warning === "string" ? payload.warning : "");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -111,6 +161,37 @@ export default function NewIncidentForm({ contracts }: Props) {
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        {reviewDraft ? (
+          <div className="lg:col-span-3 rounded-[26px] border border-amber-200 bg-[linear-gradient(180deg,#fffaf0_0%,#fff4e5_100%)] p-4 text-sm text-amber-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-800/80">
+                  Revisión antes de enviar
+                </div>
+                <div className="mt-2 text-base font-semibold text-slate-900">
+                  Borrador preparado desde el chat
+                </div>
+                <p className="mt-1 max-w-3xl leading-6 text-amber-950/85">
+                  Hemos pre-rellenado el formulario con la incidencia propuesta. Revísala, ajusta contrato, teléfono o texto si hace falta y envíala manualmente cuando esté lista.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => clearReviewDraft({ resetFields: true })}
+                className="inline-flex w-fit rounded-full border border-amber-300 bg-white/80 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-white"
+              >
+                Quitar borrador
+              </button>
+            </div>
+            {reviewDraft.incidentDraft.suggestedNextStep ? (
+              <div className="mt-3 rounded-2xl bg-white/70 px-3 py-3 text-sm leading-6 text-slate-700">
+                <span className="font-semibold text-slate-900">Siguiente paso sugerido:</span>{" "}
+                {reviewDraft.incidentDraft.suggestedNextStep}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Contrato</span>
           <select

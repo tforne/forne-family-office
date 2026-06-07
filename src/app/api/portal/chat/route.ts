@@ -1,6 +1,48 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getPortalSession } from "@/lib/auth/session";
-import { buildPortalChatReply, type PortalChatHistoryItem, type PortalPageContext } from "@/lib/portal/chat-assistant";
+import { buildPortalChatReply, type PortalChatHistoryItem, type PortalChatReply, type PortalPageContext } from "@/lib/portal/chat-assistant";
+import { sendAIChatRequest } from "@/lib/portal/ai-layer.service";
+import { buildConversationMemory } from "@/lib/portal/conversation-memory.service";
+import { buildIncidentDraft } from "@/lib/portal/incident-draft.service";
+import { buildPortalActions, detectPortalIntent, toPortalIntentMetadata } from "@/lib/portal/intent-detector.service";
+import { buildPortalAIContext } from "@/lib/portal/portal-ai-context-builder";
+
+const chatSessionCookieName = "ffo_portal_chat_session";
+
+function parsePageContext(rawPageContext: unknown): PortalPageContext {
+  return rawPageContext && typeof rawPageContext === "object"
+    ? {
+        pageTitle: typeof (rawPageContext as { pageTitle?: unknown }).pageTitle === "string" ? (rawPageContext as { pageTitle?: string }).pageTitle : undefined,
+        pageSummary: typeof (rawPageContext as { pageSummary?: unknown }).pageSummary === "string" ? (rawPageContext as { pageSummary?: string }).pageSummary : undefined,
+        pageEyebrow: typeof (rawPageContext as { pageEyebrow?: unknown }).pageEyebrow === "string" ? (rawPageContext as { pageEyebrow?: string }).pageEyebrow : undefined,
+        visibleFacts: Array.isArray((rawPageContext as { visibleFacts?: unknown }).visibleFacts)
+          ? (rawPageContext as { visibleFacts?: Array<{ label?: unknown; value?: unknown; helper?: unknown }> }).visibleFacts
+              ?.filter(
+                (item): item is { label: string; value: string; helper?: string } =>
+                  Boolean(item) && typeof item.label === "string" && typeof item.value === "string"
+              )
+              .slice(0, 10)
+          : undefined,
+        visibleSections: Array.isArray((rawPageContext as { visibleSections?: unknown }).visibleSections)
+          ? (rawPageContext as { visibleSections?: Array<{ title?: unknown; summary?: unknown }> }).visibleSections
+              ?.filter(
+                (item): item is { title: string; summary: string } =>
+                  Boolean(item) && typeof item.title === "string" && typeof item.summary === "string"
+              )
+              .slice(0, 8)
+          : undefined,
+        visibleUpdates: Array.isArray((rawPageContext as { visibleUpdates?: unknown }).visibleUpdates)
+          ? (rawPageContext as { visibleUpdates?: Array<{ date?: unknown; text?: unknown }> }).visibleUpdates
+              ?.filter(
+                (item): item is { date?: string; text: string } =>
+                  Boolean(item) && typeof item.text === "string" && (!item.date || typeof item.date === "string")
+              )
+              .slice(0, 5)
+          : undefined
+      }
+    : {};
+}
 
 export async function POST(request: Request) {
   const session = await getPortalSession();
@@ -13,6 +55,9 @@ export async function POST(request: Request) {
     const payload = (await request.json().catch(() => ({}))) as {
       message?: unknown;
       page?: unknown;
+      pageType?: unknown;
+      sessionId?: unknown;
+      locale?: unknown;
       history?: unknown;
       pageContext?: unknown;
     };
@@ -28,44 +73,93 @@ export async function POST(request: Request) {
           })
           .slice(-6)
       : [];
-    const rawPageContext = payload.pageContext;
-    const pageContext: PortalPageContext =
-      rawPageContext && typeof rawPageContext === "object"
-        ? {
-            pageTitle: typeof (rawPageContext as { pageTitle?: unknown }).pageTitle === "string" ? (rawPageContext as { pageTitle?: string }).pageTitle : undefined,
-            pageSummary: typeof (rawPageContext as { pageSummary?: unknown }).pageSummary === "string" ? (rawPageContext as { pageSummary?: string }).pageSummary : undefined,
-            pageEyebrow: typeof (rawPageContext as { pageEyebrow?: unknown }).pageEyebrow === "string" ? (rawPageContext as { pageEyebrow?: string }).pageEyebrow : undefined,
-            visibleFacts: Array.isArray((rawPageContext as { visibleFacts?: unknown }).visibleFacts)
-              ? (rawPageContext as { visibleFacts?: Array<{ label?: unknown; value?: unknown; helper?: unknown }> }).visibleFacts
-                  ?.filter(
-                    (item): item is { label: string; value: string; helper?: string } =>
-                      Boolean(item) && typeof item.label === "string" && typeof item.value === "string"
-                  )
-                  .slice(0, 10)
-              : undefined,
-            visibleSections: Array.isArray((rawPageContext as { visibleSections?: unknown }).visibleSections)
-              ? (rawPageContext as { visibleSections?: Array<{ title?: unknown; summary?: unknown }> }).visibleSections
-                  ?.filter(
-                    (item): item is { title: string; summary: string } =>
-                      Boolean(item) && typeof item.title === "string" && typeof item.summary === "string"
-                  )
-                  .slice(0, 8)
-              : undefined,
-            visibleUpdates: Array.isArray((rawPageContext as { visibleUpdates?: unknown }).visibleUpdates)
-              ? (rawPageContext as { visibleUpdates?: Array<{ date?: unknown; text?: unknown }> }).visibleUpdates
-                  ?.filter(
-                    (item): item is { date?: string; text: string } =>
-                      Boolean(item) && typeof item.text === "string" && (!item.date || typeof item.date === "string")
-                  )
-                  .slice(0, 5)
-              : undefined
-          }
-        : {};
-    const reply = await buildPortalChatReply(page, message, history, pageContext);
+    const pageType = typeof payload.pageType === "string" ? payload.pageType : undefined;
+    const locale = typeof payload.locale === "string" ? payload.locale : undefined;
+    const pageContext = parsePageContext(payload.pageContext);
+    const cookieStore = await cookies();
+    const sessionId =
+      (typeof payload.sessionId === "string" && payload.sessionId.trim()) ||
+      cookieStore.get(chatSessionCookieName)?.value ||
+      crypto.randomUUID();
+    const conversationMemory = buildConversationMemory(history);
+    const intentResult = detectPortalIntent(message);
+    const portalContext = await buildPortalAIContext({
+      message,
+      page,
+      pageType,
+      pageContext,
+      sessionId,
+      locale,
+      history
+    });
+    const incidentDraft = buildIncidentDraft(message, portalContext, intentResult);
+    const actions = buildPortalActions(intentResult, incidentDraft);
 
-    return NextResponse.json({ reply });
+    const enrichReply = (reply: PortalChatReply): PortalChatReply => ({
+      ...reply,
+      intent: toPortalIntentMetadata(intentResult),
+      incidentDraft,
+      actions
+    });
+
+    console.info("[api/portal/chat] AI request start", {
+      sessionId,
+      page,
+      pageType: portalContext.pageType,
+      historyCount: history.length,
+      contextIncluded: Boolean(portalContext.compactText),
+      memoryIncluded: conversationMemory.length > 0,
+      intent: intentResult.intent,
+      urgency: intentResult.urgency
+    });
+
+    try {
+      const reply = await sendAIChatRequest({
+        message,
+        sessionId,
+        portalContext,
+        conversationMemory
+      });
+      console.info("[api/portal/chat] AI response delivered", {
+        sessionId,
+        page,
+        pageType: portalContext.pageType,
+        source: "ai"
+      });
+      const response = NextResponse.json({ reply: enrichReply(reply) });
+      response.cookies.set(chatSessionCookieName, sessionId, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/"
+      });
+      return response;
+    } catch (aiError) {
+      console.error("[api/portal/chat] AI FALLBACK ACTIVATED", {
+        sessionId,
+        page,
+        pageType: portalContext.pageType,
+        reason: aiError instanceof Error ? aiError.message : String(aiError)
+      });
+    }
+
+    const reply = await buildPortalChatReply(page, message, history, pageContext);
+    console.info("[api/portal/chat] AI response delivered", {
+      sessionId,
+      page,
+      pageType: portalContext.pageType,
+      source: "fallback",
+      intent: intentResult.intent,
+      urgency: intentResult.urgency
+    });
+    const response = NextResponse.json({ reply: enrichReply(reply) });
+    response.cookies.set(chatSessionCookieName, sessionId, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/"
+    });
+    return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "No se pudo procesar la consulta del chat.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[api/portal/chat] Request failed.", error);
+    return NextResponse.json({ error: "No se pudo procesar la consulta del chat." }, { status: 500 });
   }
 }

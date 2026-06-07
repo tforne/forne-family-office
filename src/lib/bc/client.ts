@@ -91,7 +91,14 @@ async function bcFetchResponse(url: string, accept = "application/json") {
   return res;
 }
 
-async function bcSendJson<T>(url: string, method: "POST" | "PATCH", body: unknown): Promise<T> {
+async function bcSendJson<T>(
+  url: string,
+  method: "POST" | "PATCH",
+  body: unknown,
+  options?: {
+    signal?: AbortSignal;
+  }
+): Promise<T> {
   const token = await getBusinessCentralAccessToken();
 
   const res = await fetch(url, {
@@ -103,7 +110,8 @@ async function bcSendJson<T>(url: string, method: "POST" | "PATCH", body: unknow
       ...(method === "PATCH" ? { "If-Match": "*" } : {})
     },
     body: JSON.stringify(body),
-    cache: "no-store"
+    cache: "no-store",
+    signal: options?.signal
   });
 
   if (!res.ok) {
@@ -288,6 +296,23 @@ export async function bcPostForCompany<T = unknown>(company: BusinessCentralComp
   const url = `${baseApiUrl()}/${env.bcApiPublisher}/${env.bcApiGroup}/${env.bcApiVersion}/companies(${companyId})/${path}`;
 
   return bcSendJson<T>(url, "POST", body);
+}
+
+export async function bcPostCustomApiForCompany<T = unknown>(
+  company: BusinessCentralCompanyRef,
+  api: BusinessCentralCustomApiRef,
+  path: string,
+  body: unknown,
+  options?: {
+    signal?: AbortSignal;
+  }
+): Promise<T> {
+  requireBusinessCentralBaseConfig();
+
+  const companyId = await resolveCompanyId(company);
+  const url = `${baseApiUrl()}/${api.publisher}/${api.group}/${api.version}/companies(${companyId})/${path}`;
+
+  return bcSendJson<T>(url, "POST", body, options);
 }
 
 export async function bcPatchForCompany<T = unknown>(company: BusinessCentralCompanyRef, path: string, body: unknown): Promise<T> {

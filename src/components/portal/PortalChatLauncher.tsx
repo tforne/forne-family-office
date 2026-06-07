@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
+import type { PortalAction, PortalIncidentDraft, PortalIntentMetadata } from "@/lib/portal/chat-assistant";
+import {
+  buildIncidentReviewDraft,
+  portalIncidentReviewDraftKey,
+  portalIncidentReviewDraftQueryKey,
+  portalIncidentReviewDraftQueryValue
+} from "@/lib/portal/incident-review-draft";
 
 type ChatLink = {
   href: string;
@@ -17,6 +24,9 @@ type ChatMessage = {
   links?: ChatLink[];
   canEscalate?: boolean;
   escalationSourceMessage?: string;
+  intent?: PortalIntentMetadata;
+  incidentDraft?: PortalIncidentDraft | null;
+  actions?: PortalAction[];
 };
 
 type ChatReply = {
@@ -24,12 +34,18 @@ type ChatReply = {
   links: ChatLink[];
   suggestions: string[];
   canEscalate?: boolean;
+  intent?: PortalIntentMetadata;
+  incidentDraft?: PortalIncidentDraft | null;
+  actions?: PortalAction[];
 };
 
 type ChatHistoryPayload = {
   role: "assistant" | "user";
   content: string;
 };
+
+const maxHistoryMessages = 6;
+const maxHistoryContentLength = 500;
 
 type ActivePageContext = {
   pageTitle?: string;
@@ -55,6 +71,28 @@ const welcomeMessage =
 
 const assistantRoleLabel = "Asistente Forne";
 const userRoleLabel = "Tu consulta";
+
+function urgencyLabel(value: PortalIncidentDraft["urgency"] | PortalIntentMetadata["urgency"] | undefined) {
+  if (value === "critical") return "Crítica";
+  if (value === "high") return "Alta";
+  if (value === "medium") return "Media";
+  return "Baja";
+}
+
+function priorityLabel(value: PortalIncidentDraft["priority"]) {
+  if (value === "Critical") return "Crítica";
+  if (value === "High") return "Alta";
+  if (value === "Medium") return "Media";
+  return "Baja";
+}
+
+function actionTarget(actionType: string) {
+  if (actionType === "view_invoice") return "/portal/invoices";
+  if (actionType === "view_documents") return "/portal/documents";
+  if (actionType === "view_contract") return "/portal/contracts";
+  if (actionType === "create_incident") return "/portal/incidents";
+  return null;
+}
 
 function initialSuggestions(pathname: string) {
   if (pathname.startsWith("/portal/invoices")) {
@@ -281,7 +319,25 @@ function readActivePageContext(): ActivePageContext {
   };
 }
 
+function normalizeHistoryContent(value: string) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxHistoryContentLength) return normalized;
+  return `${normalized.slice(0, maxHistoryContentLength - 3).trimEnd()}...`;
+}
+
+function buildHistoryForAI(messages: ChatMessage[]): ChatHistoryPayload[] {
+  return messages
+    .filter((message) => (message.role === "user" || message.role === "assistant") && message.id !== "welcome")
+    .map((message) => ({
+      role: message.role,
+      content: normalizeHistoryContent(message.content)
+    }))
+    .filter((message) => Boolean(message.content))
+    .slice(-maxHistoryMessages);
+}
+
 export default function PortalChatLauncher() {
+  const router = useRouter();
   const pathname = usePathname();
   const currentPath = pathname || "/portal";
   const title = titleForPath(currentPath);
@@ -366,10 +422,7 @@ export default function PortalChatLauncher() {
 
     setPending(true);
     setError("");
-    const history = messages
-      .filter((item) => item.id !== "welcome")
-      .slice(-5)
-      .map<ChatHistoryPayload>((item) => ({ role: item.role, content: item.content }));
+    const history = buildHistoryForAI(messages);
     const activePageContext = readActivePageContext();
     setMessages((current) => [...current, { id: `user-${Date.now()}`, role: "user", content: message }]);
     setInput("");
@@ -401,7 +454,10 @@ export default function PortalChatLauncher() {
           content: reply.answer,
           links: reply.links,
           canEscalate: reply.canEscalate,
-          escalationSourceMessage: reply.canEscalate ? message : undefined
+          escalationSourceMessage: reply.canEscalate ? message : undefined,
+          intent: reply.intent,
+          incidentDraft: reply.incidentDraft,
+          actions: reply.actions
         }
       ]);
       setSuggestions(reply.suggestions);
@@ -415,6 +471,63 @@ export default function PortalChatLauncher() {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await sendMessage(input);
+  };
+
+  const handleAction = (action: PortalAction, sourceMessage: ChatMessage) => {
+    const target = actionTarget(action.type);
+
+    if (target) {
+      if (action.type === "create_incident") {
+        if (typeof window !== "undefined" && sourceMessage.incidentDraft) {
+          const draft = buildIncidentReviewDraft(sourceMessage.incidentDraft, sourceMessage.intent);
+          window.sessionStorage.setItem(portalIncidentReviewDraftKey, JSON.stringify(draft));
+        }
+
+        setMessages((current) => [
+          ...current,
+          {
+            id: `assistant-action-${Date.now()}`,
+            role: "assistant",
+            content:
+              "He preparado el borrador y te llevo al formulario de alta para que revises los datos antes de enviarlo. La incidencia no se creará automáticamente.",
+            links: [{ href: "/portal/incidents", label: "Ir a incidencias" }]
+          }
+        ]);
+
+        router.push(`${target}?${portalIncidentReviewDraftQueryKey}=${portalIncidentReviewDraftQueryValue}`);
+        return;
+      }
+
+      router.push(target);
+      return;
+    }
+
+    if (action.type === "attach_photo") {
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-action-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Puedes reunir fotos del problema para adjuntarlas cuando el flujo de incidencia lo solicite. De momento el portal solo prepara el borrador y no crea la incidencia automáticamente."
+        }
+      ]);
+      return;
+    }
+
+    if (action.type === "contact_support") {
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-action-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Puedo orientarte desde el chat y también puedes usar el escalado por correo cuando necesites revisión humana. No se ejecutará ninguna operación sin tu validación.",
+          canEscalate: true,
+          escalationSourceMessage: sourceMessage.escalationSourceMessage || sourceMessage.content
+        }
+      ]);
+    }
   };
 
   const escalateByEmail = async (messageId: string, sourceMessage: string) => {
@@ -541,6 +654,50 @@ export default function PortalChatLauncher() {
                         <span>{message.role === "assistant" ? assistantRoleLabel : userRoleLabel}</span>
                       </div>
                       <div>{message.content}</div>
+                      {message.incidentDraft ? (
+                        <div className="mt-3 rounded-[18px] border border-amber-200/90 bg-[linear-gradient(180deg,rgba(255,250,240,0.98)_0%,rgba(255,246,227,0.96)_100%)] px-3 py-3 text-[12px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-800/80">
+                            Incidencia propuesta
+                          </div>
+                          <div className="mt-2 space-y-1.5 leading-5">
+                            <div>
+                              <span className="font-semibold text-slate-800">Título:</span> {message.incidentDraft.title}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-slate-800">Tipo:</span> {message.incidentDraft.category}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-slate-800">Prioridad:</span> {priorityLabel(message.incidentDraft.priority)}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-slate-800">Urgencia:</span> {urgencyLabel(message.incidentDraft.urgency)}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-slate-800">Descripción:</span> {message.incidentDraft.description}
+                            </div>
+                            {message.incidentDraft.suggestedNextStep ? (
+                              <div>
+                                <span className="font-semibold text-slate-800">Siguiente paso:</span> {message.incidentDraft.suggestedNextStep}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+                      {message.intent ? (
+                        <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                            Intento: {message.intent.type}
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                            Confianza: {Math.round(message.intent.confidence * 100)}%
+                          </span>
+                          {message.intent.urgency ? (
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                              Urgencia: {urgencyLabel(message.intent.urgency)}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
                       {message.links?.length ? (
                         <div className="mt-3 flex flex-wrap gap-2">
                           {message.links.map((link) => (
@@ -556,6 +713,24 @@ export default function PortalChatLauncher() {
                               <span>{link.label}</span>
                               <BrandIcon name="arrow" className="h-3.5 w-3.5" />
                             </Link>
+                          ))}
+                        </div>
+                      ) : null}
+                      {message.actions?.length ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {message.actions.map((action) => (
+                            <button
+                              key={`${message.id}-${action.type}-${action.label}`}
+                              type="button"
+                              onClick={() => handleAction(action, message)}
+                              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                                message.role === "assistant"
+                                  ? "bg-forne-ink text-white hover:bg-forne-ink/90"
+                                  : "bg-white/10 text-white hover:bg-white/18"
+                              }`}
+                            >
+                              <span>{action.label}</span>
+                            </button>
                           ))}
                         </div>
                       ) : null}

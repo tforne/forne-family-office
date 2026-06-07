@@ -15,11 +15,47 @@ type ChatLink = {
   label: string;
 };
 
+export type PortalIntentType =
+  | "maintenance_incident"
+  | "urgent_incident"
+  | "invoice_question"
+  | "contract_question"
+  | "document_request"
+  | "support_request"
+  | "general_chat";
+
+export type PortalIntentUrgency = "low" | "medium" | "high" | "critical";
+
+export interface PortalIntentMetadata {
+  type: PortalIntentType;
+  confidence: number;
+  urgency?: PortalIntentUrgency;
+  matchedSignals?: string[];
+}
+
+export interface PortalIncidentDraft {
+  title: string;
+  category: string;
+  priority: "Low" | "Medium" | "High" | "Critical";
+  urgency: PortalIntentUrgency;
+  description: string;
+  suggestedNextStep?: string;
+}
+
+export interface PortalAction {
+  type: string;
+  label: string;
+  payload?: Record<string, unknown>;
+}
+
 export type PortalChatReply = {
   answer: string;
   links: ChatLink[];
   suggestions: string[];
   canEscalate?: boolean;
+  intent?: PortalIntentMetadata;
+  incidentDraft?: PortalIncidentDraft | null;
+  actions?: PortalAction[];
 };
 
 export type PortalChatHistoryItem = {
