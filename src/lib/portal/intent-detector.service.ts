@@ -114,8 +114,7 @@ const intentRules: IntentRule[] = [
       { signal: "archivo", weight: 0.9 },
       { signal: "pdf", weight: 0.86 },
       { signal: "adjunto", weight: 0.82 },
-      { signal: "descargar", weight: 0.78 },
-      { signal: "contrato", weight: 0.74 }
+      { signal: "descargar", weight: 0.78 }
     ]
   },
   {

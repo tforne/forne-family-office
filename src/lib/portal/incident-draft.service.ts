@@ -38,8 +38,9 @@ function pickLocation(normalizedMessage: string) {
 
 function buildTitle(message: string, normalizedMessage: string, urgency: NonNullable<IntentDetectionResult["urgency"]>) {
   const location = pickLocation(normalizedMessage);
+  const hasBadSmell = normalizedMessage.includes("mal olor") || normalizedMessage.includes("huele mal");
 
-  if (normalizedMessage.includes("humedad") && normalizedMessage.includes("mal olor")) {
+  if (normalizedMessage.includes("humedad") && hasBadSmell) {
     return location ? `Humedad y mal olor en ${location}` : "Humedad y mal olor";
   }
 
@@ -64,7 +65,7 @@ function buildTitle(message: string, normalizedMessage: string, urgency: NonNull
 }
 
 function buildDescription(message: string, normalizedMessage: string) {
-  if (normalizedMessage.includes("humedad") && normalizedMessage.includes("mal olor")) {
+  if (normalizedMessage.includes("humedad") && (normalizedMessage.includes("mal olor") || normalizedMessage.includes("huele mal"))) {
     return "El inquilino informa de humedad persistente y mal olor en el baño. Posible filtración o problema de ventilación.";
   }
 
@@ -100,7 +101,7 @@ function buildSuggestedNextStep(normalizedMessage: string, urgency: NonNullable<
     return "Contactar soporte urgente y verificar medidas inmediatas de seguridad antes de continuar.";
   }
 
-  if (normalizedMessage.includes("humedad") || normalizedMessage.includes("mal olor")) {
+  if (normalizedMessage.includes("humedad") || normalizedMessage.includes("mal olor") || normalizedMessage.includes("huele mal")) {
     return "Revisar posible filtración y solicitar fotografías.";
   }
 

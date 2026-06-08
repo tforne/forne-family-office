@@ -48,6 +48,57 @@ export interface PortalAction {
   payload?: Record<string, unknown>;
 }
 
+export interface PortalDuplicateIncidentMatch {
+  id: string;
+  incidentId?: string;
+  title: string;
+  status?: string;
+  priority?: string;
+  incidentDate?: string | null;
+  similarity: number;
+  reason: string;
+  href: string;
+}
+
+export interface PortalDuplicateIncidentDetection {
+  isPotentialDuplicate: boolean;
+  confidence: number;
+  summary: string;
+  matches: PortalDuplicateIncidentMatch[];
+}
+
+export interface PortalOperationalSummary {
+  title: string;
+  summary: string;
+  recommendedNextStep?: string;
+}
+
+export interface PortalEscalationWarning {
+  shouldEscalate: boolean;
+  level: "none" | "watch" | "recommended" | "urgent";
+  message: string;
+  reasons: string[];
+}
+
+export interface PortalOperationalRouting {
+  destination: "incidents" | "incident_detail" | "support" | "invoices" | "contracts" | "documents" | "portal_home";
+  href: string;
+  label: string;
+  reason: string;
+  queue: "maintenance" | "urgent" | "billing" | "support" | "contract" | "documents" | "general";
+}
+
+export interface PortalPropertyOperationalIntelligence {
+  fixedRealEstateNo?: string;
+  propertyLabel?: string;
+  relatedContractNo?: string;
+  openIncidentCount: number;
+  totalIncidentCount: number;
+  recentIncidentTitle?: string;
+  operationalStatus: "stable" | "active_attention" | "high_attention";
+  summary: string;
+}
+
 export type PortalChatReply = {
   answer: string;
   links: ChatLink[];
@@ -56,6 +107,11 @@ export type PortalChatReply = {
   intent?: PortalIntentMetadata;
   incidentDraft?: PortalIncidentDraft | null;
   actions?: PortalAction[];
+  duplicateIncident?: PortalDuplicateIncidentDetection;
+  operationalSummary?: PortalOperationalSummary;
+  escalation?: PortalEscalationWarning;
+  routing?: PortalOperationalRouting;
+  propertyOperationalIntelligence?: PortalPropertyOperationalIntelligence;
 };
 
 export type PortalChatHistoryItem = {

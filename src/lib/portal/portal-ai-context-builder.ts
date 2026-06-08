@@ -2,9 +2,11 @@ import "server-only";
 
 import { getMe } from "@/lib/portal/me.service";
 import { getContracts } from "@/lib/portal/contracts.service";
-import { getIncidentById } from "@/lib/portal/incidents.service";
+import { getIncidentById, getIncidents } from "@/lib/portal/incidents.service";
 import { resolvePortalUserContext } from "@/lib/portal/user-context";
-import type { PortalPageContext } from "@/lib/portal/chat-assistant";
+import type { IncidentDto } from "@/lib/dto/incident.dto";
+import type { ContractDto } from "@/lib/dto/contract.dto";
+import type { PortalPageContext, PortalPropertyOperationalIntelligence } from "@/lib/portal/chat-assistant";
 
 export type PortalAIPageType =
   | "home"
@@ -54,6 +56,7 @@ export interface PortalAIContext {
   property?: {
     fixedRealEstateNo?: string;
   };
+  propertyOperationalIntelligence?: PortalPropertyOperationalIntelligence;
   operationalHints: string[];
   compactText: string;
 }
@@ -167,6 +170,59 @@ function pageIdFromPath(page: string, prefix: string) {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
+function cleanDate(value: string | null | undefined) {
+  if (!value || value.startsWith("0001-01-01")) return "";
+  return value;
+}
+
+function isOpenIncident(incident: IncidentDto) {
+  return incident.stateCode === "Active" && !cleanDate(incident.resolutionDate);
+}
+
+function buildPropertyOperationalIntelligence(
+  propertyNo: string | undefined,
+  contractNo: string | undefined,
+  contracts: ContractDto[],
+  incidents: IncidentDto[]
+): PortalPropertyOperationalIntelligence | undefined {
+  if (!propertyNo && !contractNo) return undefined;
+
+  const relatedIncidents = incidents.filter(
+    (incident) =>
+      (propertyNo && incident.fixedRealEstateNo === propertyNo) ||
+      (contractNo && incident.contractNo === contractNo)
+  );
+  const openIncidents = relatedIncidents.filter(isOpenIncident);
+  const latestIncident = relatedIncidents[0];
+  const relatedContract =
+    contracts.find((contract) => contract.fixedRealEstateNo === propertyNo || contract.contractNo === contractNo) || contracts[0];
+  const propertyLabel =
+    relatedContract?.fixedRealEstateDescription ||
+    relatedContract?.description ||
+    latestIncident?.refDescription ||
+    propertyNo;
+  const operationalStatus =
+    openIncidents.length >= 2 ? "high_attention" : openIncidents.length === 1 ? "active_attention" : "stable";
+
+  const summary =
+    operationalStatus === "high_attention"
+      ? `El inmueble tiene ${openIncidents.length} incidencia(s) abierta(s) y requiere atención operativa alta.`
+      : operationalStatus === "active_attention"
+        ? `El inmueble ya tiene una incidencia abierta en seguimiento.`
+        : `No hay incidencias abiertas visibles para este inmueble.`;
+
+  return {
+    fixedRealEstateNo: propertyNo,
+    propertyLabel,
+    relatedContractNo: relatedContract?.contractNo || contractNo,
+    openIncidentCount: openIncidents.length,
+    totalIncidentCount: relatedIncidents.length,
+    recentIncidentTitle: latestIncident?.title || undefined,
+    operationalStatus,
+    summary
+  };
+}
+
 function buildOperationalHints(page: string, pageType: PortalAIPageType, message: string, context: PortalAIContext) {
   const hints: string[] = [];
   const normalizedMessage = normalizeWhitespace(message).toLowerCase();
@@ -194,6 +250,10 @@ function buildOperationalHints(page: string, pageType: PortalAIPageType, message
 
   if (context.property?.fixedRealEstateNo) {
     hints.push("Current property reference is available");
+  }
+
+  if (context.propertyOperationalIntelligence?.openIncidentCount) {
+    hints.push(`Property has ${context.propertyOperationalIntelligence.openIncidentCount} open incidents`);
   }
 
   if (/\b(urgente|urgencia|agua|humedad|fuga|incendio|olor a gas|smoke|flood)\b/.test(normalizedMessage)) {
@@ -228,6 +288,10 @@ function buildCompactContextText(context: PortalAIContext, pageContext: PortalPa
 
   if (context.property?.fixedRealEstateNo) {
     lines.push(`- Property: ${context.property.fixedRealEstateNo}`);
+  }
+
+  if (context.propertyOperationalIntelligence) {
+    lines.push(`- Property Intelligence: ${context.propertyOperationalIntelligence.summary}`);
   }
 
   if (pageContext.pageTitle) {
@@ -302,8 +366,9 @@ export async function buildPortalAIContext(input: PortalAIContextInput): Promise
     }
   }
 
+  const [contracts, incidents] = await Promise.all([getContracts().catch(() => []), getIncidents().catch(() => [])]);
+
   if (!context.contract || !context.property) {
-    const contracts = await getContracts().catch(() => []);
     const currentContractId = pageIdFromPath(page, "/portal/contracts");
     const contractMatch =
       contracts.find((contract) => contract.id === currentContractId || contract.contractNo === currentContractId) ||
@@ -317,6 +382,13 @@ export async function buildPortalAIContext(input: PortalAIContextInput): Promise
       }
     }
   }
+
+  context.propertyOperationalIntelligence = buildPropertyOperationalIntelligence(
+    context.property?.fixedRealEstateNo,
+    context.contract?.contractNo,
+    contracts,
+    incidents
+  );
 
   context.operationalHints = buildOperationalHints(page, pageType, input.message, context);
   context.compactText = buildCompactContextText(context, pageContext);

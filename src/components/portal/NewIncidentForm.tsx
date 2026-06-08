@@ -10,6 +10,7 @@ import {
   portalIncidentReviewDraftQueryValue,
   type PortalIncidentReviewDraft
 } from "@/lib/portal/incident-review-draft";
+import type { PortalPostOperationIntelligence } from "@/lib/portal/post-operation-intelligence.service";
 
 type ContractOption = {
   contractNo: string;
@@ -53,6 +54,7 @@ export default function NewIncidentForm({ contracts }: Props) {
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
   const [reviewDraft, setReviewDraft] = useState<PortalIncidentReviewDraft | null>(null);
+  const [postOperation, setPostOperation] = useState<PortalPostOperationIntelligence | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const lastAppliedDraftRef = useRef<string | null>(null);
 
@@ -78,6 +80,7 @@ export default function NewIncidentForm({ contracts }: Props) {
       setStatus("idle");
       setError("");
       setWarning("");
+      setPostOperation(null);
       lastAppliedDraftRef.current = storedDraft;
     } catch {
       window.sessionStorage.removeItem(portalIncidentReviewDraftKey);
@@ -90,6 +93,7 @@ export default function NewIncidentForm({ contracts }: Props) {
     }
 
     setReviewDraft(null);
+    setPostOperation(null);
     lastAppliedDraftRef.current = null;
 
     if (options?.resetFields) {
@@ -105,6 +109,7 @@ export default function NewIncidentForm({ contracts }: Props) {
     setStatus("sending");
     setError("");
     setWarning("");
+    setPostOperation(null);
 
     const formData = new FormData();
     formData.set("requestType", "new");
@@ -143,6 +148,9 @@ export default function NewIncidentForm({ contracts }: Props) {
     setPriority("Normal");
     clearReviewDraft();
     setWarning(typeof payload.warning === "string" ? payload.warning : "");
+    setPostOperation(payload.postOperation && typeof payload.postOperation === "object"
+      ? (payload.postOperation as PortalPostOperationIntelligence)
+      : null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -334,6 +342,46 @@ export default function NewIncidentForm({ contracts }: Props) {
       {status === "sent" ? (
         <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
           Incidencia registrada correctamente en Business Central.
+        </div>
+      ) : null}
+
+      {postOperation ? (
+        <div className="mt-4 rounded-[26px] border border-sky-200 bg-[linear-gradient(180deg,#f7fbff_0%,#eef6ff_100%)] p-4 text-sm text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-800/80">
+            {postOperation.title}
+          </div>
+          <div className="mt-2 text-base font-semibold text-slate-900">{postOperation.summary}</div>
+          {postOperation.recommendedNextStep ? (
+            <p className="mt-2 leading-6 text-slate-700">
+              <span className="font-semibold text-slate-900">Siguiente paso:</span>{" "}
+              {postOperation.recommendedNextStep}
+            </p>
+          ) : null}
+          {postOperation.checklist.length ? (
+            <div className="mt-3 grid gap-2">
+              {postOperation.checklist.map((item) => (
+                <div key={item} className="rounded-2xl bg-white/85 px-3 py-3 text-sm leading-6 text-slate-700">
+                  <span className="inline-flex items-start gap-2">
+                    <BrandIcon name="clarity" className="mt-1 h-3.5 w-3.5 text-[#1b6fd8]" />
+                    <span>{item}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {postOperation.links.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {postOperation.links.map((link) => (
+                <a
+                  key={`${link.href}-${link.label}`}
+                  href={link.href}
+                  className="inline-flex items-center gap-2 rounded-full bg-forne-ink px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-forne-ink/90"
+                >
+                  <span>{link.label}</span>
+                </a>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

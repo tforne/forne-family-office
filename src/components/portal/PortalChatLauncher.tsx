@@ -4,13 +4,29 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
-import type { PortalAction, PortalIncidentDraft, PortalIntentMetadata } from "@/lib/portal/chat-assistant";
+import type {
+  PortalAction,
+  PortalDuplicateIncidentDetection,
+  PortalEscalationWarning,
+  PortalIncidentDraft,
+  PortalIntentMetadata,
+  PortalOperationalRouting,
+  PortalOperationalSummary,
+  PortalPropertyOperationalIntelligence
+} from "@/lib/portal/chat-assistant";
 import {
   buildIncidentReviewDraft,
   portalIncidentReviewDraftKey,
   portalIncidentReviewDraftQueryKey,
   portalIncidentReviewDraftQueryValue
 } from "@/lib/portal/incident-review-draft";
+import {
+  portalEscalationLabel,
+  portalIntentLabel,
+  portalRoutingLabel,
+  portalUrgencyLabel
+} from "@/lib/portal/portal-ai-labels";
+import type { PortalPostOperationIntelligence } from "@/lib/portal/post-operation-intelligence.service";
 
 type ChatLink = {
   href: string;
@@ -27,6 +43,11 @@ type ChatMessage = {
   intent?: PortalIntentMetadata;
   incidentDraft?: PortalIncidentDraft | null;
   actions?: PortalAction[];
+  duplicateIncident?: PortalDuplicateIncidentDetection;
+  escalation?: PortalEscalationWarning;
+  routing?: PortalOperationalRouting;
+  operationalSummary?: PortalOperationalSummary;
+  propertyOperationalIntelligence?: PortalPropertyOperationalIntelligence;
 };
 
 type ChatReply = {
@@ -37,11 +58,24 @@ type ChatReply = {
   intent?: PortalIntentMetadata;
   incidentDraft?: PortalIncidentDraft | null;
   actions?: PortalAction[];
+  duplicateIncident?: PortalDuplicateIncidentDetection;
+  escalation?: PortalEscalationWarning;
+  routing?: PortalOperationalRouting;
+  operationalSummary?: PortalOperationalSummary;
+  propertyOperationalIntelligence?: PortalPropertyOperationalIntelligence;
 };
 
 type ChatHistoryPayload = {
   role: "assistant" | "user";
   content: string;
+};
+
+type ActiveCommentDraft = {
+  sourceMessageId: string;
+  incidentId: string;
+  incidentTitle: string;
+  href: string;
+  comment: string;
 };
 
 const maxHistoryMessages = 6;
@@ -73,10 +107,7 @@ const assistantRoleLabel = "Asistente Forne";
 const userRoleLabel = "Tu consulta";
 
 function urgencyLabel(value: PortalIncidentDraft["urgency"] | PortalIntentMetadata["urgency"] | undefined) {
-  if (value === "critical") return "Crítica";
-  if (value === "high") return "Alta";
-  if (value === "medium") return "Media";
-  return "Baja";
+  return portalUrgencyLabel(value);
 }
 
 function priorityLabel(value: PortalIncidentDraft["priority"]) {
@@ -86,12 +117,21 @@ function priorityLabel(value: PortalIncidentDraft["priority"]) {
   return "Baja";
 }
 
+function incidentCategoryLabel(value: string) {
+  if (value === "Maintenance") return "Mantenimiento";
+  return value;
+}
+
 function actionTarget(actionType: string) {
   if (actionType === "view_invoice") return "/portal/invoices";
   if (actionType === "view_documents") return "/portal/documents";
   if (actionType === "view_contract") return "/portal/contracts";
   if (actionType === "create_incident") return "/portal/incidents";
   return null;
+}
+
+function escalationLabel(value: PortalEscalationWarning["level"] | undefined) {
+  return portalEscalationLabel(value);
 }
 
 function initialSuggestions(pathname: string) {
@@ -349,6 +389,9 @@ export default function PortalChatLauncher() {
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [sendingEscalationId, setSendingEscalationId] = useState<string | null>(null);
+  const [activeCommentDraft, setActiveCommentDraft] = useState<ActiveCommentDraft | null>(null);
+  const [commentStatus, setCommentStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [commentError, setCommentError] = useState("");
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -457,7 +500,12 @@ export default function PortalChatLauncher() {
           escalationSourceMessage: reply.canEscalate ? message : undefined,
           intent: reply.intent,
           incidentDraft: reply.incidentDraft,
-          actions: reply.actions
+          actions: reply.actions,
+          duplicateIncident: reply.duplicateIncident,
+          escalation: reply.escalation,
+          routing: reply.routing,
+          operationalSummary: reply.operationalSummary,
+          propertyOperationalIntelligence: reply.propertyOperationalIntelligence
         }
       ]);
       setSuggestions(reply.suggestions);
@@ -473,31 +521,92 @@ export default function PortalChatLauncher() {
     await sendMessage(input);
   };
 
+  const openIncidentReview = (
+    incidentDraft: PortalIncidentDraft | null | undefined,
+    intent: PortalIntentMetadata | undefined,
+    messageText: string
+  ) => {
+    if (typeof window !== "undefined" && incidentDraft) {
+      const draft = buildIncidentReviewDraft(incidentDraft, intent);
+      window.sessionStorage.setItem(portalIncidentReviewDraftKey, JSON.stringify(draft));
+    }
+
+    setMessages((current) => [
+      ...current,
+      {
+        id: `assistant-action-${Date.now()}`,
+        role: "assistant",
+        content: messageText,
+        links: [{ href: "/portal/incidents", label: "Ir a incidencias" }]
+      }
+    ]);
+
+    router.push(`/portal/incidents?${portalIncidentReviewDraftQueryKey}=${portalIncidentReviewDraftQueryValue}`);
+  };
+
   const handleAction = (action: PortalAction, sourceMessage: ChatMessage) => {
-    const target = actionTarget(action.type);
+    if (action.type === "create_incident") {
+      openIncidentReview(
+        sourceMessage.incidentDraft,
+        sourceMessage.intent,
+        "He preparado el borrador y te llevo al formulario de alta para que revises los datos antes de enviarlo. La incidencia no se creará automáticamente."
+      );
+      return;
+    }
 
-    if (target) {
-      if (action.type === "create_incident") {
-        if (typeof window !== "undefined" && sourceMessage.incidentDraft) {
-          const draft = buildIncidentReviewDraft(sourceMessage.incidentDraft, sourceMessage.intent);
-          window.sessionStorage.setItem(portalIncidentReviewDraftKey, JSON.stringify(draft));
-        }
+    if (action.type === "create_anyway") {
+      const payloadDraft =
+        action.payload?.incidentDraft && typeof action.payload.incidentDraft === "object"
+          ? (action.payload.incidentDraft as PortalIncidentDraft)
+          : null;
 
-        setMessages((current) => [
-          ...current,
-          {
-            id: `assistant-action-${Date.now()}`,
-            role: "assistant",
-            content:
-              "He preparado el borrador y te llevo al formulario de alta para que revises los datos antes de enviarlo. La incidencia no se creará automáticamente.",
-            links: [{ href: "/portal/incidents", label: "Ir a incidencias" }]
-          }
-        ]);
+      openIncidentReview(
+        payloadDraft || sourceMessage.incidentDraft,
+        sourceMessage.intent,
+        "Puedes crear una incidencia nueva igualmente. Te llevo al formulario con el borrador preparado para que revises todo antes de enviarlo."
+      );
+      return;
+    }
 
-        router.push(`${target}?${portalIncidentReviewDraftQueryKey}=${portalIncidentReviewDraftQueryValue}`);
+    if (action.type === "append_comment") {
+      const incidentId =
+        typeof action.payload?.incidentId === "string" && action.payload.incidentId
+          ? action.payload.incidentId
+          : sourceMessage.duplicateIncident?.matches[0]?.incidentId || sourceMessage.duplicateIncident?.matches[0]?.id || "";
+      const href =
+        (typeof action.payload?.href === "string" && action.payload.href) ||
+        sourceMessage.duplicateIncident?.matches[0]?.href ||
+        (incidentId ? `/portal/incidents/${incidentId}` : "");
+
+      if (!incidentId) {
+        setError("No he podido identificar la incidencia a la que quieres añadir el comentario.");
         return;
       }
 
+      setActiveCommentDraft({
+        sourceMessageId: sourceMessage.id,
+        incidentId,
+        incidentTitle:
+          (typeof action.payload?.incidentTitle === "string" && action.payload.incidentTitle) ||
+          sourceMessage.duplicateIncident?.matches[0]?.title ||
+          "Incidencia existente",
+        href,
+        comment:
+          (typeof action.payload?.suggestedComment === "string" && action.payload.suggestedComment) ||
+          sourceMessage.escalationSourceMessage ||
+          ""
+      });
+      setCommentStatus("idle");
+      setCommentError("");
+      setError("");
+      return;
+    }
+
+    const target =
+      (typeof action.payload?.href === "string" && action.payload.href) ||
+      actionTarget(action.type);
+
+    if (target) {
       router.push(target);
       return;
     }
@@ -527,6 +636,65 @@ export default function PortalChatLauncher() {
           escalationSourceMessage: sourceMessage.escalationSourceMessage || sourceMessage.content
         }
       ]);
+    }
+  };
+
+  const submitIncidentComment = async () => {
+    if (!activeCommentDraft || commentStatus === "sending") return;
+
+    setCommentStatus("sending");
+    setCommentError("");
+    setError("");
+
+    try {
+      const response = await fetch(`/api/incidents/${encodeURIComponent(activeCommentDraft.incidentId)}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          comment: activeCommentDraft.comment
+        })
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        warning?: string;
+        postOperation?: PortalPostOperationIntelligence;
+      };
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "No se ha podido añadir el comentario a la incidencia.");
+      }
+
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-comment-${Date.now()}`,
+          role: "assistant",
+          content: payload.warning
+            ? `He añadido el comentario a la incidencia existente. ${payload.warning}`
+            : "He añadido tu comentario a la incidencia existente. La incidencia sigue bajo tu control y puedes revisarla cuando quieras.",
+          links:
+            payload.postOperation?.links.length
+              ? payload.postOperation.links
+              : activeCommentDraft.href
+                ? [{ href: activeCommentDraft.href, label: "Ver incidencia actualizada" }]
+                : undefined,
+          actions: payload.postOperation?.actions,
+          operationalSummary: payload.postOperation
+            ? {
+                title: payload.postOperation.title,
+                summary: payload.postOperation.summary,
+                recommendedNextStep: payload.postOperation.recommendedNextStep
+              }
+            : undefined
+        }
+      ]);
+      setActiveCommentDraft(null);
+      setCommentStatus("idle");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "No se ha podido añadir el comentario a la incidencia.";
+      setCommentError(message);
+      setCommentStatus("error");
     }
   };
 
@@ -664,7 +832,7 @@ export default function PortalChatLauncher() {
                               <span className="font-semibold text-slate-800">Título:</span> {message.incidentDraft.title}
                             </div>
                             <div>
-                              <span className="font-semibold text-slate-800">Tipo:</span> {message.incidentDraft.category}
+                              <span className="font-semibold text-slate-800">Tipo:</span> {incidentCategoryLabel(message.incidentDraft.category)}
                             </div>
                             <div>
                               <span className="font-semibold text-slate-800">Prioridad:</span> {priorityLabel(message.incidentDraft.priority)}
@@ -683,10 +851,115 @@ export default function PortalChatLauncher() {
                           </div>
                         </div>
                       ) : null}
+                      {message.duplicateIncident?.matches.length ? (
+                        <div className="mt-3 rounded-[18px] border border-sky-200/90 bg-[linear-gradient(180deg,rgba(243,249,255,0.98)_0%,rgba(235,245,255,0.96)_100%)] px-3 py-3 text-[12px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-800/80">
+                            Posible incidencia ya abierta
+                          </div>
+                          <div className="mt-2 leading-5">{message.duplicateIncident.summary}</div>
+                          <div className="mt-2 space-y-2">
+                            {message.duplicateIncident.matches.map((match) => (
+                              <div key={`${message.id}-${match.id}`} className="rounded-2xl bg-white/80 px-3 py-2.5">
+                                <div className="font-semibold text-slate-800">{match.title}</div>
+                                <div className="mt-1 text-[11px] leading-5 text-slate-600">
+                                  {match.reason}. Coincidencia: {Math.round(match.similarity * 100)}%
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 text-[11px] leading-5 text-slate-600">
+                            Puedes revisar la incidencia actual, añadir un comentario a ese caso o crear una nueva solo si realmente se trata de algo distinto.
+                          </div>
+                        </div>
+                      ) : null}
+                      {activeCommentDraft?.sourceMessageId === message.id ? (
+                        <div className="mt-3 rounded-[18px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,255,0.96)_100%)] px-3 py-3 text-[12px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                            Comentario para incidencia existente
+                          </div>
+                          <div className="mt-2 text-[11px] leading-5 text-slate-600">
+                            Se añadirá a <span className="font-semibold text-slate-800">{activeCommentDraft.incidentTitle}</span> solo cuando lo confirmes.
+                          </div>
+                          <textarea
+                            value={activeCommentDraft.comment}
+                            onChange={(event) =>
+                              setActiveCommentDraft((current) =>
+                                current
+                                  ? {
+                                      ...current,
+                                      comment: event.target.value
+                                    }
+                                  : current
+                              )
+                            }
+                            rows={4}
+                            maxLength={1200}
+                            className="ffo-portal-input mt-3 min-h-[112px] w-full resize-none rounded-[18px] px-3 py-3 text-[13px] leading-6 text-forne-ink outline-none"
+                            placeholder="Escribe el comentario que quieres añadir al seguimiento..."
+                          />
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => void submitIncidentComment()}
+                              disabled={commentStatus === "sending" || !activeCommentDraft.comment.trim()}
+                              className="ffo-portal-button inline-flex items-center gap-2 rounded-full bg-forne-ink px-3 py-2 text-xs font-semibold text-white transition hover:bg-forne-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              <span>{commentStatus === "sending" ? "Enviando comentario..." : "Enviar comentario"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveCommentDraft(null);
+                                setCommentStatus("idle");
+                                setCommentError("");
+                              }}
+                              disabled={commentStatus === "sending"}
+                              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              <span>Cancelar</span>
+                            </button>
+                          </div>
+                          {commentError ? (
+                            <div className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-[11px] leading-5 text-rose-800">
+                              {commentError}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {message.operationalSummary ? (
+                        <div className="mt-3 rounded-[18px] border border-slate-200 bg-[#f8fbff] px-3 py-3 text-[12px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                            {message.operationalSummary.title}
+                          </div>
+                          <div className="mt-2 leading-5">{message.operationalSummary.summary}</div>
+                          {message.operationalSummary.recommendedNextStep ? (
+                            <div className="mt-2 text-[11px] leading-5 text-slate-600">
+                              <span className="font-semibold text-slate-700">Siguiente paso:</span>{" "}
+                              {message.operationalSummary.recommendedNextStep}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {message.escalation && message.escalation.level !== "none" ? (
+                        <div className="mt-3 rounded-[18px] border border-rose-200/90 bg-[linear-gradient(180deg,rgba(255,247,247,0.98)_0%,rgba(255,241,241,0.96)_100%)] px-3 py-3 text-[12px] text-rose-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-800/80">
+                            {escalationLabel(message.escalation.level)}
+                          </div>
+                          <div className="mt-2 leading-5">{message.escalation.message}</div>
+                        </div>
+                      ) : null}
+                      {message.propertyOperationalIntelligence ? (
+                        <div className="mt-3 rounded-[18px] border border-emerald-200/90 bg-[linear-gradient(180deg,rgba(245,252,249,0.98)_0%,rgba(237,249,243,0.96)_100%)] px-3 py-3 text-[12px] text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-800/80">
+                            Contexto operativo del inmueble
+                          </div>
+                          <div className="mt-2 leading-5">{message.propertyOperationalIntelligence.summary}</div>
+                        </div>
+                      ) : null}
                       {message.intent ? (
                         <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                           <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
-                            Intento: {message.intent.type}
+                            Tipo: {portalIntentLabel(message.intent.type)}
                           </span>
                           <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
                             Confianza: {Math.round(message.intent.confidence * 100)}%
@@ -694,6 +967,11 @@ export default function PortalChatLauncher() {
                           {message.intent.urgency ? (
                             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
                               Urgencia: {urgencyLabel(message.intent.urgency)}
+                            </span>
+                          ) : null}
+                          {message.routing ? (
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                              Ruta: {portalRoutingLabel(message.routing)}
                             </span>
                           ) : null}
                         </div>

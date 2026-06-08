@@ -4,9 +4,14 @@ import { getPortalSession } from "@/lib/auth/session";
 import { buildPortalChatReply, type PortalChatHistoryItem, type PortalChatReply, type PortalPageContext } from "@/lib/portal/chat-assistant";
 import { sendAIChatRequest } from "@/lib/portal/ai-layer.service";
 import { buildConversationMemory } from "@/lib/portal/conversation-memory.service";
+import { detectDuplicateIncidents } from "@/lib/portal/duplicate-incident-detector.service";
+import { detectOperationalEscalation } from "@/lib/portal/escalation-detector.service";
 import { buildIncidentDraft } from "@/lib/portal/incident-draft.service";
+import { buildIncidentOperationalSummary } from "@/lib/portal/incident-summary.service";
 import { buildPortalActions, detectPortalIntent, toPortalIntentMetadata } from "@/lib/portal/intent-detector.service";
+import { buildOperationalRouting, buildOperationalRoutingActions } from "@/lib/portal/operational-routing.service";
 import { buildPortalAIContext } from "@/lib/portal/portal-ai-context-builder";
+import { getIncidents } from "@/lib/portal/incidents.service";
 
 const chatSessionCookieName = "ffo_portal_chat_session";
 
@@ -92,14 +97,38 @@ export async function POST(request: Request) {
       locale,
       history
     });
+    const incidents = await getIncidents().catch(() => []);
     const incidentDraft = buildIncidentDraft(message, portalContext, intentResult);
-    const actions = buildPortalActions(intentResult, incidentDraft);
+    const duplicateIncident = detectDuplicateIncidents(message, incidents, portalContext, intentResult);
+    const escalation = detectOperationalEscalation(message, intentResult, duplicateIncident, portalContext);
+    const routing = buildOperationalRouting(intentResult, duplicateIncident, escalation, portalContext);
+    const operationalSummary = buildIncidentOperationalSummary(
+      message,
+      intentResult,
+      portalContext,
+      duplicateIncident,
+      escalation
+    );
+    const baseActions = buildPortalActions(intentResult, incidentDraft);
+    const actions = [
+      ...baseActions.filter((action) => !(duplicateIncident.isPotentialDuplicate && action.type === "create_incident")),
+      ...buildOperationalRoutingActions(routing, duplicateIncident, {
+        message,
+        incidentDraft
+      })
+    ];
 
     const enrichReply = (reply: PortalChatReply): PortalChatReply => ({
       ...reply,
       intent: toPortalIntentMetadata(intentResult),
       incidentDraft,
-      actions
+      actions,
+      duplicateIncident,
+      escalation,
+      routing,
+      operationalSummary,
+      propertyOperationalIntelligence: portalContext.propertyOperationalIntelligence,
+      canEscalate: reply.canEscalate || escalation.shouldEscalate
     });
 
     console.info("[api/portal/chat] AI request start", {
@@ -110,7 +139,9 @@ export async function POST(request: Request) {
       contextIncluded: Boolean(portalContext.compactText),
       memoryIncluded: conversationMemory.length > 0,
       intent: intentResult.intent,
-      urgency: intentResult.urgency
+      urgency: intentResult.urgency,
+      duplicateDetected: duplicateIncident.isPotentialDuplicate,
+      escalationLevel: escalation.level
     });
 
     try {

@@ -2,11 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import BrandIcon from "@/components/brand/BrandIcon";
 import IncidentContactForm from "@/components/portal/IncidentContactForm";
+import IncidentDetailActions from "@/components/portal/IncidentDetailActions";
 import PortalEmptyState from "@/components/portal/PortalEmptyState";
 import PortalPageContext from "@/components/portal/PortalPageContext";
+import {
+  buildIncidentAttachmentViews,
+  extractIncidentAttachmentValues,
+  type IncidentAttachmentView
+} from "@/lib/portal/incident-attachments-view.service";
 import { getIncidentComments } from "@/lib/portal/incident-comments.service";
+import { buildIncidentDetailIntelligence } from "@/lib/portal/incident-detail-intelligence.service";
 import { getIncidentRequests } from "@/lib/portal/incident-requests.service";
 import { getIncidents } from "@/lib/portal/incidents.service";
+import { buildIncidentTimeline, type IncidentTimelineEntry } from "@/lib/portal/incident-timeline.service";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
 import type { IncidentCommentDto } from "@/lib/dto/incident-comment.dto";
 import type { IncidentRequestDto } from "@/lib/dto/incident-request.dto";
@@ -103,105 +111,65 @@ function requestStatusClass(status: string) {
   return "bg-forne-cloud text-forne-muted ring-forne-line";
 }
 
-function isImageUrl(value: string) {
-  const normalized = value.trim().toLowerCase();
+function cleanDateTime(value: string | null | undefined) {
+  if (!value || value.startsWith("0001-01-01")) return "Sin fecha";
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function isImageAttachment(attachment: IncidentAttachmentView) {
+  const contentType = (attachment.contentType || "").toLowerCase();
+  const href = (attachment.href || "").toLowerCase();
+  const fileName = attachment.filename.toLowerCase();
+
   return (
-    normalized.startsWith("data:image/") ||
-    /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)(\?|#|$)/.test(normalized)
+    contentType.startsWith("image/") ||
+    href.startsWith("data:image/") ||
+    /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)(\?|#|$)/.test(href) ||
+    /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)$/.test(fileName)
   );
 }
 
-function getImageUrls(record: IncidentDto, keys: string[]) {
-  const source = record as unknown as Record<string, unknown>;
-  const urls = new Set<string>();
+function TimelineEntryCard({ entry }: { entry: IncidentTimelineEntry }) {
+  const typeLabel =
+    entry.type === "created"
+      ? "Alta"
+      : entry.type === "comment"
+        ? "Comentario"
+        : entry.type === "attachment"
+          ? "Adjunto"
+          : entry.type === "status"
+            ? "Estado"
+            : entry.type === "updated"
+              ? "Actualización"
+              : "Sistema";
 
-  const addCandidate = (value: unknown) => {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      if (trimmed && isImageUrl(trimmed)) urls.add(trimmed);
-      return;
-    }
-
-    if (!value || typeof value !== "object") return;
-
-    const objectValue = value as Record<string, unknown>;
-    const directUrl = [objectValue.url, objectValue.src, objectValue.fileUrl, objectValue.imageUrl].find(
-      (candidate) => typeof candidate === "string" && candidate.trim()
-    );
-    const mimeType = [objectValue.mimeType, objectValue.contentType].find(
-      (candidate) => typeof candidate === "string" && candidate.trim()
-    );
-    const fileName = typeof objectValue.fileName === "string" ? objectValue.fileName : null;
-
-    if (typeof directUrl === "string") {
-      if (
-        isImageUrl(directUrl) ||
-        (typeof mimeType === "string" && mimeType.toLowerCase().startsWith("image/")) ||
-        (fileName && /\.(avif|bmp|gif|heic|heif|jpe?g|png|svg|webp)$/i.test(fileName))
-      ) {
-        urls.add(directUrl);
-      }
-    }
-  };
-
-  for (const key of keys) {
-    const value = source[key];
-
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-
-      if (!trimmed) continue;
-
-      if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(trimmed) as unknown;
-          if (Array.isArray(parsed)) {
-            parsed.forEach(addCandidate);
-            continue;
-          }
-          addCandidate(parsed);
-          continue;
-        } catch {
-          addCandidate(trimmed);
-          continue;
-        }
-      }
-
-      addCandidate(trimmed);
-      continue;
-    }
-
-    if (Array.isArray(value)) {
-      value.forEach(addCandidate);
-      continue;
-    }
-
-    addCandidate(value);
-  }
-
-  return Array.from(urls);
-}
-
-function TimelineItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="relative pl-7">
-      <div className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-forne-ink shadow-sm" />
-      <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">{label}</div>
-      <div className="mt-1 text-sm font-medium text-forne-ink">{value}</div>
-    </div>
-  );
-}
-
-function CommentItem({ comment }: { comment: IncidentCommentDto }) {
-  return (
-    <div className="border-b border-forne-line py-4 last:border-b-0">
-      <div className="flex justify-end">
-        <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
-          {cleanDate(comment.commentDate || comment.createdAt)}
+    <div className="relative rounded-2xl border border-forne-line bg-white px-4 py-4">
+      <div className="absolute left-4 top-5 h-3 w-3 rounded-full border-2 border-white bg-forne-ink shadow-sm" />
+      <div className="pl-7">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">{typeLabel}</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+            {cleanDateTime(entry.occurredAt)}
+          </div>
         </div>
-      </div>
-      <div className="mt-2 whitespace-pre-line text-sm leading-7 text-forne-muted">
-        {comment.commentText || "Comentario sin texto."}
+        <div className="mt-2 text-sm font-semibold text-forne-ink">{entry.title}</div>
+        {entry.description ? <div className="mt-2 text-sm leading-6 text-forne-muted">{entry.description}</div> : null}
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-medium text-forne-muted">
+          {entry.actorLabel ? <span>{entry.actorLabel}</span> : null}
+          {entry.href ? (
+            <a href={entry.href} target="_blank" rel="noreferrer" className="text-[#1b6fd8] hover:underline">
+              Ver archivo
+            </a>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -223,6 +191,25 @@ function SummaryCard({
       <div className="mt-2 text-sm leading-6 text-forne-muted">{helper}</div>
     </div>
   );
+}
+
+function IntelligencePill({
+  label,
+  tone = "neutral"
+}: {
+  label: string;
+  tone?: "neutral" | "warning" | "urgent" | "safe";
+}) {
+  const toneClass =
+    tone === "urgent"
+      ? "bg-rose-50 text-rose-800 ring-rose-200"
+      : tone === "warning"
+        ? "bg-amber-50 text-amber-800 ring-amber-200"
+        : tone === "safe"
+          ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+          : "bg-forne-cloud text-forne-muted ring-forne-line";
+
+  return <span className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ${toneClass}`}>{label}</span>;
 }
 
 export default async function IncidentDetailPage({ params }: { params: { id: string } }) {
@@ -330,18 +317,25 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
   }
 
   const comments = await getIncidentComments(incident.incidentId, incident.id);
+  const attachmentViews = buildIncidentAttachmentViews(extractIncidentAttachmentValues(incident));
+  const incidentTimeline = buildIncidentTimeline({
+    incident,
+    comments,
+    attachments: attachmentViews
+  });
+  const relatedIncidents = incidents.filter((candidate) => candidate.id !== incident.id);
+  const intelligence = buildIncidentDetailIntelligence({
+    incident,
+    comments,
+    attachments: attachmentViews,
+    relatedIncidents,
+    propertyContext: {
+      fixedRealEstateNo: incident.fixedRealEstateNo,
+      contractNo: incident.contractNo
+    }
+  });
   const status = statusLabel(incident);
-  const imageUrls = getImageUrls(incident, [
-    "incidentImages",
-    "images",
-    "imageUrls",
-    "incidentImageUrls",
-    "attachments",
-    "incidentAttachments",
-    "photos",
-    "photoUrls",
-    "files"
-  ]);
+  const imageAttachments = attachmentViews.filter((attachment) => attachment.href && isImageAttachment(attachment));
   const insurance = {
     policyNo: getTextValue(incident, ["insurancePolicyNo", "insurancePolicyNumber", "policyNo", "insuranceNo", "noPolizaSeguro", "polizaSeguroNo"]),
     policyDescription: getTextValue(incident, ["insurancePolicyDescription", "policyDescription", "insuranceDescription", "descripcionPolizaSeguro", "descripcionSeguro"]),
@@ -462,6 +456,72 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         />
       </section>
 
+      <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Resumen IA de incidencia</div>
+            <div className="mt-2 text-base font-semibold text-forne-ink">{intelligence.detectedProblem}</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <IntelligencePill
+                label={intelligence.operationalStatus || "Pendiente de revisión"}
+                tone={
+                  intelligence.operationalStatus === "Urgente"
+                    ? "urgent"
+                    : intelligence.operationalStatus === "Atención requerida"
+                      ? "warning"
+                      : intelligence.operationalStatus === "Resuelto recientemente"
+                        ? "safe"
+                        : "neutral"
+                }
+              />
+              {intelligence.priority ? <IntelligencePill label={`Prioridad ${intelligence.priority.toLowerCase()}`} /> : null}
+              {intelligence.escalationLevel && intelligence.escalationLevel !== "Sin escalado" ? (
+                <IntelligencePill
+                  label={intelligence.escalationLevel}
+                  tone={intelligence.escalationLevel === "Urgente" ? "urgent" : "warning"}
+                />
+              ) : null}
+              {intelligence.repeatedIssue ? <IntelligencePill label="Posible problema recurrente" tone="warning" /> : null}
+            </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl bg-forne-cloud p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Riesgo operativo</div>
+                <div className="mt-2 text-sm leading-6 text-forne-muted">{intelligence.operationalRisk}</div>
+              </div>
+              <div className="rounded-2xl bg-forne-cloud p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Última actividad</div>
+                <div className="mt-2 text-sm leading-6 text-forne-muted">{intelligence.latestActivity}</div>
+              </div>
+            </div>
+            {intelligence.recommendedNextStep ? (
+              <div className="mt-4 rounded-2xl border border-forne-line bg-white p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Próximo paso recomendado</div>
+                <div className="mt-2 text-sm leading-7 text-forne-muted">{intelligence.recommendedNextStep}</div>
+              </div>
+            ) : null}
+          </div>
+          <div className="w-full max-w-[24rem] rounded-[24px] border border-forne-line bg-[linear-gradient(180deg,#fbfdff_0%,#f5f9fe_100%)] p-4 shadow-[0_18px_38px_-34px_rgba(15,47,87,0.2)]">
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-forne-muted">Cronología inteligente</div>
+            <div className="mt-3 space-y-3">
+              {(intelligence.timelineSummary || []).map((line) => (
+                <div key={line} className="rounded-2xl bg-white px-3 py-3 text-sm leading-6 text-forne-muted">
+                  <span className="inline-flex items-start gap-2">
+                    <BrandIcon name="clarity" className="mt-1 h-3.5 w-3.5 text-[#1b6fd8]" />
+                    <span>{line}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <IncidentDetailActions
+              incidentId={incident.id}
+              incidentTitle={incident.title}
+              actions={intelligence.actions}
+              relatedIncidents={intelligence.relatedIncidents}
+            />
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           <section id="incident-timeline" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
@@ -472,7 +532,86 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             </div>
           </section>
 
-          {imageUrls.length > 0 ? (
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Actividad</div>
+                <div className="mt-2 text-base font-semibold text-forne-ink">Línea temporal</div>
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+                {incidentTimeline.length} evento{incidentTimeline.length === 1 ? "" : "s"}
+              </div>
+            </div>
+            {incidentTimeline.length === 0 ? (
+              <div className="mt-4">
+                <PortalEmptyState
+                  icon="clarity"
+                  title="No hay actividad visible"
+                  description="Todavía no hay eventos visibles de cronología para esta incidencia."
+                />
+              </div>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {incidentTimeline.map((entry) => (
+                  <TimelineEntryCard key={entry.id} entry={entry} />
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Adjuntos</div>
+                <div className="mt-2 text-base font-semibold text-forne-ink">Archivos visibles</div>
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
+                {attachmentViews.length} archivo{attachmentViews.length === 1 ? "" : "s"}
+              </div>
+            </div>
+            {attachmentViews.length === 0 ? (
+              <div className="mt-4">
+                <PortalEmptyState
+                  icon="attention"
+                  title="No hay adjuntos visibles"
+                  description="La incidencia no expone todavía archivos visibles en el portal."
+                />
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-3">
+                {attachmentViews.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="rounded-2xl border border-forne-line bg-forne-cloud px-4 py-4"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-forne-ink">{attachment.filename}</div>
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs font-medium text-forne-muted">
+                          {attachment.contentType ? <span>{attachment.contentType}</span> : null}
+                          {attachment.sizeLabel ? <span>{attachment.sizeLabel}</span> : null}
+                          {attachment.uploadedAt ? <span>{cleanDateTime(attachment.uploadedAt)}</span> : null}
+                          {attachment.uploadedBy ? <span>{attachment.uploadedBy}</span> : null}
+                        </div>
+                      </div>
+                      {attachment.href ? (
+                        <a
+                          href={attachment.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#123861] transition hover:bg-slate-50"
+                        >
+                          Ver archivo
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {imageAttachments.length > 0 ? (
             <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -480,20 +619,20 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
                   <div className="mt-2 text-base font-semibold text-forne-ink">Imágenes adjuntas</div>
                 </div>
                 <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
-                  {imageUrls.length} imagen{imageUrls.length === 1 ? "" : "es"}
+                  {imageAttachments.length} imagen{imageAttachments.length === 1 ? "" : "es"}
                 </div>
               </div>
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {imageUrls.map((imageUrl, index) => (
+                {imageAttachments.map((attachment, index) => (
                   <a
-                    key={`${imageUrl}-${index}`}
-                    href={imageUrl}
+                    key={`${attachment.id}-${index}`}
+                    href={attachment.href}
                     target="_blank"
                     rel="noreferrer"
                     className="group overflow-hidden rounded-2xl border border-forne-line bg-forne-cloud"
                   >
                     <img
-                      src={imageUrl}
+                      src={attachment.href}
                       alt={`Imagen adjunta ${index + 1} de la incidencia ${incident.incidentId || incident.id}`}
                       className="aspect-[4/3] w-full object-cover transition duration-200 group-hover:scale-[1.02]"
                     />
@@ -507,37 +646,14 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
               <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Cronología</div>
               <div className="mt-2 text-base font-semibold text-forne-ink">Evolución</div>
               <div className="mt-5 grid gap-5 md:grid-cols-3">
-                <TimelineItem label="Apertura" value={cleanDate(incident.incidentDate)} />
-                <TimelineItem label="Seguimiento" value={cleanDate(incident.followupBy)} />
-                <TimelineItem label="Resolución prevista" value={cleanDate(incident.expectedResolutionDate)} />
-              </div>
-          </section>
-
-          <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Seguimiento narrativo</div>
-                <div className="mt-2 text-base font-semibold text-forne-ink">Comentarios</div>
-              </div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
-                {comments.length} comentario{comments.length === 1 ? "" : "s"}
-              </div>
-            </div>
-            {comments.length === 0 ? (
-              <div className="mt-4">
-                <PortalEmptyState
-                  icon="attention"
-                  title="No hay comentarios publicados"
-                  description="Todavía no se han registrado comentarios visibles para esta incidencia."
+                <SummaryCard label="Apertura" value={cleanDate(incident.incidentDate)} helper="Fecha de alta visible." />
+                <SummaryCard label="Seguimiento" value={cleanDate(incident.followupBy)} helper="Próxima fecha de control visible." />
+                <SummaryCard
+                  label="Resolución prevista"
+                  value={cleanDate(incident.expectedResolutionDate)}
+                  helper="Compromiso o fecha orientativa de cierre."
                 />
               </div>
-            ) : (
-              <div className="mt-2">
-                {comments.map((comment) => (
-                  <CommentItem key={comment.id || `${comment.incidentNo}-${comment.entryNo}`} comment={comment} />
-                ))}
-              </div>
-            )}
           </section>
 
           {hasInsurance ? (
@@ -623,12 +739,14 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
         </aside>
       </div>
 
-      <IncidentContactForm
-        incidentId={incident.incidentId || incident.id}
-        title={incident.title}
-        property={incident.refDescription}
-        contractNo={incident.contractNo}
-      />
+      <div id="incident-contact">
+        <IncidentContactForm
+          incidentId={incident.incidentId || incident.id}
+          title={incident.title}
+          property={incident.refDescription}
+          contractNo={incident.contractNo}
+        />
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { sendIncidentEmail } from "@/lib/mail/graph";
 import { env } from "@/lib/config/env";
 import { syncIncidentRequestAttachments, type IncidentAttachmentInput } from "@/lib/portal/incident-attachment-sync.service";
 import { createIncident } from "@/lib/portal/incident-create.service";
+import { buildPostOperationIntelligence } from "@/lib/portal/post-operation-intelligence.service";
 
 const MAX_ATTACHMENTS = 5;
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -258,7 +259,15 @@ export async function POST(req: NextRequest) {
 
       revalidatePath("/portal/incidents");
 
-      return NextResponse.json({ ok: true, incident });
+      return NextResponse.json({
+        ok: true,
+        incident,
+        postOperation: buildPostOperationIntelligence({
+          kind: "incident_created",
+          incident,
+          attachmentCount: 0
+        })
+      });
     } catch (error) {
       console.error("Invoice copy request failed:", error);
       return NextResponse.json(
@@ -317,7 +326,15 @@ export async function POST(req: NextRequest) {
 
       revalidatePath("/portal/incidents");
 
-      return NextResponse.json({ ok: true, incident });
+      return NextResponse.json({
+        ok: true,
+        incident,
+        postOperation: buildPostOperationIntelligence({
+          kind: "incident_created",
+          incident,
+          attachmentCount: 0
+        })
+      });
     } catch (error) {
       console.error("Document copy request failed:", error);
       return NextResponse.json(
@@ -397,7 +414,16 @@ export async function POST(req: NextRequest) {
 
       revalidatePath("/portal/incidents");
 
-      return NextResponse.json({ ok: true, incident, warning });
+      return NextResponse.json({
+        ok: true,
+        incident,
+        warning,
+        postOperation: buildPostOperationIntelligence({
+          kind: "incident_created",
+          incident,
+          attachmentCount: normalizedAttachments.length
+        })
+      });
     } catch (error) {
       console.error("New incident creation failed:", error);
       const technicalError = error instanceof Error ? error.message : "Error desconocido al registrar la incidencia.";

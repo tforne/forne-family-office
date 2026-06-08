@@ -1,44 +1,40 @@
-# AGENTS.md — Sprint Portal AI 1.2b
-# Incident Draft Review + Create Incident Flow
+# AGENTS.md — Sprint Portal AI 1.9
+# Attachment Visibility + Incident Timeline
 
 You are Codex working locally on the OneData Tenant Portal repository.
 
-Implement **Sprint Portal AI 1.2b — Incident Draft Review + Create Incident Flow**.
+Implement **Sprint Portal AI 1.9 — Attachment Visibility + Incident Timeline**.
 
-Sprint Portal AI 1.2a already added:
+The portal already supports:
 
-- deterministic intent detection
-- urgency detection
-- incident draft generation
-- suggested operational actions
-- chat action buttons
-- fallback-safe operational enrichment
+- AI chat
+- incident drafting
+- incident creation with review
+- duplicate detection
+- add comment to existing incident
+- post-operation intelligence
+- incident detail intelligence
+- incident detail actions
+- safe attachment upload to existing incidents
 
-The next goal is to make the `Crear incidencia` action useful by opening a review flow with the incident draft pre-filled.
-
-The user must always review and confirm before any incident is created.
+The next goal is to improve visibility after incidents are created, commented, or updated with attachments.
 
 ---
 
 # Business Goal
 
-Transform the assistant from:
+The incident detail page should become a clear operational timeline.
+
+A tenant should see:
 
 ```text
-AI prepares an incident draft
+09:12 - Incidencia creada
+09:14 - Foto adjuntada
+09:15 - Comentario añadido
+10:03 - Estado actualizado
 ```
 
-into:
-
-```text
-AI prepares draft
-↓
-user reviews
-↓
-user confirms
-↓
-portal creates incident through existing incident creation flow
-```
+This makes the portal feel transparent, professional and operationally reliable.
 
 ---
 
@@ -46,396 +42,335 @@ portal creates incident through existing incident creation flow
 
 Implement:
 
-1. Incident draft review flow
-2. Pre-filled incident creation UI
-3. Connect `create_incident` action to review flow
-4. Use existing incident creation endpoint/service
-5. Preserve user confirmation
-6. Documentation
+1. Attachment visibility on incident detail page
+2. Unified incident timeline
+3. Timeline entries for comments
+4. Timeline entries for attachments
+5. Timeline entries for creation/status where available
+6. Deterministic timeline intelligence
+7. Tests where practical
+8. Documentation
 
 Do NOT implement:
 
-- automatic incident creation without confirmation
-- new Business Central write endpoints if existing ones already work
-- streaming
-- WebSockets
-- agent selector
+- new autonomous AI actions
+- provider workflows
+- automatic status changes
 - frontend redesign
-- property manager workflow
-- dashboard widgets
+- streaming/WebSockets
+- new authentication system
+- new Business Central extensions unless absolutely necessary
 
 ---
 
-# Existing Assets To Reuse
+# Existing Assets To Inspect
 
-Look for and reuse existing incident creation assets:
+Search and reuse:
 
 ```text
-src/components/portal/NewIncidentForm.tsx
-src/components/portal/IncidentContactForm.tsx
-src/app/api/incidents/contact/route.ts
-src/lib/portal/incident-create.service.ts
+src/app/portal/incidents/[id]/page.tsx
+src/components/portal/IncidentDetailActions.tsx
+src/lib/portal/incident-detail-intelligence.service.ts
+src/lib/portal/incident-attachments.service.ts
 src/lib/portal/incident-attachment-sync.service.ts
+src/lib/portal/incident-comments.service.ts
+src/app/api/incidents/[id]/attachments/route.ts
+src/app/api/incidents/[id]/comments/route.ts
 ```
 
-Do not duplicate incident creation logic if existing flow can be reused.
-
----
-
-# Existing Chat Assets
-
-Likely files:
+Also search for:
 
 ```text
-src/components/portal/PortalChatLauncher.tsx
-src/lib/portal/incident-draft.service.ts
-src/lib/portal/intent-detector.service.ts
-src/app/api/portal/chat/route.ts
+attachments
+comments
+timeline
+history
+activity
+createdAt
+updatedAt
+status
 ```
 
 ---
 
 # Target UX
 
-When the assistant returns an incident draft and an action:
+Inside the incident detail page, show a section like:
 
 ```text
-Crear incidencia
+Actividad de la incidencia
+
+Hoy 09:12
+Incidencia creada
+
+Hoy 09:14
+Foto adjuntada: humedad_bano.jpg
+
+Hoy 09:15
+Comentario añadido:
+"Sigo teniendo humedad y ahora huele mal."
+
+Ayer 18:20
+Estado actualizado: En seguimiento
 ```
 
-the user clicks it.
-
-Then the portal should show a review panel/modal/card:
+Also show an attachment list:
 
 ```text
-Incidencia propuesta
+Archivos adjuntos
 
-Título:
-Humedad y mal olor en baño
-
-Tipo:
-Mantenimiento
-
-Prioridad:
-Media
-
-Descripción:
-El inquilino informa de humedad persistente y mal olor en el baño.
-
-[Editar]
-[Cancelar]
-[Crear incidencia]
+- humedad_bano.jpg
+- factura_reparacion.pdf
 ```
 
-The user can review and edit before submitting.
+If download/view links are available, render them.
+
+If not, show metadata only.
 
 ---
 
-# Required Behavior
-
-## 1. Clicking `Crear incidencia`
-
-When the user clicks the action button:
-
-```json
-{
-  "type": "create_incident"
-}
-```
-
-the chat should open a draft review UI.
-
-Do not immediately submit to Business Central.
-
----
-
-## 2. Review UI
-
-Create a lightweight review component if needed.
-
-Suggested file:
-
-```text
-src/components/portal/IncidentDraftReview.tsx
-```
-
-or implement inside `PortalChatLauncher.tsx` if that fits current style better.
-
-The review UI should allow editing at least:
-
-- title
-- description
-- priority
-- category/type if supported
-- optional notes
-
-If existing `NewIncidentForm` supports initial values, prefer using it.
-
-If it does not, add a safe `initialDraft`/`initialValues` prop.
-
----
-
-## 3. Pre-fill Existing Form
-
-If reusing `NewIncidentForm.tsx`, add props like:
-
-```ts
-type IncidentDraftInitialValues = {
-  title?: string;
-  description?: string;
-  priority?: string;
-  category?: string;
-  urgency?: string;
-};
-```
-
-Example:
-
-```tsx
-<NewIncidentForm initialValues={incidentDraft} />
-```
-
-Adapt to the actual component API.
-
----
-
-## 4. Submit Existing Flow
-
-The final submit must use the existing incident creation flow.
-
-Likely endpoint:
-
-```text
-src/app/api/incidents/contact/route.ts
-```
-
-or existing form submit logic.
-
-Do not create a new BC write path unless necessary.
-
----
-
-# Data Mapping
-
-Map draft fields carefully.
-
-## Incident Draft
-
-```ts
-{
-  title: string;
-  category: string;
-  priority: "Low" | "Medium" | "High" | "Critical";
-  urgency: "low" | "medium" | "high" | "critical";
-  description: string;
-  suggestedNextStep?: string;
-}
-```
-
-## Form Mapping
-
-Map to the existing fields used by `NewIncidentForm`.
-
-Possible mapping:
-
-```text
-draft.title -> incident subject/title
-draft.description -> description/details
-draft.priority -> priority if supported
-draft.category -> problem/category/type if supported
-draft.urgency -> hidden/supporting field or note if no direct field exists
-draft.suggestedNextStep -> internal note or appended to description if appropriate
-```
-
-Do not invent required Business Central field names.
-Inspect existing form/service field names first.
-
----
-
-# Confirmation Requirement
-
-Critical:
-
-The incident must only be created after explicit user action:
-
-```text
-Crear incidencia
-```
-
-in the review form.
-
-Never create the incident immediately after AI response.
-
----
-
-# Attachments
-
-If the existing incident form supports attachments, keep that support.
-
-If not already available in the review flow, suggest to the user:
-
-```text
-Puedes adjuntar una foto para ayudar al equipo técnico.
-```
-
-Do not implement complex attachment changes unless the existing form already supports them cleanly.
-
----
-
-# Response Contract
-
-Do not break the existing chat response contract.
-
-The chat can include:
-
-```ts
-incidentDraft
-actions
-```
-
-from Sprint 1.2a.
-
-Extend frontend behavior only to react to these fields.
-
----
-
-# Visual Label Improvements
-
-User-facing intent labels should not show technical values.
-
-Map:
-
-```text
-maintenance_incident -> Incidencia de mantenimiento
-urgent_incident -> Incidencia urgente
-invoice_question -> Consulta de factura
-contract_question -> Consulta de contrato
-document_request -> Solicitud de documento
-support_request -> Soporte
-general_chat -> Consulta general
-```
-
-Map priorities:
-
-```text
-Low -> Baja
-Medium -> Media
-High -> Alta
-Critical -> Crítica
-```
-
----
-
-# Error Handling
-
-If incident creation fails:
-
-- show a clear user-friendly error
-- preserve draft values
-- allow retry
-- do not lose the conversation
-
-Do not expose raw Business Central errors to the tenant.
-
-Server-side logs may include technical error details.
-
----
-
-# Security
-
-Do not trust frontend tenant/customer/company identifiers.
-
-Use existing server-side authenticated context and existing incident creation logic.
-
-Do not allow the AI draft to override protected fields like:
-
-- company id
-- customer no
-- contract no
-- property ownership scope
-- tenant identity
-
-The draft is only content assistance.
-
----
-
-# Testing Requirements
-
-## Test 1 — Maintenance Draft Review
-
-Chat message:
-
-```text
-Tengo humedad en el baño
-```
-
-Expected:
-
-- intent = maintenance_incident
-- incident draft visible
-- action `Crear incidencia`
-- clicking action opens review UI
-- draft fields pre-filled
-- user can edit
-- no incident created until confirmation
-
-## Test 2 — Urgent Draft Review
-
-Chat message:
-
-```text
-Se está filtrando agua al vecino de abajo
-```
-
-Expected:
-
-- intent = urgent_incident
-- priority = High or Critical depending rules
-- review UI opens
-- urgency visible or reflected in description
-- confirmation required
-
-## Test 3 — Non-Incident
-
-Chat message:
-
-```text
-No entiendo esta factura
-```
-
-Expected:
-
-- no incident draft review
-- no create incident action
-
-## Test 4 — Submission
-
-Create an incident from the review UI.
-
-Expected:
-
-- existing incident creation endpoint is used
-- success message shown
-- created incident appears in existing incident list if applicable
-
-## Test 5 — Failure
-
-Force the incident creation endpoint to fail.
-
-Expected:
-
-- draft remains visible
-- user-friendly error
-- retry possible
-
----
-
-# Documentation Required
+# 1. Incident Timeline Service
 
 Create:
 
 ```text
-docs/portal-ai-1.2b-incident-draft-review-create-flow.md
+src/lib/portal/incident-timeline.service.ts
+```
+
+## Suggested Types
+
+```ts
+export type IncidentTimelineEntryType =
+  | "created"
+  | "comment"
+  | "attachment"
+  | "status"
+  | "updated"
+  | "system";
+
+export interface IncidentTimelineEntry {
+  id: string;
+  type: IncidentTimelineEntryType;
+  title: string;
+  description?: string;
+  occurredAt?: string;
+  actorLabel?: string;
+  href?: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Required Function
+
+```ts
+export function buildIncidentTimeline(input: {
+  incident: unknown;
+  comments?: unknown[];
+  attachments?: unknown[];
+  statusHistory?: unknown[];
+}): IncidentTimelineEntry[]
+```
+
+## Requirements
+
+- only use visible real data
+- do not hallucinate events
+- sort by date ascending or descending depending existing UX, but be consistent
+- handle missing dates safely
+- deduplicate obvious duplicated entries
+- sanitize user-generated text
+
+---
+
+# 2. Attachment Visibility Service
+
+Create or extend:
+
+```text
+src/lib/portal/incident-attachments-view.service.ts
+```
+
+or use existing attachment service if present.
+
+## Suggested Type
+
+```ts
+export interface IncidentAttachmentView {
+  id: string;
+  filename: string;
+  contentType?: string;
+  sizeLabel?: string;
+  uploadedAt?: string;
+  uploadedBy?: string;
+  href?: string;
+}
+```
+
+## Required Function
+
+```ts
+export function buildIncidentAttachmentViews(
+  attachments: unknown[]
+): IncidentAttachmentView[]
+```
+
+If the current backend does not expose attachments for existing incidents, document limitation and render only the upload success state where available.
+
+---
+
+# 3. Page Integration
+
+Modify:
+
+```text
+src/app/portal/incidents/[id]/page.tsx
+```
+
+or existing detail components.
+
+Render:
+
+- intelligence card
+- actions
+- attachments list
+- timeline
+
+Do not redesign the page.
+
+Use existing card styles.
+
+---
+
+# 4. Timeline Intelligence
+
+Extend:
+
+```text
+incident-detail-intelligence.service.ts
+```
+
+if useful.
+
+The intelligence card may include:
+
+```text
+Última actividad:
+Foto adjuntada hace 2 horas
+```
+
+or:
+
+```text
+Seguimiento:
+3 eventos registrados en esta incidencia.
+```
+
+Keep it deterministic.
+
+---
+
+# 5. Attachment Links
+
+If attachment href/download URL exists:
+
+- render link/button
+- label as `Ver archivo` or filename
+
+If no URL exists:
+
+- render filename and metadata
+- do not invent a download URL
+
+---
+
+# 6. Security
+
+Critical:
+
+- only show tenant-visible attachments/comments
+- do not expose internal-only notes
+- do not expose files outside tenant scope
+- sanitize comments and filenames
+- do not render raw HTML from comments
+- do not trust frontend data
+
+---
+
+# 7. Tests
+
+Add tests where practical.
+
+Suggested:
+
+```text
+src/lib/portal/__tests__/incident-timeline.service.test.ts
+src/lib/portal/__tests__/incident-attachments-view.service.test.ts
+```
+
+Test:
+
+1. created event appears when incident has creation date
+2. comments become timeline entries
+3. attachments become timeline entries
+4. entries are sorted correctly
+5. missing dates do not crash
+6. filenames/comments are sanitized
+7. duplicate entries are avoided where practical
+
+---
+
+# 8. Manual QA
+
+## Test 1 — Created incident
+
+Open a simple incident.
+
+Expected:
+
+- timeline visible
+- created event visible if date exists
+
+## Test 2 — Comment
+
+Add comment.
+
+Expected:
+
+- comment visible in timeline after refresh or current flow update
+
+## Test 3 — Attachment
+
+Upload photo/PDF.
+
+Expected:
+
+- attachment appears in attachment list or timeline if backend exposes it
+
+## Test 4 — Missing data
+
+Open incident with no comments/attachments.
+
+Expected:
+
+- empty state shown clearly
+- no crash
+
+## Test 5 — Sanitization
+
+Use a comment or filename containing HTML-like text.
+
+Expected:
+
+- displayed as safe text, not rendered HTML
+
+---
+
+# 9. Documentation
+
+Create:
+
+```text
+docs/portal-ai-1.9-attachment-visibility-incident-timeline.md
 ```
 
 Include:
@@ -443,16 +378,17 @@ Include:
 - summary
 - files changed
 - architecture
-- user flow
-- data mapping
+- timeline model
+- attachment visibility model
 - security notes
-- testing instructions
+- tests
+- manual QA
 - known limitations
-- next recommended sprint
+- next sprint recommendation
 
 ---
 
-# Final Output From Codex
+# 10. Final Output From Codex
 
 When finished, provide:
 
@@ -460,27 +396,22 @@ When finished, provide:
 2. Files modified
 3. Summary of implementation
 4. How to test locally
-5. Any assumptions made
-6. Any TODOs left
+5. Test results
+6. Assumptions made
+7. Remaining TODOs
 
 ---
 
 # Final Goal
 
-The target experience is:
+The incident detail page should show a clear operational history:
 
 ```text
-User reports issue
-↓
-AI detects incident
-↓
-AI prepares draft
-↓
-User reviews and edits
-↓
-User confirms
-↓
-Existing portal creates incident
+created
+comments
+attachments
+status updates
+latest activity
 ```
 
-This sprint must convert the AI assistant from conversational support into a controlled operational assistant.
+This makes the incident lifecycle transparent and completes the tenant-facing operational view.
