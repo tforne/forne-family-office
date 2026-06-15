@@ -52,13 +52,14 @@ function pickTitle(asset: Partial<AssetDto>) {
 
 function buildLocation(asset: Partial<AssetDto>) {
   const record = asset as Partial<AssetDto> & Record<string, unknown>;
-  const parts = [
+  const parts: Array<string | null | undefined> = [
     record.composedAddress,
     [asset.address, asset.address2, asset.city, asset.postCode].filter(Boolean).join(", ")
   ];
+  const location = typeof record.location === "string" ? record.location : undefined;
 
   return parts
-    .concat(record.location)
+    .concat(location)
     .map((value) => String(value || "").trim())
     .find(Boolean) || "";
 }
