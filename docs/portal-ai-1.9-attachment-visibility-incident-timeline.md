@@ -12,7 +12,7 @@ The page now shows creation, comments, visible attachments, and visible status/u
 
 ## Files Changed
 
-Created:
+Created in the sprint baseline:
 
 - `src/lib/portal/incident-attachments-view.service.ts`
 - `src/lib/portal/incident-timeline.service.ts`
@@ -20,11 +20,16 @@ Created:
 - `src/lib/portal/__tests__/incident-timeline.service.test.ts`
 - `docs/portal-ai-1.9-attachment-visibility-incident-timeline.md`
 
-Modified:
+Adjusted in the current implementation pass:
 
 - `src/app/portal/incidents/[id]/page.tsx`
+- `src/lib/portal/incident-comments.service.ts`
 - `src/lib/portal/incident-detail-intelligence.service.ts`
+- `src/lib/portal/incident-attachments-view.service.ts`
+- `src/lib/portal/incident-timeline.service.ts`
+- `src/lib/portal/__tests__/incident-attachments-view.service.test.ts`
 - `src/lib/portal/__tests__/incident-detail-intelligence.service.test.ts`
+- `src/lib/portal/__tests__/incident-timeline.service.test.ts`
 
 ## Architecture
 
@@ -50,6 +55,7 @@ Supported event types:
 Rules:
 
 - only visible portal data is used
+- non-public comments are discarded defensively
 - dates are cleaned and invalid placeholder values are ignored
 - duplicate events are collapsed
 - user text is sanitized before display
@@ -67,13 +73,15 @@ The attachment visibility service reads known incident fields such as:
 - `imageUrls`
 - `photoUrls`
 
-When an attachment exposes a URL, the detail page renders `Ver archivo`.
+When an attachment exposes a safe visible URL, the detail page renders `Ver archivo`.
 When there is no URL, the page shows metadata only.
 
 ## Security Notes
 
 - Only tenant-visible incident data already present in the portal is rendered.
-- Comments and filenames are sanitized to avoid rendering HTML-like input.
+- Comments, filenames, and timeline text are sanitized to avoid rendering HTML-like input.
+- Non-public comments are filtered out in both the comment fetch layer and the deterministic intelligence/timeline builders.
+- Unsafe attachment URLs such as non-http(s) custom schemes are dropped instead of rendered.
 - No download URLs are invented when the backend does not expose them.
 - No internal-only notes are inferred or synthesized.
 
@@ -95,6 +103,8 @@ Covered areas:
 - missing date handling
 - sanitization
 - duplicate avoidance
+- non-public comment filtering
+- unsafe attachment URL suppression
 - attachment-aware intelligence
 
 ## Manual QA

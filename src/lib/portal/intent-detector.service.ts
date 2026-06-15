@@ -118,6 +118,29 @@ const intentRules: IntentRule[] = [
     ]
   },
   {
+    intent: "service_recommendation",
+    baseConfidence: 0.84,
+    urgency: "low",
+    signals: [
+      { signal: "necesito internet", weight: 1.08 },
+      { signal: "internet", weight: 1.02 },
+      { signal: "wifi", weight: 1.02 },
+      { signal: "fibra", weight: 1.02 },
+      { signal: "necesito limpieza", weight: 1.08 },
+      { signal: "limpieza", weight: 1.02 },
+      { signal: "limpiar", weight: 1.02 },
+      { signal: "electricista", weight: 1.02 },
+      { signal: "fontanero", weight: 1.02 },
+      { signal: "fontaneria", weight: 0.98 },
+      { signal: "fontanería", weight: 0.98 },
+      { signal: "seguro", weight: 0.96 },
+      { signal: "mantenimiento", weight: 0.92 },
+      { signal: "alguien para", weight: 0.94 },
+      { signal: "busco", weight: 0.84 },
+      { signal: "arreglar esto", weight: 0.94 }
+    ]
+  },
+  {
     intent: "support_request",
     baseConfidence: 0.72,
     urgency: "medium",
@@ -331,6 +354,14 @@ export function buildPortalActions(intent: IntentDetectionResult, incidentDraft?
         {
           type: "view_documents",
           label: "Ver documentos",
+          payload: draftPayload
+        }
+      ];
+    case "service_recommendation":
+      return [
+        {
+          type: "recommend_service",
+          label: "Ver servicios recomendados",
           payload: draftPayload
         }
       ];

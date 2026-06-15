@@ -9,6 +9,7 @@ import { getInvoiceById, getInvoices } from "@/lib/portal/invoices.service";
 import { getMe } from "@/lib/portal/me.service";
 import { getTenantMyNotices } from "@/lib/portal/tenant-my-notices.service";
 import { getContracts } from "@/lib/portal/contracts.service";
+import type { PortalAIContext } from "@/lib/portal/portal-ai-context-builder";
 
 type ChatLink = {
   href: string;
@@ -21,6 +22,7 @@ export type PortalIntentType =
   | "invoice_question"
   | "contract_question"
   | "document_request"
+  | "service_recommendation"
   | "support_request"
   | "general_chat";
 
@@ -81,7 +83,7 @@ export interface PortalEscalationWarning {
 }
 
 export interface PortalOperationalRouting {
-  destination: "incidents" | "incident_detail" | "support" | "invoices" | "contracts" | "documents" | "portal_home";
+  destination: "incidents" | "incident_detail" | "support" | "invoices" | "contracts" | "documents" | "services" | "portal_home";
   href: string;
   label: string;
   reason: string;
@@ -190,6 +192,7 @@ function formatMoney(value: number | null | undefined, currencyCode: string | nu
 function pagePrimaryLink(page: string): ChatLink {
   if (page.startsWith("/portal/invoices")) return { href: "/portal/invoices", label: "Ir a facturas" };
   if (page.startsWith("/portal/incidents")) return { href: "/portal/incidents", label: "Ir a incidencias" };
+  if (page.startsWith("/portal/services")) return { href: "/portal/services", label: "Ir a servicios" };
   if (page.startsWith("/portal/documents")) return { href: "/portal/documents", label: "Ir a documentos" };
   if (page.startsWith("/portal/incident-requests")) return { href: "/portal/incident-requests", label: "Ir a peticiones" };
   if (page.startsWith("/portal/notices")) return { href: "/portal/notices", label: "Ir a avisos" };
@@ -217,6 +220,14 @@ function pageSuggestions(page: string) {
       "Quiero abrir una incidencia",
       "Que datos debo indicar en una incidencia",
       "Cuantas incidencias tengo abiertas"
+    ];
+  }
+
+  if (page.startsWith("/portal/services")) {
+    return [
+      "Necesito internet",
+      "Hay alguien para limpieza",
+      "Busco fontanero"
     ];
   }
 
@@ -469,7 +480,9 @@ export async function buildPortalChatReply(
   page: string,
   rawMessage: string,
   history: PortalChatHistoryItem[] = [],
-  pageContext: PortalPageContext = {}
+  pageContext: PortalPageContext = {},
+  portalContext?: PortalAIContext,
+  forcedIntent?: PortalIntentType
 ): Promise<PortalChatReply> {
   const isAdmin = await isCurrentPortalAdmin();
   const message = rawMessage.trim();
@@ -490,6 +503,51 @@ export async function buildPortalChatReply(
 
   if (includesAny(context.normalizedMessage, ["hola", "buenas", "ayuda", "empezar"])) {
     return buildWelcomeReply(page, isAdmin);
+  }
+
+  if (forcedIntent === "service_recommendation" && portalContext?.services?.requestedCategory) {
+    const matchedServices = portalContext.services.matchedStakeholders || [];
+
+    if (matchedServices.length > 0) {
+      const primary = matchedServices[0];
+      const alternatives = matchedServices.slice(1).map((item) => `${item.serviceTitle} con ${item.stakeholderName}`);
+
+      return {
+        answer: conversationReply(
+          `Para esta propiedad te recomiendo ${primary.serviceTitle} con ${primary.stakeholderName}.${primary.portalDescription ? ` ${primary.portalDescription}` : ""} La recomendación se basa solo en servicios reales visibles para este inmueble dentro del portal.`,
+          primary.whatsappHref || primary.bookingUrl
+            ? "abrir el contacto directo del servicio o revisar la ficha completa en Servicios"
+            : "revisar la ficha completa del servicio en la sección Servicios"
+        ),
+        links: [
+          { href: "/portal/services", label: "Ver servicios" },
+          ...(primary.whatsappHref ? [{ href: primary.whatsappHref, label: "Abrir WhatsApp" }] : []),
+          ...(primary.bookingUrl ? [{ href: primary.bookingUrl, label: "Abrir contacto" }] : [])
+        ],
+        suggestions: dedupeSuggestions([
+          alternatives[0] ? `Ver alternativa: ${alternatives[0]}` : "",
+          "Ver servicios",
+          "Abrir WhatsApp",
+          "Contactar proveedor"
+        ])
+      };
+    }
+
+    return {
+      answer: conversationReply(
+        `He buscado servicios reales de la categoría ${portalContext.services.requestedCategory} para esta propiedad, pero ahora mismo no veo ningún stakeholder visible que encaje con esa necesidad.`,
+        "revisar la sección Servicios para comprobar los servicios publicados o pedir soporte si necesitas orientación adicional"
+      ),
+      links: [
+        { href: "/portal/services", label: "Ver servicios" },
+        { href: "/portal", label: "Volver al portal" }
+      ],
+      suggestions: dedupeSuggestions([
+        "Ver servicios",
+        "Hay alguien para limpieza",
+        "Necesito mantenimiento"
+      ])
+    };
   }
 
   if (page.startsWith("/portal/contracts")) {

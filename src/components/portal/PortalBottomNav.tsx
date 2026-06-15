@@ -7,6 +7,7 @@ import BrandIcon from "@/components/brand/BrandIcon";
 const mobileItems = [
   { href: "/portal", label: "Inicio", icon: "clarity" as const },
   { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
+  { href: "/portal/services", label: "Servicios", icon: "operations" as const },
   { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
   { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
   { href: "/portal/profile", label: "Perfil", icon: "portal" as const }
@@ -17,7 +18,7 @@ export default function PortalBottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/70 bg-[rgba(255,255,255,0.92)] px-2 pb-[calc(0.55rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-18px_40px_-30px_rgba(15,47,87,0.25)] backdrop-blur-xl lg:hidden">
-      <div className="mx-auto grid max-w-7xl grid-cols-5 gap-1">
+      <div className="mx-auto grid max-w-7xl grid-cols-6 gap-1">
         {mobileItems.map((item) => {
           const active =
             pathname === item.href ||

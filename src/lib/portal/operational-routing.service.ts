@@ -58,6 +58,14 @@ export function buildOperationalRouting(
         reason: "La mejor ruta es la sección documental del portal.",
         queue: "documents"
       };
+    case "service_recommendation":
+      return {
+        destination: "services",
+        href: "/portal/services",
+        label: "Revisar servicios",
+        reason: "La consulta encaja mejor con los servicios visibles del inmueble.",
+        queue: "support"
+      };
     case "support_request":
       return {
         destination: "support",

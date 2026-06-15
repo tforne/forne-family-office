@@ -524,7 +524,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <section id="incident-timeline" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
+          <section id="incident-description" className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Expediente</div>
             <div className="mt-2 text-base font-semibold text-forne-ink">Descripción</div>
             <div className="mt-4 rounded-2xl bg-forne-cloud p-5 text-sm leading-7 text-forne-muted">
@@ -536,7 +536,7 @@ export default async function IncidentDetailPage({ params }: { params: { id: str
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Actividad</div>
-                <div className="mt-2 text-base font-semibold text-forne-ink">Línea temporal</div>
+                <div className="mt-2 text-base font-semibold text-forne-ink">Actividad de la incidencia</div>
               </div>
               <div className="text-xs font-semibold uppercase tracking-wide text-forne-muted">
                 {incidentTimeline.length} evento{incidentTimeline.length === 1 ? "" : "s"}

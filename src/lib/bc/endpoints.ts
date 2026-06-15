@@ -2,6 +2,7 @@ import { env } from "@/lib/config/env";
 
 export const bcEndpoints = {
   assets: env.bcAssetsEndpoint,
+  stakeholders: env.bcStakeholdersEndpoint,
   me: "tenantProfiles",
   contracts: "tenantContracts",
   contractLines: env.bcContractLinesEndpoint,

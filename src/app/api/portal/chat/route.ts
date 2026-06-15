@@ -6,6 +6,8 @@ import { sendAIChatRequest } from "@/lib/portal/ai-layer.service";
 import { buildConversationMemory } from "@/lib/portal/conversation-memory.service";
 import { detectDuplicateIncidents } from "@/lib/portal/duplicate-incident-detector.service";
 import { detectOperationalEscalation } from "@/lib/portal/escalation-detector.service";
+import { filterPortalActionsByRuntime } from "@/lib/portal/ai-governance-runtime.service";
+import { resolvePortalAgentRuntime } from "@/lib/portal/ai-agent-runtime.service";
 import { buildIncidentDraft } from "@/lib/portal/incident-draft.service";
 import { buildIncidentOperationalSummary } from "@/lib/portal/incident-summary.service";
 import { buildPortalActions, detectPortalIntent, toPortalIntentMetadata } from "@/lib/portal/intent-detector.service";
@@ -109,14 +111,23 @@ export async function POST(request: Request) {
       duplicateIncident,
       escalation
     );
+    const runtime = await resolvePortalAgentRuntime({
+      message,
+      intent: intentResult,
+      portalContext,
+      routing
+    });
     const baseActions = buildPortalActions(intentResult, incidentDraft);
-    const actions = [
-      ...baseActions.filter((action) => !(duplicateIncident.isPotentialDuplicate && action.type === "create_incident")),
-      ...buildOperationalRoutingActions(routing, duplicateIncident, {
-        message,
-        incidentDraft
-      })
-    ];
+    const actions = filterPortalActionsByRuntime(
+      [
+        ...baseActions.filter((action) => !(duplicateIncident.isPotentialDuplicate && action.type === "create_incident")),
+        ...buildOperationalRoutingActions(routing, duplicateIncident, {
+          message,
+          incidentDraft
+        })
+      ],
+      runtime
+    );
 
     const enrichReply = (reply: PortalChatReply): PortalChatReply => ({
       ...reply,
@@ -144,12 +155,30 @@ export async function POST(request: Request) {
       escalationLevel: escalation.level
     });
 
+    console.info("[api/portal/chat] Runtime resolved", {
+      sessionId,
+      page,
+      pageType: portalContext.pageType,
+      agentCode: runtime.agentCode,
+      promptCode: runtime.promptCode || null,
+      deploymentCode: runtime.deploymentCode || null,
+      model: runtime.model || null,
+      deployment: runtime.deployment || null,
+      temperature: runtime.temperature ?? null,
+      maxTokens: runtime.maxTokens ?? null,
+      runtimeSource: runtime.governanceMode === "unsafe" ? "governance_override" : runtime.resolutionSource,
+      fallbackAgentCode: runtime.fallbackAgentCode || null
+    });
+
     try {
       const reply = await sendAIChatRequest({
         message,
         sessionId,
         portalContext,
-        conversationMemory
+        conversationMemory,
+        intent: intentResult,
+        routing,
+        runtime
       });
       console.info("[api/portal/chat] AI response delivered", {
         sessionId,
@@ -173,7 +202,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const reply = await buildPortalChatReply(page, message, history, pageContext);
+    const reply = await buildPortalChatReply(page, message, history, pageContext, portalContext, intentResult.intent);
     console.info("[api/portal/chat] AI response delivered", {
       sessionId,
       page,

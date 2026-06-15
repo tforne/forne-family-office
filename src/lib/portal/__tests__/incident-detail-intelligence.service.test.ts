@@ -146,4 +146,34 @@ describe("buildIncidentDetailIntelligence", () => {
     expect(result.latestActivity).toContain("Archivo adjuntado");
     expect(result.timelineSummary?.some((line) => line.includes("Último archivo adjuntado"))).toBe(true);
   });
+
+  it("ignores non public comments in latest activity and timeline summary", () => {
+    const result = buildIncidentDetailIntelligence({
+      incident: {
+        id: "inc-7",
+        incidentId: "INC-007",
+        title: "Seguimiento filtrado",
+        description: "Sin comentarios visibles",
+        priority: "Normal",
+        stateCode: "Active",
+        incidentDate: new Date(Date.now() - 2 * 86400000).toISOString()
+      },
+      comments: [
+        {
+          id: "private-comment",
+          incidentId: "inc-7",
+          incidentNo: "INC-007",
+          commentDate: new Date().toISOString(),
+          commentText: "Nota interna",
+          createdBy: "Operador",
+          source: "Backoffice",
+          isPublic: false,
+          createdAt: new Date().toISOString()
+        }
+      ]
+    });
+
+    expect(result.latestActivity).toContain("Incidencia creada");
+    expect(result.timelineSummary?.some((line) => line.includes("Todavía no hay comentarios visibles"))).toBe(true);
+  });
 });

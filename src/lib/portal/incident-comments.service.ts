@@ -36,6 +36,10 @@ function normalizeComment(comment: Partial<IncidentCommentDto>): IncidentComment
   };
 }
 
+function isVisibleComment(comment: IncidentCommentDto) {
+  return comment.isPublic !== false;
+}
+
 async function fetchCommentsByIncidentNo(company: BusinessCentralCompanyRef, incidentNo: string) {
   const payload = await bcGetForCompany<CommentPayload>(
     company,
@@ -47,7 +51,7 @@ async function fetchCommentsByIncidentNo(company: BusinessCentralCompanyRef, inc
     })
   );
 
-  return unwrap(payload).map(normalizeComment);
+  return unwrap(payload).map(normalizeComment).filter(isVisibleComment);
 }
 
 function sortNewestFirst(comments: IncidentCommentDto[]) {

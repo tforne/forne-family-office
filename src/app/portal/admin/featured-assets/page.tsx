@@ -29,7 +29,7 @@ export default async function AdminFeaturedAssetsPage() {
         <div className="ffo-portal-card rounded-[28px] p-6">
           <p className="text-sm leading-7 text-forne-muted">
             Los activos visibles en portada se obtienen automáticamente desde Business Central.
-            Se muestran los inmuebles cuyo estado sea <strong>En alquiler</strong>, hasta un máximo de tres.
+            Se muestran los inmuebles cuyo estado sea <strong>En alquiler</strong> y que tengan título, hasta un máximo de tres.
           </p>
           <p className="mt-4 text-sm leading-7 text-forne-muted">
             Si quieres cambiar qué aparece en la home, actualiza el estado del inmueble en Business Central.
@@ -57,7 +57,7 @@ export default async function AdminFeaturedAssetsPage() {
               Seleccionados para portada: <strong>{diagnostics.selectedCount}</strong>
             </div>
             <div className="rounded-xl bg-white px-4 py-3 text-sm text-slate-700">
-              Estrategia usada: <strong>{diagnostics.usedFallback}</strong>
+              Fuente usada: <strong>{diagnostics.usedFallback}</strong>
             </div>
           </div>
 

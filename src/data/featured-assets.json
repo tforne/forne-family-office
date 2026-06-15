@@ -1,6 +1,7 @@
 [
   {
     "id": "featured-asset-1",
+    "status": "En alquiler",
     "badge": "Activo destacado",
     "title": "Piso exterior reformado",
     "location": "Montornés del Vallès · 2/3 habitaciones",
@@ -9,6 +10,7 @@
   },
   {
     "id": "397f9439-4897-438e-bd6b-44a3e9fd9393",
+    "status": "",
     "badge": "Activo destacado",
     "title": "",
     "location": "",

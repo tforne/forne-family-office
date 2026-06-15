@@ -7,6 +7,7 @@ import type { FeaturedAsset } from "@/lib/content/featured-assets";
 function createEmptyFeaturedAsset(): FeaturedAsset {
   return {
     id: crypto.randomUUID(),
+    status: "",
     badge: "Activo destacado",
     title: "",
     location: "",
@@ -129,7 +130,7 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                     {item.title || "Sin título"}
                   </div>
                   <div className="mt-1 text-xs text-forne-muted">
-                    {item.location || "Sin ubicación"} · {item.price || "Sin precio"}
+                    {item.status || "Sin estado"} · {item.location || "Sin ubicación"} · {item.price || "Sin precio"}
                   </div>
                 </div>
 
@@ -165,6 +166,15 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Estado</span>
+                  <input
+                    value={item.status}
+                    onChange={(event) => updateItem(item.id, { status: event.target.value })}
+                    placeholder="En alquiler"
+                    className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                  />
+                </label>
+                <label className="space-y-2">
                   <span className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Etiqueta</span>
                   <input
                     value={item.badge}
@@ -172,6 +182,9 @@ export default function AdminFeaturedAssetsClient({ initialItems }: { initialIte
                     className="ffo-portal-input w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                   />
                 </label>
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <label className="space-y-2">
                   <span className="text-xs font-semibold uppercase tracking-wide text-forne-muted">Precio</span>
                   <input

@@ -4,9 +4,7 @@ import { getPublicCopy, type PublicLocale } from "@/lib/i18n/public";
 
 export default async function AvailabilitySection({ locale }: { locale: PublicLocale }) {
   const localized = getPublicCopy(locale);
-  const featuredAssets = (await listPublicFeaturedAssets()).filter(
-    (asset) => asset.title.trim() && asset.location.trim() && asset.note.trim()
-  );
+  const featuredAssets = await listPublicFeaturedAssets();
   const curatedAssets = featuredAssets.slice(0, 2);
 
   return (
@@ -55,9 +53,15 @@ export default async function AvailabilitySection({ locale }: { locale: PublicLo
                   <h3 className="mt-3 text-xl font-semibold leading-tight tracking-[-0.02em] text-[#16202C]">
                     {asset.title}
                   </h3>
-                  <div className="mt-2 text-sm font-medium text-[#5A6675]">{asset.location}</div>
-                  <div className="mt-4 text-2xl font-semibold text-[#10233A]">{asset.price}</div>
-                  <p className="mt-3 text-sm leading-6 text-[#5A6675]">{asset.note}</p>
+                  {asset.location.trim() ? (
+                    <div className="mt-2 text-sm font-medium text-[#5A6675]">{asset.location}</div>
+                  ) : null}
+                  {asset.price.trim() ? (
+                    <div className="mt-4 text-2xl font-semibold text-[#10233A]">{asset.price}</div>
+                  ) : null}
+                  {asset.note.trim() ? (
+                    <p className="mt-3 text-sm leading-6 text-[#5A6675]">{asset.note}</p>
+                  ) : null}
                 </article>
               ))
             ) : (

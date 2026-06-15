@@ -85,6 +85,7 @@ describe("buildIncidentTimeline", () => {
     const commentEntries = result.filter((entry) => entry.type === "comment");
     expect(commentEntries).toHaveLength(1);
     expect(commentEntries[0].description).not.toContain("<script>");
+    expect(commentEntries[0].description).not.toContain("alert(1)");
   });
 
   it("handles missing dates without crashing", () => {
@@ -98,5 +99,27 @@ describe("buildIncidentTimeline", () => {
     });
 
     expect(result.some((entry) => entry.type === "attachment")).toBe(true);
+  });
+
+  it("ignores internal comments marked as non public", () => {
+    const result = buildIncidentTimeline({
+      incident: {
+        id: "inc-1",
+        incidentId: "INC-001",
+        title: "Incidencia"
+      },
+      comments: [
+        {
+          id: "private-comment",
+          incidentId: "inc-1",
+          incidentNo: "INC-001",
+          commentText: "Nota interna",
+          commentDate: "2026-06-07T09:15:00Z",
+          isPublic: false
+        }
+      ]
+    });
+
+    expect(result.some((entry) => entry.type === "comment")).toBe(false);
   });
 });

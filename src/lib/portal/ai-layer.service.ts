@@ -6,9 +6,12 @@ import path from "node:path";
 import { bcPostCustomApiForCompany, type BusinessCentralCustomApiRef } from "@/lib/bc/client";
 import { env } from "@/lib/config/env";
 import type { PortalChatReply } from "@/lib/portal/chat-assistant";
+import type { PortalOperationalRouting } from "@/lib/portal/chat-assistant";
 import { getCachedAIResponse, setCachedAIResponse } from "@/lib/portal/ai-response-cache";
+import { resolvePortalAgentRuntime, type PortalAgentRuntimeResolution } from "@/lib/portal/ai-agent-runtime.service";
 import { retryWithBackoff } from "@/lib/portal/ai-retry";
 import { formatConversationMemory, type ConversationMemoryMessage } from "@/lib/portal/conversation-memory.service";
+import type { IntentDetectionResult } from "@/lib/portal/intent-detector.service";
 import type { PortalAIContext } from "@/lib/portal/portal-ai-context-builder";
 
 const aiLayerApi: BusinessCentralCustomApiRef = {
@@ -18,7 +21,6 @@ const aiLayerApi: BusinessCentralCustomApiRef = {
 };
 
 const aiChatPath = "aiChatRequests";
-const defaultAgentCode = "OD-GOVERNANCE";
 const defaultSource = "TenantPortal";
 const requestTimeoutMs = 15000;
 const promptFilePath = path.join(process.cwd(), "src", "prompts", "tenant-assistant.system.txt");
@@ -31,14 +33,47 @@ type SendAIChatRequestInput = {
   sessionId: string;
   portalContext: PortalAIContext;
   conversationMemory: ConversationMemoryMessage[];
+  intent: IntentDetectionResult;
+  routing?: PortalOperationalRouting;
+  portalAction?: string;
+  runtime?: PortalAgentRuntimeResolution;
 };
 
-type AIChatRequestPayload = {
+export interface PortalAIRuntimeMetadata {
+  agentCode: string;
+  promptCode?: string;
+  deploymentCode?: string;
+  model?: string;
+  deployment?: string;
+  temperature?: number;
+  maxTokens?: number;
+  runtimeSource?: "business_central" | "local_fallback" | "governance_override";
+  fallbackAgentCode?: string;
+}
+
+export interface PortalAIChatRequest {
+  agentCode: string;
+  question: string;
+  runtime?: PortalAIRuntimeMetadata;
+}
+
+type AILegacyChatRequestPayload = {
   portalUserId: string;
   sessionId: string;
   agentCode: string;
   question: string;
   source: string;
+};
+
+type AIPreferredChatRequestPayload = AILegacyChatRequestPayload & {
+  promptCode?: string;
+  deploymentCode?: string;
+  model?: string;
+  deployment?: string;
+  temperature?: number;
+  maxTokens?: number;
+  runtimeSource?: PortalAIRuntimeMetadata["runtimeSource"];
+  fallbackAgentCode?: string;
 };
 
 type AIChatResponse = {
@@ -101,6 +136,10 @@ function pageLinks(page: string) {
 }
 
 function pageSuggestions(page: string) {
+  if (page.startsWith("/portal/services")) {
+    return ["Ver servicios", "Abrir WhatsApp", "Contactar proveedor"];
+  }
+
   if (page.startsWith("/portal/incidents/")) {
     return ["Ver estado", "Anadir comentario", "Escalar incidencia"];
   }
@@ -127,6 +166,10 @@ function pageSuggestions(page: string) {
 function pickSuggestions(page: string, message: string, context: PortalAIContext) {
   const normalizedMessage = message.toLowerCase();
 
+  if (context.pageType === "services" || context.services?.requestedCategory) {
+    return ["Ver servicios", "Abrir WhatsApp", "Contactar proveedor"];
+  }
+
   if (context.pageType === "incident" || context.pageType === "incidents") {
     return ["Ver estado", "Anadir comentario", "Escalar incidencia"];
   }
@@ -142,11 +185,20 @@ function pickSuggestions(page: string, message: string, context: PortalAIContext
   return pageSuggestions(page);
 }
 
-function buildAIQuestion(systemPrompt: string, portalContextText: string, conversationMemory: string, message: string) {
+function buildAIQuestion(
+  systemPrompt: string,
+  agentCode: string,
+  portalContextText: string,
+  conversationMemory: string,
+  message: string
+) {
   return [
     "SYSTEM INSTRUCTIONS:",
     systemPrompt,
     conciseResponseInstruction,
+    "",
+    "SELECTED AGENT:",
+    agentCode,
     "",
     portalContextText,
     conversationMemory ? "" : null,
@@ -182,6 +234,26 @@ function buildEssentialPortalContext(portalContext: PortalAIContext) {
     lines.push(`- Property: ${portalContext.property.fixedRealEstateNo}`);
   }
 
+  if (portalContext.services?.propertyNo) {
+    lines.push(`- Services Property Reference: ${portalContext.services.propertyNo}`);
+  }
+
+  if (portalContext.services?.requestedCategory) {
+    lines.push(`- Requested Service Category: ${portalContext.services.requestedCategory}`);
+  }
+
+  if (portalContext.services?.matchedStakeholders?.length) {
+    lines.push(
+      `- Matching Services: ${portalContext.services.matchedStakeholders
+        .map((stakeholder) => `${stakeholder.serviceTitle} (${stakeholder.stakeholderName})`)
+        .join(" | ")}`
+    );
+  }
+
+  if (portalContext.services) {
+    lines.push("- Service Recommendation Safety: Do not invent providers or contact details outside the visible matched services.");
+  }
+
   if (portalContext.operationalHints.length) {
     lines.push(`- Operational hints: ${portalContext.operationalHints.slice(0, 2).join(" | ")}`);
   }
@@ -191,11 +263,12 @@ function buildEssentialPortalContext(portalContext: PortalAIContext) {
 
 export function trimEnrichedPromptForBC(
   systemPrompt: string,
+  agentCode: string,
   portalContext: PortalAIContext,
   conversationMemory: string,
   message: string
 ): PromptTrimResult {
-  const fullPrompt = buildAIQuestion(systemPrompt, portalContext.compactText, conversationMemory, message);
+  const fullPrompt = buildAIQuestion(systemPrompt, agentCode, portalContext.compactText, conversationMemory, message);
   const originalLength = fullPrompt.length;
 
   if (originalLength <= bcQuestionSoftLimit) {
@@ -209,7 +282,7 @@ export function trimEnrichedPromptForBC(
     };
   }
 
-  const withoutMemory = buildAIQuestion(systemPrompt, portalContext.compactText, "", message);
+  const withoutMemory = buildAIQuestion(systemPrompt, agentCode, portalContext.compactText, "", message);
   if (withoutMemory.length <= bcQuestionSoftLimit) {
     const withoutMemoryMarked = trimSectionPreservingMarker(withoutMemory, bcQuestionSoftLimit);
     return {
@@ -223,7 +296,7 @@ export function trimEnrichedPromptForBC(
   }
 
   const compactContext = trimSectionPreservingMarker(portalContext.compactText, Math.min(520, portalContext.compactText.length));
-  const withCompactContext = buildAIQuestion(systemPrompt, compactContext, "", message);
+  const withCompactContext = buildAIQuestion(systemPrompt, agentCode, compactContext, "", message);
   if (withCompactContext.length <= bcQuestionSoftLimit) {
     return {
       prompt: withCompactContext,
@@ -237,7 +310,7 @@ export function trimEnrichedPromptForBC(
 
   const essentialContext = buildEssentialPortalContext(portalContext);
   const shortSystemPrompt = trimSectionPreservingMarker(systemPrompt, 420);
-  const withShortSystem = buildAIQuestion(shortSystemPrompt, essentialContext, "", message);
+  const withShortSystem = buildAIQuestion(shortSystemPrompt, agentCode, essentialContext, "", message);
   if (withShortSystem.length <= bcQuestionSoftLimit) {
     return {
       prompt: withShortSystem,
@@ -249,7 +322,7 @@ export function trimEnrichedPromptForBC(
     };
   }
 
-  const systemMarkerPrompt = buildAIQuestion(shortenedContextMarker, essentialContext, "", message);
+  const systemMarkerPrompt = buildAIQuestion(shortenedContextMarker, agentCode, essentialContext, "", message);
   if (systemMarkerPrompt.length <= bcQuestionSoftLimit) {
     return {
       prompt: systemMarkerPrompt,
@@ -262,10 +335,10 @@ export function trimEnrichedPromptForBC(
   }
 
   const currentQuestion = trimText(message, 600);
-  const baseLength = buildAIQuestion(shortenedContextMarker, "", "", currentQuestion).length;
+  const baseLength = buildAIQuestion(shortenedContextMarker, agentCode, "", "", currentQuestion).length;
   const contextBudget = Math.max(220, bcQuestionSoftLimit - baseLength - 2);
   const finalContext = trimSectionPreservingMarker(essentialContext, contextBudget);
-  const finalPrompt = buildAIQuestion(shortenedContextMarker, finalContext, "", currentQuestion);
+  const finalPrompt = buildAIQuestion(shortenedContextMarker, agentCode, finalContext, "", currentQuestion);
 
   return {
     prompt: finalPrompt.slice(0, bcQuestionSoftLimit),
@@ -299,6 +372,81 @@ function mapCachedAnswerToReply(page: string, message: string, context: PortalAI
   };
 }
 
+function deriveRuntimeSource(runtime: PortalAgentRuntimeResolution): PortalAIRuntimeMetadata["runtimeSource"] {
+  if (runtime.governanceMode === "unsafe") {
+    return "governance_override";
+  }
+
+  return runtime.resolutionSource;
+}
+
+export function buildPortalAIRuntimeMetadata(runtime: PortalAgentRuntimeResolution): PortalAIRuntimeMetadata {
+  return {
+    agentCode: runtime.agentCode,
+    promptCode: runtime.promptCode,
+    deploymentCode: runtime.deploymentCode,
+    model: runtime.model,
+    deployment: runtime.deployment,
+    temperature: runtime.temperature,
+    maxTokens: runtime.maxTokens,
+    runtimeSource: deriveRuntimeSource(runtime),
+    fallbackAgentCode: runtime.fallbackAgentCode || runtime.agentCode
+  };
+}
+
+export function buildPortalAIChatRequestPayload(input: {
+  portalUserId: string;
+  sessionId: string;
+  question: string;
+  runtime: PortalAgentRuntimeResolution;
+}): {
+  preferredPayload: AIPreferredChatRequestPayload;
+  legacyPayload: AILegacyChatRequestPayload;
+  runtimeMetadata: PortalAIRuntimeMetadata;
+} {
+  const runtimeMetadata = buildPortalAIRuntimeMetadata(input.runtime);
+  const legacyPayload: AILegacyChatRequestPayload = {
+    portalUserId: input.portalUserId,
+    sessionId: input.sessionId,
+    agentCode: input.runtime.agentCode,
+    question: input.question,
+    source: defaultSource
+  };
+
+  const preferredPayload: AIPreferredChatRequestPayload = {
+    ...legacyPayload,
+    promptCode: runtimeMetadata.promptCode,
+    deploymentCode: runtimeMetadata.deploymentCode,
+    model: runtimeMetadata.model,
+    deployment: runtimeMetadata.deployment,
+    temperature: runtimeMetadata.temperature,
+    maxTokens: runtimeMetadata.maxTokens,
+    runtimeSource: runtimeMetadata.runtimeSource,
+    fallbackAgentCode: runtimeMetadata.fallbackAgentCode
+  };
+
+  return {
+    preferredPayload,
+    legacyPayload,
+    runtimeMetadata
+  };
+}
+
+function isPreferredPayloadCompatibilityError(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+
+  return (
+    message.includes("business central error 400") ||
+    message.includes("business central error 422") ||
+    message.includes("invalid property") ||
+    message.includes("cannot find property") ||
+    message.includes("unexpected") ||
+    message.includes("badrequest") ||
+    message.includes("requestbodyread") ||
+    message.includes("could not be processed")
+  );
+}
+
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -317,7 +465,11 @@ export async function sendAIChatRequest({
   message,
   sessionId,
   portalContext,
-  conversationMemory
+  conversationMemory,
+  intent,
+  routing,
+  portalAction,
+  runtime: providedRuntime
 }: SendAIChatRequestInput): Promise<PortalChatReply> {
   if (env.useMockApi) {
     throw new Error("OD AI Portal Chat API no esta disponible con USE_MOCK_API=true.");
@@ -328,16 +480,39 @@ export async function sendAIChatRequest({
     throw new Error("No se pudo resolver el portalUserId para la consulta AI.");
   }
 
-  const systemPrompt = await loadSystemPrompt();
+  const runtime =
+    providedRuntime ||
+    (await resolvePortalAgentRuntime({
+      message,
+      intent,
+      portalContext,
+      routing,
+      portalAction
+    }));
+  const systemPrompt = runtime.systemPrompt || (await loadSystemPrompt());
   const formattedMemory = formatConversationMemory(conversationMemory);
-  const trimmedPrompt = trimEnrichedPromptForBC(systemPrompt, portalContext, formattedMemory, message);
-  const cacheKey = `${sessionId}:${defaultAgentCode}:${buildPromptHash(trimmedPrompt.prompt)}`;
+  const trimmedPrompt = trimEnrichedPromptForBC(systemPrompt, runtime.agentCode, portalContext, formattedMemory, message);
+  const cacheKey = `${sessionId}:${runtime.agentCode}:${buildPromptHash(trimmedPrompt.prompt)}`;
   const cachedAnswer = getCachedAIResponse(cacheKey);
 
   console.info("[portal-ai] AI request start", {
     sessionId,
     page: portalContext.page || "/portal",
     pageType: portalContext.pageType,
+    routeKey: runtime.routeKey,
+    operation: runtime.operation,
+    agentCode: runtime.agentCode,
+    displayName: runtime.displayName || null,
+    promptCode: runtime.promptCode || null,
+    deploymentCode: runtime.deploymentCode || null,
+    model: runtime.model || null,
+    deployment: runtime.deployment || null,
+    routingSource: runtime.routingSource,
+    allowedActions: runtime.allowedActions,
+    fallbackAgentCode: runtime.fallbackAgentCode || null,
+    runtimeApiSucceeded: runtime.runtimeApiSucceeded,
+    runtimeResolution: runtime.resolutionSource,
+    governanceMode: runtime.governanceMode,
     contextIncluded: trimmedPrompt.contextIncluded,
     memoryIncluded: trimmedPrompt.memoryIncluded,
     originalQuestionLength: trimmedPrompt.originalLength,
@@ -351,6 +526,8 @@ export async function sendAIChatRequest({
       sessionId,
       page: portalContext.page || "/portal",
       pageType: portalContext.pageType,
+      routeKey: runtime.routeKey,
+      agentCode: runtime.agentCode,
       finalQuestionLength: trimmedPrompt.finalLength
     });
     return mapCachedAnswerToReply(portalContext.page || "/portal", message, portalContext, cachedAnswer);
@@ -360,16 +537,27 @@ export async function sendAIChatRequest({
     sessionId,
     page: portalContext.page || "/portal",
     pageType: portalContext.pageType,
+    routeKey: runtime.routeKey,
+    agentCode: runtime.agentCode,
     finalQuestionLength: trimmedPrompt.finalLength
   });
 
-  const payload: AIChatRequestPayload = {
+  const { preferredPayload, legacyPayload, runtimeMetadata } = buildPortalAIChatRequestPayload({
     portalUserId,
     sessionId,
-    agentCode: defaultAgentCode,
     question: trimmedPrompt.prompt,
-    source: defaultSource
-  };
+    runtime
+  });
+
+  if (runtime.warnings.length > 0) {
+    console.warn("[portal-ai] Runtime fallback in use", {
+      sessionId,
+      page: portalContext.page || "/portal",
+      pageType: portalContext.pageType,
+      routeKey: runtime.routeKey,
+      warnings: runtime.warnings
+    });
+  }
 
   const aiResponse = await retryWithBackoff<AIChatResponse>({
     onAttemptFailure: ({ attempt, retryable, delayMs, errorMessage }) => {
@@ -377,9 +565,12 @@ export async function sendAIChatRequest({
         sessionId,
         page: portalContext.page || "/portal",
         pageType: portalContext.pageType,
+        routeKey: runtime.routeKey,
+        agentCode: runtime.agentCode,
         attempt,
         retryable,
         retryDelayMs: delayMs,
+        firstClassMetadataSent: true,
         finalQuestionLength: trimmedPrompt.finalLength,
         timeout: errorMessage.toLowerCase().includes("timeout"),
         error: errorMessage
@@ -390,24 +581,62 @@ export async function sendAIChatRequest({
         sessionId,
         page: portalContext.page || "/portal",
         pageType: portalContext.pageType,
+        routeKey: runtime.routeKey,
+        agentCode: runtime.agentCode,
         attempt,
+        firstClassMetadataSent: true,
+        compatibleFallbackAvailable: true,
+        runtimeSource: runtimeMetadata.runtimeSource || null,
         finalQuestionLength: trimmedPrompt.finalLength
       });
 
       let response: AIChatResponse;
+      let compatibleFallbackUsed = false;
       try {
-        response = await withTimeout(
-          bcPostCustomApiForCompany<AIChatResponse>(
-            {
-              companyId: portalContext.company?.bcCompanyId,
-              companyName: portalContext.company?.bcCompanyName
-            },
-            aiLayerApi,
-            aiChatPath,
-            payload
-          ),
-          requestTimeoutMs
-        );
+        try {
+          response = await withTimeout(
+            bcPostCustomApiForCompany<AIChatResponse>(
+              {
+                companyId: portalContext.company?.bcCompanyId,
+                companyName: portalContext.company?.bcCompanyName
+              },
+              aiLayerApi,
+              aiChatPath,
+              preferredPayload
+            ),
+            requestTimeoutMs
+          );
+        } catch (error) {
+          if (!isPreferredPayloadCompatibilityError(error)) {
+            throw error;
+          }
+
+          console.warn("[portal-ai] AI metadata transport fallback", {
+            sessionId,
+            page: portalContext.page || "/portal",
+            pageType: portalContext.pageType,
+            routeKey: runtime.routeKey,
+            agentCode: runtime.agentCode,
+            attempt,
+            compatibleFallbackUsed: true,
+            runtimeSource: runtimeMetadata.runtimeSource || null,
+            error: error instanceof Error ? error.message : String(error)
+          });
+
+          compatibleFallbackUsed = true;
+          response = await withTimeout(
+            bcPostCustomApiForCompany<AIChatResponse>(
+              {
+                companyId: portalContext.company?.bcCompanyId,
+                companyName: portalContext.company?.bcCompanyName
+              },
+              aiLayerApi,
+              aiChatPath,
+              legacyPayload
+            ),
+            requestTimeoutMs
+          );
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.toLowerCase().includes("timeout")) {
@@ -415,6 +644,8 @@ export async function sendAIChatRequest({
             sessionId,
             page: portalContext.page || "/portal",
             pageType: portalContext.pageType,
+            routeKey: runtime.routeKey,
+            agentCode: runtime.agentCode,
             attempt,
             finalQuestionLength: trimmedPrompt.finalLength,
             timeoutMs: requestTimeoutMs
@@ -427,11 +658,15 @@ export async function sendAIChatRequest({
         sessionId,
         page: portalContext.page || "/portal",
         pageType: portalContext.pageType,
+        routeKey: runtime.routeKey,
+        agentCode: runtime.agentCode,
         attempt,
         status: response.status || null,
         error: response.errorMessage?.trim() || null,
         durationMs: response.durationMs ?? null,
-        entryNo: response.entryNo ?? null
+        entryNo: response.entryNo ?? null,
+        firstClassMetadataSent: true,
+        compatibleFallbackUsed
       });
 
       const status = (response.status || "").trim().toLowerCase();

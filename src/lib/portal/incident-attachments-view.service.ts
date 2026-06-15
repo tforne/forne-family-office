@@ -23,7 +23,12 @@ const defaultAttachmentKeys = [
 ];
 
 function sanitizeText(value: string) {
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function sanitizeFilename(value: string) {
@@ -36,7 +41,11 @@ function sanitizeFilename(value: string) {
 
 function cleanUrl(value: string | null | undefined) {
   const trimmed = (value || "").trim();
-  return trimmed || undefined;
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith("/")) return trimmed;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^data:(image\/|application\/pdf)/i.test(trimmed)) return trimmed;
+  return undefined;
 }
 
 function cleanDate(value: string | null | undefined) {

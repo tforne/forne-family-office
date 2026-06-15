@@ -9,6 +9,7 @@ import type {
   InvoiceLineDto,
   EquipmentDto
 } from "@/lib/dto";
+import type { PortalStakeholder } from "@/lib/portal/stakeholders.types";
 
 export const mockMe: MeDto = {
   userId: "external-demo-user",
@@ -256,5 +257,63 @@ export const mockDocuments: DocumentDto[] = [
     downloadAllowed: false,
     missingMandatoryData: false,
     companyName: null
+  }
+];
+
+export const mockStakeholders: PortalStakeholder[] = [
+  {
+    entryNo: 1,
+    propertyNo: "PROP-001",
+    buildingNo: "BCN-001",
+    stakeholderNo: "STK-001",
+    stakeholderName: "Clean BCN",
+    category: "Limpieza",
+    serviceTitle: "Limpieza premium",
+    portalDescription: "Servicio de limpieza puntual o recurrente para vivienda.",
+    aiDescription: "Servicio de limpieza premium para vivienda con coordinación directa.",
+    aiKeywords: "limpieza,hogar,mantenimiento",
+    whatsappNo: "34600111222",
+    whatsappHref: "https://wa.me/34600111222",
+    bookingUrl: "https://clean-bcn.example.com/reservas",
+    availableForAI: true,
+    priorityScore: 90,
+    defaultForCategory: true,
+    notes: "Disponible de lunes a sábado."
+  },
+  {
+    entryNo: 2,
+    propertyNo: "PROP-001",
+    buildingNo: "BCN-001",
+    stakeholderNo: "STK-002",
+    stakeholderName: "Fontanería Costa",
+    category: "Mantenimiento",
+    serviceTitle: "Soporte de fontanería",
+    portalDescription: "Atención para fugas, grifería y pequeñas reparaciones.",
+    aiDescription: "Proveedor de fontanería para incidencias habituales del inmueble.",
+    aiKeywords: "fontaneria,fuga,agua",
+    whatsappNo: "34 611-22-33-44",
+    whatsappHref: "https://wa.me/34611223344",
+    bookingUrl: "https://fontaneria-costa.example.com/contacto",
+    availableForAI: true,
+    priorityScore: 80,
+    defaultForCategory: true,
+    notes: "Priorizar para incidencias de agua."
+  },
+  {
+    entryNo: 3,
+    propertyNo: "PROP-001",
+    buildingNo: "BCN-001",
+    stakeholderNo: "STK-003",
+    stakeholderName: "Seguros Forné",
+    category: "Seguro",
+    serviceTitle: "Orientación de siniestros",
+    portalDescription: "Canal de apoyo para consultas relacionadas con cobertura.",
+    aiDescription: "Orientación inicial para incidencias que puedan requerir seguro.",
+    aiKeywords: "seguro,siniestro,cobertura",
+    bookingUrl: "https://seguros.example.com/portal",
+    availableForAI: false,
+    priorityScore: 60,
+    defaultForCategory: false,
+    notes: "No usar como acción automática."
   }
 ];

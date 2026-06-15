@@ -12,6 +12,7 @@ const intentLabels: Record<PortalIntentType, string> = {
   invoice_question: "Consulta de factura",
   contract_question: "Consulta de contrato",
   document_request: "Solicitud de documento",
+  service_recommendation: "Recomendación de servicio",
   support_request: "Soporte",
   general_chat: "Consulta general"
 };

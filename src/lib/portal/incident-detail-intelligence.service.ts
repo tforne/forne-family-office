@@ -42,7 +42,10 @@ function asIncident(value: unknown): IncidentDto | null {
 }
 
 function asComments(values: unknown[] | undefined): IncidentCommentDto[] {
-  return (values || []).filter((value): value is IncidentCommentDto => Boolean(value) && typeof value === "object");
+  return (values || []).filter(
+    (value): value is IncidentCommentDto =>
+      Boolean(value) && typeof value === "object" && (value as IncidentCommentDto).isPublic !== false
+  );
 }
 
 function asAttachments(values: unknown[] | undefined): IncidentAttachmentView[] {

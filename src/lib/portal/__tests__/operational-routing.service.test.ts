@@ -32,6 +32,14 @@ describe("buildOperationalRouting", () => {
     expect(routing.href).toBe("/portal/incidents");
   });
 
+  it("routes service recommendations to services", () => {
+    const intent = detectPortalIntent("Necesito internet");
+    const routing = buildOperationalRouting(intent, undefined, undefined, baseContext);
+
+    expect(routing.destination).toBe("services");
+    expect(routing.href).toBe("/portal/services");
+  });
+
   it("prefers an existing incident when a duplicate is detected", () => {
     const intent = detectPortalIntent("Tengo humedad en el baño");
     const routing = buildOperationalRouting(

@@ -4,6 +4,7 @@ import bundledFeaturedAssets from "@/data/featured-assets.json";
 
 export type FeaturedAsset = {
   id: string;
+  status: string;
   badge: string;
   title: string;
   location: string;
@@ -14,6 +15,7 @@ export type FeaturedAsset = {
 function normalizeItem(item: Partial<FeaturedAsset>, index: number): FeaturedAsset {
   return {
     id: String(item.id || `featured-asset-${index + 1}`),
+    status: String(item.status || ""),
     badge: String(item.badge || "Activo destacado"),
     title: String(item.title || ""),
     location: String(item.location || ""),

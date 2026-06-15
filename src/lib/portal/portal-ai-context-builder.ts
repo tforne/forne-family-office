@@ -3,6 +3,13 @@ import "server-only";
 import { getMe } from "@/lib/portal/me.service";
 import { getContracts } from "@/lib/portal/contracts.service";
 import { getIncidentById, getIncidents } from "@/lib/portal/incidents.service";
+import { getAssets } from "@/lib/portal/assets.service";
+import { matchStakeholdersForRecommendation } from "@/lib/portal/service-recommendation.service";
+import {
+  buildStakeholdersAIContext,
+  buildStakeholderReferenceCandidates,
+  getPortalStakeholders
+} from "@/lib/portal/stakeholders.service";
 import { resolvePortalUserContext } from "@/lib/portal/user-context";
 import type { IncidentDto } from "@/lib/dto/incident.dto";
 import type { ContractDto } from "@/lib/dto/contract.dto";
@@ -14,6 +21,7 @@ export type PortalAIPageType =
   | "incidents"
   | "invoice"
   | "contract"
+  | "services"
   | "documents"
   | "profile"
   | "unknown";
@@ -29,6 +37,7 @@ export interface PortalAIContextInput {
 }
 
 export interface PortalAIContext {
+  sessionId?: string;
   page?: string;
   pageType: PortalAIPageType;
   locale?: string;
@@ -55,6 +64,22 @@ export interface PortalAIContext {
   };
   property?: {
     fixedRealEstateNo?: string;
+  };
+  services?: {
+    propertyNo?: string;
+    serviceCount?: number;
+    aiContext?: string;
+    requestedCategory?: string;
+    matchedSignals?: string[];
+    matchedStakeholders?: Array<{
+      entryNo: number;
+      serviceTitle: string;
+      stakeholderName: string;
+      category: string;
+      portalDescription?: string;
+      whatsappHref?: string;
+      bookingUrl?: string;
+    }>;
   };
   propertyOperationalIntelligence?: PortalPropertyOperationalIntelligence;
   operationalHints: string[];
@@ -91,7 +116,7 @@ function normalizePage(page: string | undefined) {
 
 function resolvePageType(page: string, explicitPageType?: string): PortalAIPageType {
   const normalizedExplicit = typeof explicitPageType === "string" ? explicitPageType.trim().toLowerCase() : "";
-  const allowedExplicit: PortalAIPageType[] = ["home", "incident", "incidents", "invoice", "contract", "documents", "profile", "unknown"];
+  const allowedExplicit: PortalAIPageType[] = ["home", "incident", "incidents", "invoice", "contract", "services", "documents", "profile", "unknown"];
   if (allowedExplicit.includes(normalizedExplicit as PortalAIPageType)) {
     return normalizedExplicit as PortalAIPageType;
   }
@@ -101,6 +126,7 @@ function resolvePageType(page: string, explicitPageType?: string): PortalAIPageT
   if (page.startsWith("/portal/incidents")) return "incidents";
   if (page.startsWith("/portal/invoices")) return "invoice";
   if (page.startsWith("/portal/contracts")) return "contract";
+  if (page.startsWith("/portal/services")) return "services";
   if (page.startsWith("/portal/documents")) return "documents";
   if (page.startsWith("/portal/profile")) return "profile";
   return "unknown";
@@ -236,6 +262,8 @@ function buildOperationalHints(page: string, pageType: PortalAIPageType, message
     hints.push("User is asking from an invoice-related page");
   } else if (pageType === "contract") {
     hints.push("User is asking from a contract or property dossier page");
+  } else if (pageType === "services") {
+    hints.push("User is asking from the property services section");
   } else if (pageType === "documents") {
     hints.push("User is asking from the documents section");
   } else if (pageType === "profile") {
@@ -254,6 +282,14 @@ function buildOperationalHints(page: string, pageType: PortalAIPageType, message
 
   if (context.propertyOperationalIntelligence?.openIncidentCount) {
     hints.push(`Property has ${context.propertyOperationalIntelligence.openIncidentCount} open incidents`);
+  }
+
+  if (context.services?.requestedCategory) {
+    hints.push(`User is asking about property services in category ${context.services.requestedCategory}`);
+  }
+
+  if (context.services?.matchedStakeholders?.length) {
+    hints.push(`There are ${context.services.matchedStakeholders.length} matching visible services for this request`);
   }
 
   if (/\b(urgente|urgencia|agua|humedad|fuga|incendio|olor a gas|smoke|flood)\b/.test(normalizedMessage)) {
@@ -290,8 +326,36 @@ function buildCompactContextText(context: PortalAIContext, pageContext: PortalPa
     lines.push(`- Property: ${context.property.fixedRealEstateNo}`);
   }
 
+  if (context.services?.propertyNo) {
+    lines.push(`- Services Property Reference: ${context.services.propertyNo}`);
+  }
+
+  if (typeof context.services?.serviceCount === "number") {
+    lines.push(`- Visible Services: ${context.services.serviceCount}`);
+  }
+
+  if (context.services?.requestedCategory) {
+    lines.push(`- Requested Service Category: ${context.services.requestedCategory}`);
+  }
+
+  if (context.services?.matchedStakeholders?.length) {
+    lines.push(
+      `- Matching Services: ${context.services.matchedStakeholders
+        .map((stakeholder) => `${stakeholder.serviceTitle} (${stakeholder.stakeholderName})`)
+        .join(" | ")}`
+    );
+  }
+
   if (context.propertyOperationalIntelligence) {
     lines.push(`- Property Intelligence: ${context.propertyOperationalIntelligence.summary}`);
+  }
+
+  if (context.services?.aiContext) {
+    lines.push(context.services.aiContext);
+  }
+
+  if (context.services) {
+    lines.push("- Service Recommendation Safety: Recommend only stakeholders listed in AVAILABLE PROPERTY SERVICES or Matching Services. If none match, say so clearly and do not invent providers, phones, or booking links.");
   }
 
   if (pageContext.pageTitle) {
@@ -327,6 +391,7 @@ export async function buildPortalAIContext(input: PortalAIContextInput): Promise
   const [user, me] = await Promise.all([resolvePortalUserContext(), getMe()]);
 
   const context: PortalAIContext = {
+    sessionId: typeof input.sessionId === "string" ? trimText(input.sessionId, 120) : undefined,
     page,
     pageType,
     locale: parseLocale(input) || "es",
@@ -389,6 +454,38 @@ export async function buildPortalAIContext(input: PortalAIContextInput): Promise
     contracts,
     incidents
   );
+
+  const assets = await getAssets().catch(() => []);
+  const stakeholderReferences = buildStakeholderReferenceCandidates([
+    assets.find((asset) => asset.number === context.property?.fixedRealEstateNo)?.propertyNo,
+    assets.find((asset) => asset.number === context.property?.fixedRealEstateNo)?.number,
+    assets.find((asset) => asset.propertyNo === context.property?.fixedRealEstateNo)?.propertyNo,
+    context.property?.fixedRealEstateNo
+  ]);
+
+  if (stakeholderReferences.length) {
+    const stakeholders = await getPortalStakeholders(
+      stakeholderReferences[0],
+      stakeholderReferences.slice(1)
+    ).catch(() => []);
+    const serviceRecommendation = matchStakeholdersForRecommendation(input.message, stakeholders);
+    context.services = {
+      propertyNo: stakeholderReferences[0],
+      serviceCount: stakeholders.length,
+      aiContext: buildStakeholdersAIContext(stakeholders),
+      requestedCategory: serviceRecommendation.requestedCategory,
+      matchedSignals: serviceRecommendation.matchedSignals,
+      matchedStakeholders: serviceRecommendation.matchedStakeholders.map((stakeholder) => ({
+        entryNo: stakeholder.entryNo,
+        serviceTitle: stakeholder.serviceTitle,
+        stakeholderName: stakeholder.stakeholderName,
+        category: stakeholder.category,
+        portalDescription: stakeholder.portalDescription,
+        whatsappHref: stakeholder.whatsappHref,
+        bookingUrl: stakeholder.bookingUrl
+      }))
+    };
+  }
 
   context.operationalHints = buildOperationalHints(page, pageType, input.message, context);
   context.compactText = buildCompactContextText(context, pageContext);

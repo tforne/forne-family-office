@@ -31,6 +31,18 @@ describe("buildIncidentAttachmentViews", () => {
 
     expect(result).toHaveLength(1);
   });
+
+  it("drops unsafe attachment urls", () => {
+    const result = buildIncidentAttachmentViews([
+      {
+        fileName: "evidencia.pdf",
+        url: "javascript:alert(1)"
+      }
+    ]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].href).toBeUndefined();
+  });
 });
 
 describe("extractIncidentAttachmentValues", () => {

@@ -33,7 +33,12 @@ function toRecord(value: unknown): Record<string, unknown> | null {
 }
 
 function sanitizeText(value: string) {
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function cleanDate(value: string | null | undefined) {
@@ -56,6 +61,7 @@ function commentEntries(values: unknown[]) {
   return values
     .map((value) => {
       const comment = value as IncidentCommentDto;
+      if (comment.isPublic === false) return null;
       const occurredAt = cleanDate(comment.commentDate || comment.createdAt);
       const description = sanitizeText(comment.commentText || "");
 

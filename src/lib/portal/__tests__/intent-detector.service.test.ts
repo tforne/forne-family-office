@@ -47,4 +47,11 @@ describe("detectPortalIntent", () => {
 
     expect(result.intent).toBe("support_request");
   });
+
+  it("classifies service recommendation questions", () => {
+    const result = detectPortalIntent("Necesito alguien para limpieza");
+
+    expect(result.intent).toBe("service_recommendation");
+    expect(result.urgency).toBe("low");
+  });
 });
