@@ -169,7 +169,7 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      {contractsResult.failed || assetsResult.failed ? (
+      {(contractsResult.failed || assetsResult.failed) && services.length === 0 ? (
         <section className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
           No hemos podido resolver toda la referencia del inmueble desde Business Central. La sección sigue mostrando la información visible disponible.
         </section>

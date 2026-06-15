@@ -91,6 +91,26 @@ export default function ServiceDetailModal({
               <div><span className="font-semibold">Categoría:</span> {service.category}</div>
               <div><span className="font-semibold">Inmueble:</span> {service.propertyNo}</div>
               {service.buildingNo ? <div><span className="font-semibold">Edificio:</span> {service.buildingNo}</div> : null}
+              {service.phoneHref ? (
+                <div>
+                  <span className="font-semibold">Teléfono:</span>{" "}
+                  <a href={service.phoneHref} className="underline-offset-4 hover:underline">
+                    {service.phoneNo}
+                  </a>
+                </div>
+              ) : service.phoneNo ? (
+                <div><span className="font-semibold">Teléfono:</span> {service.phoneNo}</div>
+              ) : null}
+              {service.emailHref ? (
+                <div>
+                  <span className="font-semibold">Email:</span>{" "}
+                  <a href={service.emailHref} className="underline-offset-4 hover:underline">
+                    {service.email}
+                  </a>
+                </div>
+              ) : service.email ? (
+                <div><span className="font-semibold">Email:</span> {service.email}</div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -125,7 +145,24 @@ export default function ServiceDetailModal({
                 {service.bookingUrl ? "Contactar / Reservar" : "Contactar"}
               </a>
             ) : null}
-            {!service.whatsappHref && !service.bookingUrl ? (
+            {service.emailHref ? (
+              <a
+                href={service.emailHref}
+                className="inline-flex items-center justify-center rounded-2xl border border-forne-line bg-white px-5 py-3 text-sm font-semibold text-forne-ink transition hover:border-forne-ink/15"
+              >
+                Enviar email
+              </a>
+            ) : null}
+            {service.phoneHref ? (
+              <a
+                href={service.phoneHref}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-forne-line bg-white px-5 py-3 text-sm font-semibold text-forne-ink transition hover:border-forne-ink/15"
+              >
+                <BrandIcon name="phone" className="h-4 w-4" />
+                Llamar
+              </a>
+            ) : null}
+            {!service.whatsappHref && !service.bookingUrl && !service.emailHref && !service.phoneHref ? (
               <div className="rounded-2xl border border-dashed border-forne-line px-5 py-3 text-sm text-forne-muted">
                 Este servicio no tiene una acción directa publicada todavía.
               </div>

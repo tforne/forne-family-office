@@ -73,6 +73,34 @@ function normalizeWhatsappNumber(value: string | undefined) {
   return digits || undefined;
 }
 
+function normalizePhoneNumber(value: string | undefined) {
+  if (!value) return undefined;
+
+  const sanitized = value.replace(/[^\d+()\-\s]/g, "").trim();
+  return sanitized || undefined;
+}
+
+function buildPhoneHref(value: string | undefined) {
+  const normalized = normalizePhoneNumber(value);
+  if (!normalized) return undefined;
+
+  const telValue = normalized.replace(/[^\d+]/g, "");
+  return telValue ? `tel:${telValue}` : undefined;
+}
+
+function normalizeEmail(value: string | undefined) {
+  if (!value) return undefined;
+
+  const sanitized = value.trim().toLowerCase();
+  if (!sanitized.includes("@")) return undefined;
+  return sanitized;
+}
+
+function buildEmailHref(value: string | undefined) {
+  const normalized = normalizeEmail(value);
+  return normalized ? `mailto:${normalized}` : undefined;
+}
+
 function normalizeExternalUrl(value: string | undefined) {
   if (!value) return undefined;
 
@@ -123,6 +151,11 @@ function normalizeReference(value: string | null | undefined) {
   return sanitizeText(value);
 }
 
+function matchesReference(value: string | null | undefined, references: string[]) {
+  const normalized = normalizeReference(value);
+  return Boolean(normalized && references.includes(normalized));
+}
+
 export function buildStakeholderReferenceCandidates(values: Array<string | null | undefined>) {
   return Array.from(new Set(values.map(normalizeReference).filter(Boolean)));
 }
@@ -134,38 +167,111 @@ export function normalizePortalStakeholders(values: unknown[]): PortalStakeholde
     const record = toRecord(value);
     if (!record) return;
 
-    const propertyNo = coerceString(record, ["propertyNo", "fixedRealEstateNo", "assetNo"]);
+    const propertyNo = coerceString(record, [
+      "propertyNo",
+      "propertyNo.",
+      "Property No.",
+      "propertyNumber",
+      "propertyCode",
+      "property",
+      "fixedRealEstateNo",
+      "realEstateNo",
+      "assetNo",
+      "assetNumber",
+      "freNo",
+      "no"
+    ]);
     const stakeholderNo =
-      coerceString(record, ["stakeholderNo", "providerNo", "vendorNo", "supplierNo", "contactNo", "code"]) || "";
+      coerceString(record, [
+        "stakeholderNo",
+        "stakeholderNo.",
+        "Stakeholder No.",
+        "providerNo",
+        "vendorNo",
+        "supplierNo",
+        "contactNo",
+        "contactNumber",
+        "code",
+        "no"
+      ]) || "";
     const category =
-      coerceString(record, ["category", "serviceCategory", "stakeholderCategory", "categoryName"]) || "Servicio";
+      coerceString(record, [
+        "category",
+        "serviceCategory",
+        "stakeholderCategory",
+        "stakeholderCategoryName",
+        "categoryName"
+      ]) || "Servicio";
     const stakeholderName =
-      coerceString(record, ["stakeholderName", "providerName", "vendorName", "supplierName", "displayName", "name"]) ||
+      coerceString(record, [
+        "stakeholderName",
+        "providerName",
+        "vendorName",
+        "supplierName",
+        "contactName",
+        "displayName",
+        "name"
+      ]) ||
       stakeholderNo ||
       `Proveedor ${index + 1}`;
     const serviceTitle =
-      coerceString(record, ["serviceTitle", "serviceName", "portalTitle", "title"]) ||
+      coerceString(record, ["serviceTitle", "serviceName", "portalTitle", "title", "description"]) ||
       (category && category !== "Undefined" ? category : "") ||
       stakeholderName ||
       `Servicio ${index + 1}`;
 
     if (!propertyNo) return;
-    if (hasAnyValue(record, ["active", "enabled", "isActive"]) && coerceBoolean(record, ["active", "enabled", "isActive"]) === false) {
+    if (
+      hasAnyValue(record, ["active", "enabled", "isActive", "Active"]) &&
+      coerceBoolean(record, ["active", "enabled", "isActive", "Active"]) === false
+    ) {
       return;
     }
     if (
-      hasAnyValue(record, ["portalVisible", "visibleInPortal", "tenantVisible"]) &&
-      coerceBoolean(record, ["portalVisible", "visibleInPortal", "tenantVisible"]) === false
+      hasAnyValue(record, [
+        "portalVisible",
+        "portalvisible",
+        "portal_Visible",
+        "visibleInPortal",
+        "tenantVisible",
+        "Portal Visible"
+      ]) &&
+      coerceBoolean(record, [
+        "portalVisible",
+        "portalvisible",
+        "portal_Visible",
+        "visibleInPortal",
+        "tenantVisible",
+        "Portal Visible"
+      ]) === false
     ) {
       return;
     }
 
-    const whatsappNo = coerceString(record, ["whatsappNo", "whatsAppNo", "whatsapp", "mobilePhoneNo", "phoneNo"]);
+    const phoneNo = coerceString(record, [
+      "phoneNo",
+      "phone",
+      "telephone",
+      "mobilePhoneNo",
+      "mobilePhone",
+      "contactPhoneNo",
+      "contactPhone"
+    ]);
+    const email = coerceString(record, ["email", "eMail", "contactEmail", "mail"]);
+    const whatsappNo = coerceString(record, [
+      "whatsappNo",
+      "whatsAppNo",
+      "whatsapp",
+      "mobilePhoneNo",
+      "mobilePhone",
+      "phoneNo",
+      "phone"
+    ]);
     const bookingUrl = normalizeExternalUrl(coerceString(record, ["bookingUrl", "externalUrl", "contactUrl", "url"]));
     const stakeholder: PortalStakeholder = {
       entryNo: coerceNumber(record, ["entryNo", "lineNo", "id"]) || index + 1,
       propertyNo,
-      buildingNo: coerceString(record, ["buildingNo"]),
+      buildingNo: coerceString(record, ["buildingNo", "buildingNo.", "Building No.", "buildingCode"]),
       stakeholderNo,
       stakeholderName,
       category,
@@ -173,11 +279,15 @@ export function normalizePortalStakeholders(values: unknown[]): PortalStakeholde
       portalDescription: coerceString(record, ["portalDescription", "description", "serviceDescription", "notes"]),
       aiDescription: coerceString(record, ["aiDescription"]),
       aiKeywords: coerceString(record, ["aiKeywords"]),
+      phoneNo: normalizePhoneNumber(phoneNo),
+      phoneHref: buildPhoneHref(phoneNo),
+      email: normalizeEmail(email),
+      emailHref: buildEmailHref(email),
       whatsappNo: normalizeWhatsappNumber(whatsappNo),
       whatsappHref: buildWhatsappHref(whatsappNo),
       bookingUrl,
       tenantProfileFilter: coerceString(record, ["tenantProfileFilter"]),
-      availableForAI: coerceBoolean(record, ["availableForAI"]),
+      availableForAI: coerceBoolean(record, ["availableForAI", "availableForAi", "Available for AI"]),
       priorityScore: coerceNumber(record, ["priorityScore"]),
       defaultForCategory: coerceBoolean(record, ["defaultForCategory"]),
       notes: coerceString(record, ["notes", "internalNotes", "portalNotes"])
@@ -190,6 +300,15 @@ export function normalizePortalStakeholders(values: unknown[]): PortalStakeholde
   });
 
   return Array.from(deduped.values()).sort(sortStakeholders);
+}
+
+function filterStakeholdersByReferences(stakeholders: PortalStakeholder[], references: string[]) {
+  if (references.length === 0) return [];
+
+  return stakeholders.filter(
+    (stakeholder) =>
+      matchesReference(stakeholder.propertyNo, references) || matchesReference(stakeholder.buildingNo, references)
+  );
 }
 
 export function buildStakeholdersAIContext(stakeholders: PortalStakeholder[]) {
@@ -284,6 +403,28 @@ export async function getPortalStakeholders(
 
   if (lastCompatibilityError) {
     console.warn("[portal/stakeholders] No compatible stakeholder filter field found in Business Central.", lastCompatibilityError);
+  }
+
+  try {
+    const fallbackPayload = await bcGetForCompany<{ value?: RawStakeholder[] }>(
+      company,
+      bcEndpoints.stakeholders,
+      odataQuery({
+        orderBy: "priorityScore desc,serviceTitle asc",
+        top: 200
+      })
+    );
+
+    return filterStakeholdersByReferences(normalizePortalStakeholders(unwrap(fallbackPayload)), references);
+  } catch (error) {
+    console.warn("[portal/stakeholders] Fallback stakeholder load without filter failed.", error);
+  }
+
+  try {
+    const minimalFallbackPayload = await bcGetForCompany<{ value?: RawStakeholder[] }>(company, bcEndpoints.stakeholders);
+    return filterStakeholdersByReferences(normalizePortalStakeholders(unwrap(minimalFallbackPayload)), references);
+  } catch (error) {
+    console.warn("[portal/stakeholders] Minimal fallback stakeholder load failed.", error);
   }
 
   return [];

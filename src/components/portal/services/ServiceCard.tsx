@@ -37,7 +37,36 @@ export default function ServiceCard({
           {service.portalDescription || "Servicio visible para este inmueble sin descripción ampliada publicada."}
         </p>
 
+        {service.phoneNo || service.email ? (
+          <div className="mt-4 flex flex-wrap gap-3 text-sm text-forne-muted">
+            {service.phoneHref ? (
+              <a href={service.phoneHref} className="font-medium text-forne-ink underline-offset-4 hover:underline">
+                {service.phoneNo}
+              </a>
+            ) : service.phoneNo ? (
+              <span>{service.phoneNo}</span>
+            ) : null}
+            {service.emailHref ? (
+              <a href={service.emailHref} className="font-medium text-forne-ink underline-offset-4 hover:underline">
+                {service.email}
+              </a>
+            ) : service.email ? (
+              <span>{service.email}</span>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="mt-6 flex flex-wrap gap-3">
+          {service.phoneHref ? (
+            <a
+              href={service.phoneHref}
+              aria-label={`Llamar a ${service.stakeholderName}`}
+              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-forne-line bg-[#f8fbff] text-forne-ink transition hover:border-forne-ink/15"
+              title={service.phoneNo ? `Llamar: ${service.phoneNo}` : "Llamar"}
+            >
+              <BrandIcon name="phone" className="h-4.5 w-4.5" />
+            </a>
+          ) : null}
           <button
             type="button"
             onClick={() => setIsOpen(true)}

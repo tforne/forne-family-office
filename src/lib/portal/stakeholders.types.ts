@@ -9,6 +9,10 @@ export interface PortalStakeholder {
   portalDescription?: string;
   aiDescription?: string;
   aiKeywords?: string;
+  phoneNo?: string;
+  phoneHref?: string;
+  email?: string;
+  emailHref?: string;
   whatsappNo?: string;
   whatsappHref?: string;
   bookingUrl?: string;

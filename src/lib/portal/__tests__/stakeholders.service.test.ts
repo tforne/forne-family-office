@@ -2,9 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildStakeholdersAIContext,
   buildStakeholderReferenceCandidates,
+  getPortalStakeholders,
   isMissingBusinessCentralEndpointError,
   normalizePortalStakeholders
 } from "@/lib/portal/stakeholders.service";
+import { env } from "@/lib/config/env";
+import * as bcClient from "@/lib/bc/client";
+import * as userContext from "@/lib/portal/user-context";
+import { vi } from "vitest";
 
 describe("stakeholders.service", () => {
   it("normalizes, sanitizes and sorts stakeholders by priority and title", () => {
@@ -136,5 +141,57 @@ describe("stakeholders.service", () => {
     ]);
 
     expect(references).toEqual(["PROP-001", "FRE-900", "ASSET-12"]);
+  });
+
+  it("falls back to an unfiltered fetch and filters locally when BC field filters do not match", async () => {
+    vi.spyOn(userContext, "resolvePortalUserContext").mockResolvedValue({
+      bcCompanyId: "company-1",
+      bcCompanyName: "Test Company",
+      customerNo: "CUST-1",
+      customerName: "Cliente",
+      contactNo: "CONTACT-1",
+      profileNo: "PROFILE-1",
+      profileDescription: "Perfil",
+      email: "tenant@example.com",
+      displayName: "Tenant"
+    });
+
+    const bcSpy = vi
+      .spyOn(bcClient, "bcGetForCompany")
+      .mockRejectedValueOnce(new Error("Business Central error 400 (url): Could not find a property named 'propertyNo'"))
+      .mockRejectedValueOnce(new Error("Business Central error 400 (url): Could not find a property named 'fixedRealEstateNo'"))
+      .mockRejectedValueOnce(new Error("Business Central error 400 (url): Could not find a property named 'assetNo'"))
+      .mockRejectedValueOnce(new Error("Business Central error 400 (url): Could not find a property named 'freNo'"))
+      .mockRejectedValueOnce(new Error("Business Central error 400 (url): Could not find a property named 'no'"))
+      .mockResolvedValueOnce({
+        value: [
+          {
+            propertyNo: "AFI-19-00024",
+            stakeholderNo: "SH-26-00006",
+            stakeholderCategory: "Undefined",
+            active: true,
+            portalVisible: true,
+            availableForAI: true
+          },
+          {
+            propertyNo: "OTHER-1",
+            stakeholderNo: "SH-00-00001",
+            active: true,
+            portalVisible: true
+          }
+        ]
+      });
+
+    const previousMockSetting = env.useMockApi;
+    (env as { useMockApi: boolean }).useMockApi = false;
+
+    const result = await getPortalStakeholders("AFI-19-00024");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].propertyNo).toBe("AFI-19-00024");
+    expect(result[0].stakeholderNo).toBe("SH-26-00006");
+    expect(bcSpy).toHaveBeenCalledTimes(6);
+
+    (env as { useMockApi: boolean }).useMockApi = previousMockSetting;
   });
 });

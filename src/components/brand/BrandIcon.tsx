@@ -7,6 +7,7 @@ type BrandIconName =
   | "operations"
   | "trust"
   | "guide"
+  | "phone"
   | "arrow";
 
 const iconPaths: Record<BrandIconName, React.ReactNode> = {
@@ -68,6 +69,11 @@ const iconPaths: Record<BrandIconName, React.ReactNode> = {
       <path d="M10 9.5h4.5" />
       <path d="M10 12.5h4.5" />
       <path d="M10 15.5h3" />
+    </>
+  ),
+  phone: (
+    <>
+      <path d="M8.8 6.8c.5-.5 1.2-.7 1.8-.4l1.7.8c.6.3 1 .9.9 1.6l-.2 1.7c0 .4.1.8.4 1.1l1.4 1.4c.3.3.7.4 1.1.4l1.7-.2c.7-.1 1.3.3 1.6.9l.8 1.7c.3.6.1 1.3-.4 1.8l-1.1 1.1c-.8.8-2 1.1-3.1.8-2-.6-4-1.8-5.7-3.5-1.7-1.7-2.9-3.7-3.5-5.7-.3-1.1 0-2.3.8-3.1l1.1-1.1Z" />
     </>
   ),
   arrow: (
