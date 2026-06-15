@@ -28,6 +28,7 @@ export type PublicFeaturedAssetsDiagnostics = {
 
 const MAX_PUBLIC_FEATURED_ASSETS = 3;
 const ASSET_FETCH_TOP = 100;
+const PUBLIC_FEATURED_ASSETS_REVALIDATE_SECONDS = 3600;
 
 function normalizeRentalStatus(status: string) {
   return status.trim().toLowerCase();
@@ -133,7 +134,13 @@ async function loadPublicAssets() {
   try {
     const payload = await bcGet<{ value?: Partial<AssetDto>[] }>(
       bcEndpoints.assets,
-      odataQuery({ top: ASSET_FETCH_TOP })
+      odataQuery({ top: ASSET_FETCH_TOP }),
+      {
+        next: {
+          revalidate: PUBLIC_FEATURED_ASSETS_REVALIDATE_SECONDS,
+          tags: ["public-featured-assets", "business-central-companies"]
+        }
+      }
     );
 
     return {

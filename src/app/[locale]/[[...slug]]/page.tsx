@@ -15,6 +15,8 @@ type LocalizedPageProps = {
   };
 };
 
+export const revalidate = 3600;
+
 export async function generateMetadata({ params }: LocalizedPageProps) {
   if (!isPublicLocale(params.locale)) {
     return {};
