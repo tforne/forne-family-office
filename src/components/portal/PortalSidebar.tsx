@@ -104,7 +104,7 @@ export default function PortalSidebar({
 
   return (
     <>
-      <div className="border-b border-forne-line/70 bg-white/78 px-4 py-4 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-30 border-b border-forne-line/70 bg-[rgba(255,255,255,0.82)] px-4 py-3 backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <Link href="/portal" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-sm font-semibold text-white shadow-[0_20px_35px_-22px_rgba(15,47,87,0.7)]">
@@ -119,25 +119,20 @@ export default function PortalSidebar({
             type="button"
             onClick={() => setIsLogoutDialogOpen(true)}
             disabled={isLoggingOut}
-            className="rounded-xl border border-forne-line bg-white/90 px-3 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-2xl border border-forne-line bg-white/92 px-3.5 py-2 text-xs font-semibold text-forne-muted shadow-sm transition hover:text-forne-ink disabled:cursor-not-allowed disabled:opacity-60"
           >
             Salir
           </button>
         </div>
-        {version ? (
-          <div className="mt-3 text-[11px] font-medium tracking-[0.08em] text-[#7f8896]">
-            Version {version}
-          </div>
-        ) : null}
         <div className="mt-4 overflow-x-auto pb-1">
           <div className="flex min-w-max gap-2">
             {visibleItems.map((item) => {
-              const active = pathname === item.href;
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-2xl px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.08em] transition ${
+                  className={`shrink-0 rounded-2xl px-3.5 py-2.5 text-[11px] font-semibold tracking-[0.08em] transition ${
                     active
                       ? "bg-[linear-gradient(135deg,#123861_0%,#1b6fd8_100%)] text-white shadow-[0_16px_30px_-22px_rgba(15,47,87,0.68)]"
                       : "border border-forne-line bg-white/90 text-forne-muted"
@@ -152,21 +147,7 @@ export default function PortalSidebar({
             })}
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:hidden">
-          <Link
-            href="/portal/invoices"
-            className="rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
-          >
-            Ver facturas
-          </Link>
-          <Link
-            href="/portal/incidents"
-            className="rounded-2xl border border-forne-line bg-white/90 px-4 py-3 text-sm font-semibold text-forne-ink shadow-sm"
-          >
-            Ver incidencias
-          </Link>
-        </div>
-        <div className="mt-2 sm:hidden">
+        <div className="mt-3 sm:hidden">
           <InstallAppPromptCard
             surface="portal"
             minVisits={2}
@@ -177,6 +158,11 @@ export default function PortalSidebar({
             dismissClassName="mt-3 text-xs font-medium text-forne-muted transition hover:text-forne-ink"
           />
         </div>
+        {version ? (
+          <div className="mt-3 text-[11px] font-medium tracking-[0.08em] text-[#7f8896]">
+            Version {version}
+          </div>
+        ) : null}
       </div>
 
       <aside className="ffo-portal-dark hidden w-[328px] flex-col border-r border-white/8 text-white lg:flex">

@@ -4,11 +4,7 @@ import PortalPageContext from "@/components/portal/PortalPageContext";
 import ServiceCard from "@/components/portal/services/ServiceCard";
 import { getAssets } from "@/lib/portal/assets.service";
 import { getContracts } from "@/lib/portal/contracts.service";
-import {
-  buildStakeholdersAIContext,
-  buildStakeholderReferenceCandidates,
-  getPortalStakeholders
-} from "@/lib/portal/stakeholders.service";
+import { buildStakeholderReferenceCandidates, getPortalStakeholders } from "@/lib/portal/stakeholders.service";
 import type { AssetDto } from "@/lib/dto/asset.dto";
 import type { ContractDto } from "@/lib/dto/contract.dto";
 import type { PortalStakeholder } from "@/lib/portal/stakeholders.types";
@@ -62,8 +58,8 @@ function countDistinctCategories(services: PortalStakeholder[]) {
   return new Set(services.map((service) => service.category)).size;
 }
 
-function hasReusableAIContext(service: PortalStakeholder) {
-  return service.availableForAI && Boolean(service.aiDescription || service.portalDescription);
+function countDirectContactServices(services: PortalStakeholder[]) {
+  return services.filter((service) => Boolean(service.phoneHref || service.emailHref || service.whatsappHref || service.bookingUrl)).length;
 }
 
 export default async function ServicesPage() {
@@ -90,16 +86,14 @@ export default async function ServicesPage() {
     : { data: [] as PortalStakeholder[], failed: false, errorMessage: "" };
 
   const services = stakeholdersResult.data;
-  const aiContextPreview = buildStakeholdersAIContext(services);
   const categoriesCount = countDistinctCategories(services);
-  const aiReadyCount = services.filter((service) => service.availableForAI).length;
-  const reusableAiCount = services.filter(hasReusableAIContext).length;
+  const directContactCount = countDirectContactServices(services);
   const pageSummary = propertyRef.propertyNo
-    ? `Servicios y colaboradores visibles para ${propertyRef.propertyLabel}. La experiencia se apoya en Business Central y queda preparada para enriquecer futuras recomendaciones IA.`
+    ? `Servicios y contactos visibles para ${propertyRef.propertyLabel}. Hemos reunido aquí los colaboradores publicados para que puedas localizar ayuda de forma rápida y clara.`
     : "Todavía no hemos podido identificar un inmueble principal para mostrar servicios asociados.";
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       <PortalPageContext
         payload={{
           pageEyebrow: "Servicios",
@@ -110,60 +104,56 @@ export default async function ServicesPage() {
             { label: "Referencia", value: propertyRef.propertyNo || "-" },
             { label: "Servicios visibles", value: String(services.length) },
             { label: "Categorías", value: String(categoriesCount), helper: "Agrupaciones públicas visibles en el portal." }
-          ],
-          visibleSections: [
-            {
-              title: "Preparado para IA",
-              summary: `${aiReadyCount} servicio(s) están marcados como disponibles para futuro contexto IA tenant-safe.`
-            }
           ]
         }}
       />
 
-      <section className="ffo-portal-dark rounded-[34px] border border-white/8 p-5 text-white sm:p-6 lg:p-7">
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <section className="overflow-hidden rounded-[28px] border border-[rgba(9,24,45,0.06)] bg-[radial-gradient(circle_at_top_left,rgba(228,237,247,0.95)_0%,rgba(19,44,76,0.98)_36%,rgba(12,31,54,1)_100%)] p-4 text-white shadow-[0_36px_80px_-46px_rgba(10,25,44,0.58)] sm:rounded-[34px] sm:p-6 lg:p-7">
+        <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/62">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#d9c8b0]" />
-              Servicios
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/65">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f0c987]" />
+              Servicios y contactos
             </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-[2.35rem]">Servicios del inmueble</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72">
+            <h1 className="mt-4 max-w-3xl text-[1.9rem] font-semibold tracking-tight text-white sm:text-[2.6rem]">
+              Todo lo que necesitas para este inmueble, en un solo lugar
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/75 sm:mt-4 sm:leading-7">
               {pageSummary}
             </p>
-            <div className="mt-5 rounded-[22px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur xl:max-w-[42rem]">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Referencia activa</div>
+            <div className="mt-5 rounded-[24px] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.06)_100%)] px-4 py-4 backdrop-blur xl:max-w-[42rem]">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/52">Inmueble activo</div>
               <div className="mt-2 text-base font-semibold text-white">{propertyRef.propertyLabel || "Sin inmueble principal"}</div>
               <div className="mt-2 text-sm leading-6 text-white/64">
                 {propertyRef.propertyNo
-                  ? `Consulta preparada sobre ${propertyRef.propertyNo} con acceso directo a servicios, contactos y futuros contextos IA.`
+                  ? `Referencia ${propertyRef.propertyNo} con acceso directo a proveedores, canales de contacto y detalle operativo.`
                   : "Cuando el portal pueda resolver el inmueble principal del tenant, aquí aparecerán los servicios asociados."}
               </div>
             </div>
             <div className="mt-6">
               <Link
                 href="/portal/contracts"
-                className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-[#123861] shadow-[0_24px_45px_-30px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5 sm:min-h-0"
               >
                 Ver ficha del inmueble
               </Link>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-1">
+            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 backdrop-blur">
               <div className="text-xs uppercase tracking-[0.2em] text-white/50">Servicios</div>
               <div className="mt-2 text-3xl font-semibold text-white">{services.length}</div>
-              <div className="mt-1 text-xs text-white/65">visibles para este inmueble</div>
+              <div className="mt-1 text-xs text-white/65">publicados para este inmueble</div>
             </div>
-            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
+            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 backdrop-blur">
               <div className="text-xs uppercase tracking-[0.2em] text-white/50">Categorías</div>
               <div className="mt-2 text-3xl font-semibold text-white">{categoriesCount}</div>
-              <div className="mt-1 text-xs text-white/65">tipos de servicio publicados</div>
+              <div className="mt-1 text-xs text-white/65">tipos de ayuda disponibles</div>
             </div>
-            <div className="rounded-[24px] border border-white/10 bg-white/7 px-4 py-4 backdrop-blur">
-              <div className="text-xs uppercase tracking-[0.2em] text-white/50">IA futura</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{aiReadyCount}</div>
-              <div className="mt-1 text-xs text-white/65">servicios marcados para contexto IA</div>
+            <div className="rounded-[24px] border border-white/10 bg-white/8 px-4 py-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/50">Contacto directo</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{directContactCount}</div>
+              <div className="mt-1 text-xs text-white/65">servicios con llamada, email o WhatsApp</div>
             </div>
           </div>
         </div>
@@ -204,28 +194,6 @@ export default async function ServicesPage() {
           ))}
         </section>
       )}
-
-      <section className="ffo-portal-card rounded-[30px] p-5 sm:p-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-forne-muted">Preparación IA</div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-forne-ink">Contexto reutilizable de servicios</h2>
-          </div>
-          <div className="text-sm text-forne-muted">Solo incluye servicios preparados para recomendaciones visibles en portal.</div>
-        </div>
-        {reusableAiCount === 0 ? (
-          <div className="mt-5 rounded-[24px] border border-dashed border-forne-line bg-[#f8fbff] px-5 py-5">
-            <div className="text-sm font-semibold text-forne-ink">Todavía no hay contexto reutilizable visible para este inmueble</div>
-            <div className="mt-2 text-sm leading-7 text-forne-muted">
-              Cuando Business Central publique servicios marcados para apoyo contextual, esta sección resumirá la información operativa disponible sin mostrar formato técnico.
-            </div>
-          </div>
-        ) : (
-          <pre className="mt-5 overflow-x-auto rounded-[24px] bg-[#f5f9fe] px-5 py-5 text-xs leading-6 text-forne-ink">
-            {aiContextPreview}
-          </pre>
-        )}
-      </section>
     </div>
   );
 }

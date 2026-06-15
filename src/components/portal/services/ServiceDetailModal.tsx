@@ -4,6 +4,15 @@ import { useEffect, useRef } from "react";
 import BrandIcon from "@/components/brand/BrandIcon";
 import type { PortalStakeholder } from "@/lib/portal/stakeholders.types";
 
+function presentCategory(category: string) {
+  const normalized = category.trim().toLowerCase();
+  if (!normalized || normalized === "undefined") {
+    return "Servicio esencial";
+  }
+
+  return category;
+}
+
 export default function ServiceDetailModal({
   service,
   isOpen,
@@ -63,7 +72,7 @@ export default function ServiceDetailModal({
               {service.serviceTitle}
             </h2>
             <div className="mt-2 text-sm text-forne-muted">
-              {service.category} · {service.stakeholderName}
+              {presentCategory(service.category)} · {service.stakeholderName}
             </div>
           </div>
           <button
@@ -88,7 +97,7 @@ export default function ServiceDetailModal({
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-forne-muted">Detalle</div>
             <div className="mt-3 space-y-2 text-sm leading-7 text-forne-ink">
               <div><span className="font-semibold">Proveedor:</span> {service.stakeholderName}</div>
-              <div><span className="font-semibold">Categoría:</span> {service.category}</div>
+              <div><span className="font-semibold">Categoría:</span> {presentCategory(service.category)}</div>
               <div><span className="font-semibold">Inmueble:</span> {service.propertyNo}</div>
               {service.buildingNo ? <div><span className="font-semibold">Edificio:</span> {service.buildingNo}</div> : null}
               {service.phoneHref ? (
