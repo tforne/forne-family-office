@@ -28,17 +28,17 @@ export default async function AdminFeaturedAssetsPage() {
 
         <div className="ffo-portal-card rounded-[28px] p-6">
           <p className="text-sm leading-7 text-forne-muted">
-            Los activos visibles en portada se obtienen automáticamente desde Business Central.
-            Se muestran los inmuebles cuyo estado sea <strong>En alquiler</strong> y que tengan título, hasta un máximo de tres.
+            La home pública usa una selección estática incluida en el despliegue.
+            No hay conexión directa con Business Central en la parte pública.
           </p>
           <p className="mt-4 text-sm leading-7 text-forne-muted">
-            Si quieres cambiar qué aparece en la home, actualiza el estado del inmueble en Business Central.
+            Se muestran hasta <strong>tres</strong> activos con título válido desde la lista configurada para portada.
           </p>
         </div>
 
         <div className="ffo-portal-card rounded-[28px] p-6">
           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            Diagnóstico BC
+            Diagnóstico portada pública
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-xl bg-white px-4 py-3 text-sm text-slate-700">
@@ -67,7 +67,7 @@ export default async function AdminFeaturedAssetsPage() {
 
           {diagnostics.errorMessage ? (
             <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              Error al consultar Business Central: <strong>{diagnostics.errorMessage}</strong>
+              Error al preparar la portada pública: <strong>{diagnostics.errorMessage}</strong>
             </div>
           ) : null}
         </div>
