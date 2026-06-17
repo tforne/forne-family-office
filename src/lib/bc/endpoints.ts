@@ -14,6 +14,8 @@ export const bcEndpoints = {
   incidentComments: "tenantIncidentComments",
   documents: env.bcDocumentsEndpoint,
   documentFiles: env.bcDocumentFilesEndpoint,
+  mediaAssets: env.bcMediaAssetsEndpoint,
+  mediaFiles: env.bcMediaFilesEndpoint,
   tenantPortalUsers: env.bcTenantPortalUsersEndpoint,
   tenantPortalConfigurations: env.bcTenantPortalConfigurationEndpoint
 };

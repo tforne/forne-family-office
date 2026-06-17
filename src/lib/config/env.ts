@@ -55,6 +55,8 @@ export const env = {
   bcIncidentAttachmentsEndpoint: readServerEnv("BC_INCIDENT_ATTACHMENTS_ENDPOINT"),
   bcIncidentCommentsEndpoint: readServerEnv("BC_INCIDENT_COMMENTS_ENDPOINT") || "tenantIncidentComments",
   bcAssetsEndpoint: readServerEnv("BC_ASSETS_ENDPOINT") || "tenantAssets",
+  bcMediaAssetsEndpoint: readServerEnv("BC_MEDIA_ASSETS_ENDPOINT") || "mediaAssets",
+  bcMediaFilesEndpoint: readServerEnv("BC_MEDIA_FILES_ENDPOINT") || "mediaFiles",
   bcStakeholdersEndpoint: readServerEnv("BC_STAKEHOLDERS_ENDPOINT") || "portalStakeholdersRich",
   bcDocumentsEndpoint: readServerEnv("BC_DOCUMENTS_ENDPOINT") || "portalDocuments",
   bcDocumentFilesEndpoint: readServerEnv("BC_DOCUMENT_FILES_ENDPOINT") || "portalDocumentFiles",

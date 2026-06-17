@@ -8,6 +8,7 @@ const mobileItems = [
   { href: "/portal", label: "Inicio", icon: "clarity" as const },
   { href: "/portal/notices", label: "Avisos", icon: "attention" as const },
   { href: "/portal/services", label: "Servicios", icon: "operations" as const },
+  { href: "/portal/media", label: "Media", icon: "clarity" as const },
   { href: "/portal/invoices", label: "Facturas", icon: "billing" as const },
   { href: "/portal/incidents", label: "Incidencias", icon: "incident" as const },
   { href: "/portal/profile", label: "Perfil", icon: "portal" as const }
